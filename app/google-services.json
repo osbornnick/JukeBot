@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "170730567516",
+    "project_id": "jukebot-3abc9",
+    "storage_bucket": "jukebot-3abc9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:170730567516:android:7358be96dffd7e205ab399",
+        "android_client_info": {
+          "package_name": "com.osbornnick.jukebot"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "170730567516-j95cei8gmujbfm9aj1pb39afas7g0e0c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBsZ0cU9kFzhEPQYntG2ZbyuBJMR7Em6-g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "170730567516-j95cei8gmujbfm9aj1pb39afas7g0e0c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
