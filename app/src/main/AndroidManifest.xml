@@ -14,6 +14,9 @@
         android:theme="@style/Theme.JukeBot"
         tools:targetApi="31">
         <activity
+            android:name=".PersonalSettingsActivity"
+            android:exported="false" />
+        <activity
             android:name=".StartSessionActivity"
             android:exported="false" />
         <activity
