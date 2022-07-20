@@ -13,10 +13,15 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.spotify.sdk.android.auth.AuthorizationClient;
 import com.spotify.sdk.android.auth.AuthorizationRequest;
 import com.spotify.sdk.android.auth.AuthorizationResponse;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -118,7 +123,7 @@ public class HomeActivity extends AppCompatActivity {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        //onPostExecute(result);
+                        onPostExecute(result);
                     }
                 });
             }
@@ -162,4 +167,24 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    public void onPostExecute(String result) {
+
+        if (result == null) {
+            Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        try {
+            JSONObject obj = new JSONObject(result);
+            Log.d(TAG, "onPostExecute: " + obj);
+            JSONArray jsonArray = obj.getJSONArray("display_name");
+            Log.d(TAG, "onPostExecute: " + jsonArray.getString(0));
+
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "No data available", Toast.LENGTH_SHORT).show();
+
+        }
+    }
 }
