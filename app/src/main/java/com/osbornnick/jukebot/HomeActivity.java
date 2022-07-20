@@ -3,7 +3,6 @@ package com.osbornnick.jukebot;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -27,12 +26,23 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         TextView tv_play = (TextView) findViewById(R.id.start_session);
+        TextView tv_join = (TextView) findViewById(R.id.join_group);
+
         ImageView img_settings = (ImageView) findViewById(R.id.personal_settings);
 
         tv_play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 authenticate();
+            }
+        });
+
+        tv_join.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (view.getId() == R.id.join_group) {
+                    getSupportFragmentManager().beginTransaction().setReorderingAllowed(true).replace(R.id.action_bar_container, new JoinSessionFragment()).commit();
+                }
             }
         });
 
