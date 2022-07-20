@@ -7,25 +7,30 @@ Additional Icon Source: Leaving Session Icon: https://www.flaticon.com/free-icon
 
 schema:
 ```
-user {
-	email
-	spotify auth
-	password
-	username
-	memberOf: []
+users {
+	user {
+		email
+		spotify auth // ?
+		password
+		username
+		memberOf: [] // sessions
+		settings // ?
+	}
 }
 
-session {
-	join_code // ?
-	name
-	owner
-	playlist_id
-	members: []
+sessions {
+	session_id {
+		join_code // ?
+		name
+		owner
+		playlist_id
+		members: []
+	}
 }
 
 queues {
 	session_id {
-		id {
+		song_id { // song details from spotify?
 			upvotes: [users]
 			downvotes: [users]
 			cumulative
@@ -35,21 +40,13 @@ queues {
 
 chats {
 	session_id {
-		chat {
+		message_id {
 			sentBy
 			messageBody
 			createdAt
 			messageType
 		}
 	}
-}
-
-messeges {
-	session_id
-	user_sending
-	text
-	createdAt
-	messageType
 }
 
 playlist {
