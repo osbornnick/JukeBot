@@ -9,8 +9,10 @@ import android.media.Image;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,6 +24,7 @@ import com.spotify.sdk.android.auth.AuthorizationResponse;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -46,6 +49,8 @@ public class HomeActivity extends AppCompatActivity {
     private InputStream mInputStream = null;
     private String error = null;
     private String result = null;
+    private String display_name = null;
+    private TextView mName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +58,15 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
         TextView tv_play = (TextView) findViewById(R.id.start_session);
         ImageView img_settings = (ImageView) findViewById(R.id.personal_settings);
+        mName = (TextView) findViewById(R.id.txt_displayName);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String name = preferences.getString("Name", "");
+        if(!name.equalsIgnoreCase(""))
+        {
+            name = "Hello " + name;
+        }
+        Log.d(TAG, "onCreate: displayname" + display_name);
+        mName.setText(name);
 
         tv_play.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,9 +107,6 @@ public class HomeActivity extends AppCompatActivity {
                     editor = getSharedPreferences("Spotify",0).edit();
                     editor.putString("token", response.getAccessToken());
                     editor.apply();
-                    Intent intent = new Intent(HomeActivity.this, StartSessionActivity.class);
-                    intent.putExtra(AUTH_TOKEN, response.getAccessToken());
-                    startActivity(intent);
                     destroy();
                     break;
                 case ERROR:
@@ -176,9 +187,19 @@ public class HomeActivity extends AppCompatActivity {
         try {
             JSONObject obj = new JSONObject(result);
             Log.d(TAG, "onPostExecute: " + obj);
-            JSONArray jsonArray = obj.getJSONArray("display_name");
-            Log.d(TAG, "onPostExecute: " + jsonArray.getString(0));
-
+            display_name = obj.getString("display_name");
+            String email = obj.getString("email");
+            Log.d(TAG, "onPostExecute: display_name " + display_name );
+            Log.d(TAG, "onPostExecute: email " + email );
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("Name",display_name);
+            editor.apply();
+            mName.setText(display_name);
+            Intent intent = new Intent(HomeActivity.this, StartSessionActivity.class);
+            intent.putExtra("display_name",display_name);
+            intent.putExtra("email", email);
+            startActivity(intent);
 
 
         } catch (JSONException e) {
