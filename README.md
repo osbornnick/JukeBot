@@ -20,8 +20,17 @@ session {
 	name
 	owner
 	playlist_id
-	queue (first is currently playing?)
 	members: []
+}
+
+queues {
+	session_id {
+		id {
+			upvotes: [users]
+			downvotes: [users]
+			cumulative
+		}
+	}
 }
 
 chats {
