@@ -12,6 +12,7 @@ user {
 	spotify auth
 	password
 	username
+	memberOf: []
 }
 
 session {
@@ -20,6 +21,7 @@ session {
 	owner
 	playlist_id
 	queue (first is currently playing?)
+	members: []
 }
 
 chats {
