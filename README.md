@@ -15,6 +15,7 @@ user {
 }
 
 session {
+	join_code // ?
 	name
 	owner
 	playlist_id
