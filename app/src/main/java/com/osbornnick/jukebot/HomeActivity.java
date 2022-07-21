@@ -11,6 +11,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -90,6 +92,7 @@ public class HomeActivity extends AppCompatActivity {
         builder.setScopes(new String[]{"user-read-email"});
         AuthorizationRequest request = builder.build();
         AuthorizationClient.openLoginActivity(this, REQUEST_CODE, request);
+        //AuthorizationClient.clearCookies(context);
     }
 
     @Override
@@ -195,7 +198,6 @@ public class HomeActivity extends AppCompatActivity {
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString("Name",display_name);
             editor.apply();
-            mName.setText(display_name);
             Intent intent = new Intent(HomeActivity.this, StartSessionActivity.class);
             intent.putExtra("display_name",display_name);
             intent.putExtra("email", email);
@@ -206,6 +208,27 @@ public class HomeActivity extends AppCompatActivity {
             e.printStackTrace();
             Toast.makeText(this, "No data available", Toast.LENGTH_SHORT).show();
 
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.nav_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.logout:
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                prefs.edit().remove("Name").apply();
+                AuthorizationClient.clearCookies(HomeActivity.this);
+                Intent intent = new Intent(HomeActivity.this, HomeActivity.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 }
