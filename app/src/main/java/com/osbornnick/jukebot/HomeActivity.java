@@ -89,7 +89,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private void authenticate(){
         AuthorizationRequest.Builder builder = new AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.TOKEN, REDIRECT_URI);
-        builder.setScopes(new String[]{"user-read-email"});
+        builder.setScopes(new String[]{"user-read-email","user-read-private"});
         AuthorizationRequest request = builder.build();
         AuthorizationClient.openLoginActivity(this, REQUEST_CODE, request);
         //AuthorizationClient.clearCookies(context);
@@ -192,11 +192,14 @@ public class HomeActivity extends AppCompatActivity {
             Log.d(TAG, "onPostExecute: " + obj);
             display_name = obj.getString("display_name");
             String email = obj.getString("email");
+            String country = obj.getString("country");
             Log.d(TAG, "onPostExecute: display_name " + display_name );
             Log.d(TAG, "onPostExecute: email " + email );
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString("Name",display_name);
+            editor.putString("Email",email);
+            editor.putString("Country",country);
             editor.apply();
             Intent intent = new Intent(HomeActivity.this, StartSessionActivity.class);
             intent.putExtra("display_name",display_name);
