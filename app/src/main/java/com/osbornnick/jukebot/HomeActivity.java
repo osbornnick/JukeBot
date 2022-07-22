@@ -226,6 +226,8 @@ public class HomeActivity extends AppCompatActivity {
             case R.id.logout:
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                 prefs.edit().remove("Name").apply();
+                prefs.edit().remove("Email").apply();
+                prefs.edit().remove("Country").apply();
                 AuthorizationClient.clearCookies(HomeActivity.this);
                 Intent intent = new Intent(HomeActivity.this, HomeActivity.class);
                 startActivity(intent);
