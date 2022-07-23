@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/surface">
 
     <TextView
         android:id="@+id/songTitle"
@@ -13,6 +14,7 @@
         android:layout_marginTop="6dp"
         android:text="Song Name"
         android:textSize="18sp"
+        android:textColor="@color/onSurface"
         app:layout_constraintEnd_toStartOf="@+id/score"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,6 +28,7 @@
         android:layout_marginTop="6dp"
         android:text="Song Artist"
         android:textSize="16sp"
+        android:textColor="@color/onSurface"
         app:layout_constraintEnd_toStartOf="@+id/score"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -39,6 +42,7 @@
         android:layout_marginTop="18dp"
         android:layout_marginBottom="6dp"
         android:text="Suggested by: user"
+        android:textColor="@color/onSurface"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/score"
         app:layout_constraintHorizontal_bias="0.0"
@@ -49,6 +53,8 @@
         android:id="@+id/voteUp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:contentDescription="Increase Vote by 1"
+        android:background="@android:color/transparent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/voteDown"
         app:layout_constraintTop_toTopOf="parent"
@@ -59,6 +65,8 @@
         android:id="@+id/voteDown"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:contentDescription="Decrease Vote by 1"
+        android:background="@android:color/transparent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/delete"
         app:layout_constraintTop_toTopOf="parent"
@@ -69,6 +77,8 @@
         android:id="@+id/delete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:contentDescription="Remove Song from Queue"
+        android:background="@android:color/transparent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -80,11 +90,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="+ 7"
-        android:textSize="20sp"
+        android:textSize="24sp"
+        android:textColor="@color/onSurface"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/voteUp"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginEnd="6dp"/>
+        android:layout_marginEnd="10dp"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
