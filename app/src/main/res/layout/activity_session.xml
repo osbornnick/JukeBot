@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".SessionActivity"
-    android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+    android:theme="@style/jukebot"
     >
 
     <com.google.android.material.appbar.AppBarLayout
@@ -15,6 +15,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:theme="@style/jukebot"
         >
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -28,6 +29,9 @@
                 android:contentDescription="Go Back"
                 android:elevation="6sp"
                 android:minHeight="48dp"
+                android:background="@android:color/transparent"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/addFriend"
                 app:layout_constraintHorizontal_bias="0.0"
@@ -42,6 +46,9 @@
                 android:contentDescription="Leave Session"
                 android:elevation="6dp"
                 android:minHeight="48dp"
+                android:background="@android:color/transparent"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -54,6 +61,9 @@
                 android:contentDescription="Session Chat"
                 android:elevation="6dp"
                 android:minHeight="48dp"
+                android:background="@android:color/transparent"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/sessionSettings"
                 app:layout_constraintTop_toTopOf="parent"
@@ -66,6 +76,9 @@
                 android:contentDescription="Session Settings"
                 android:elevation="6dp"
                 android:minHeight="48dp"
+                android:background="@android:color/transparent"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/leaveSession"
                 app:layout_constraintTop_toTopOf="parent"
@@ -78,6 +91,9 @@
                 android:contentDescription="Add User to Session"
                 android:elevation="6dp"
                 android:minHeight="48dp"
+                android:background="@android:color/transparent"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/sessionChat"
                 app:layout_constraintTop_toTopOf="parent"
@@ -92,6 +108,7 @@
                 android:layout_marginBottom="6dp"
                 android:elevation="6dp"
                 android:text="Session Name"
+                android:textStyle="bold"
                 android:textColor="@color/white"
                 android:textSize="24sp"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -110,7 +127,8 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+                app:layout_constraintBottom_toBottomOf="parent"
+                />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -139,6 +157,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:text="Song Title"
+        android:textStyle="bold"
         android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/songArtist"
         app:layout_constraintStart_toStartOf="@+id/coverArt"
@@ -155,7 +174,7 @@
         app:layout_constraintStart_toStartOf="@+id/songTitle"
         app:layout_constraintTop_toBottomOf="@+id/songTitle" />
 
-    <com.google.android.material.slider.Slider
+    <SeekBar
         android:id="@+id/songProgressBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -267,6 +286,7 @@
         android:layout_marginBottom="6dp"
         android:textSize="14sp"
         android:text="Next In Queue"
+        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/songQueue"
         app:layout_constraintStart_toStartOf="@+id/songQueue"
         app:layout_constraintTop_toBottomOf="@+id/playButton"
