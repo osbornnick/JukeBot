@@ -6,4 +6,23 @@
     android:layout_height="match_parent"
     tools:context=".SessionSettingsActivity">
 
+    <Switch
+        android:id="@+id/joinSessionSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Allow Users To Join"
+        app:layout_constraintBottom_toTopOf="@+id/deviceSearch"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/deviceSearch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Find a Blueooth Device"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/joinSessionSwitch" />
 </androidx.constraintlayout.widget.ConstraintLayout>
