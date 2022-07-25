@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.se.omapi.Session;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,6 +23,11 @@ public class MainActivity extends AppCompatActivity {
     // temp code
     public void Home(View view){
         Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+        startActivity(intent);
+    }
+
+    public void SessionSettings(View view){
+        Intent intent = new Intent(MainActivity.this, SessionSettingsActivity.class);
         startActivity(intent);
     }
 

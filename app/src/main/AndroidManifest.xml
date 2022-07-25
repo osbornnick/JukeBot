@@ -3,7 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.osbornnick.jukebot">
 
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
     <application
         android:allowBackup="true"
@@ -15,6 +20,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.JukeBot"
         tools:targetApi="31">
+        <activity
+            android:name=".BluetoothActivity"
+            android:exported="false" />
         <activity
             android:name=".ProfileActivity"
             android:exported="false" />
