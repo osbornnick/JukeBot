@@ -99,8 +99,4 @@ public class LoginActivity extends AppCompatActivity {
         return valid;
     }
 
-    private void makeSnackbar() {
-        Snackbar.make(findViewById(R.id.cLayout), R.string.successful_login, BaseTransientBottomBar.LENGTH_SHORT).show();
-    }
-
 }
