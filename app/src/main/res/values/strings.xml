@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">JukeBot</string>
+    <string name="login">LOGIN</string>
+    <string name="jukebot">JukeBot</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="create_account">Create Account</string>
+    <string name="successful_login">Logged in!</string>
 </resources>
