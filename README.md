@@ -9,9 +9,7 @@ schema:
 ```
 users {
 	user {
-		email
 		spotify auth // ?
-		password
 		username
 		memberOf: [] // sessions
 		settings // ?
