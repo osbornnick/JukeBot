@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="@string/username"
+            android:hint="username"
             android:inputType="textPersonName"
             android:minHeight="48dp" />
 
@@ -48,11 +48,11 @@
 
         <EditText
             android:id="@+id/pw2"
-            android:layout_marginHorizontal="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
             android:ems="10"
-            android:hint="@string/confirm_password"
+            android:hint="confirm_password"
             android:inputType="textPassword"
             android:minHeight="48dp"
             android:textColorHint="#757575" />
@@ -71,7 +71,7 @@
             android:layout_gravity="end"
             android:layout_marginHorizontal="10dp"
             android:onClick="handleSignup"
-            android:text="@string/create" />
+            android:text="create" />
     </LinearLayout>
 
     <TextView

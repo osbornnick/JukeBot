@@ -1,25 +1,22 @@
 package com.osbornnick.jukebot;
 
-import java.util.Date;
-
 public class Message {
 
         private String messageText;
         private String messageUser;
-        private long messageTime;
+        private String messageTime;
 
-        public Message(String messageText, String messageUser) {
+        public Message(String messageText, String messageUser, String messageTime) {
             this.messageText = messageText;
             this.messageUser = messageUser;
-
-            messageTime = new Date().getTime();
+            this.messageTime = messageTime;
         }
 
-    public Message(String messageText) {
+        public Message(){
 
-    }
+        }
 
-    public String getMessageText() {
+        public String getMessageText() {
             return messageText;
         }
 
@@ -35,12 +32,9 @@ public class Message {
             this.messageUser = messageUser;
         }
 
-        public long getMessageTime() {
+        public String getMessageTime() {
             return messageTime;
         }
 
-        public void setMessageTime(long messageTime) {
-            this.messageTime = messageTime;
-        }
 
 }
