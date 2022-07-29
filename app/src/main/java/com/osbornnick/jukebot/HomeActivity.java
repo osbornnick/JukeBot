@@ -1,4 +1,4 @@
-package com.osbornnick.jukebot1;
+package com.osbornnick.jukebot;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -15,10 +15,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.spotify.sdk.android.auth.AuthorizationClient;
-import com.spotify.sdk.android.auth.AuthorizationRequest;
-import com.spotify.sdk.android.auth.AuthorizationResponse;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -33,10 +29,7 @@ import java.util.concurrent.Executors;
 public class HomeActivity extends AppCompatActivity {
 
     private static final String TAG = "HomeActivity";
-    private static final int REQUEST_CODE = 1337;
-    private static final String AUTH_TOKEN = "AUTH_TOKEN";
-    private static final String CLIENT_ID = "690520ea8148443da28b0dd4555c8ef2";
-    private static final String REDIRECT_URI = "com.jukebot://callback";
+
     private SharedPreferences.Editor editor;
     private SharedPreferences msharedPreferences;
     private String token = null;
@@ -64,7 +57,6 @@ public class HomeActivity extends AppCompatActivity {
         Log.d(TAG, "onCreate: displayname" + display_name);
         mName.setText(name);
 
-        tv_play.setOnClickListener(v -> authenticate());
 
         img_settings.setOnClickListener(v -> {
             Intent intent = new Intent(HomeActivity.this, PersonalSettingsActivity.class);
@@ -73,38 +65,6 @@ public class HomeActivity extends AppCompatActivity {
 
     }
 
-    private void authenticate(){
-        AuthorizationRequest.Builder builder = new AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.TOKEN, REDIRECT_URI);
-        builder.setScopes(new String[]{"user-read-email","user-read-private", "streaming"});
-        AuthorizationRequest request = builder.build();
-        AuthorizationClient.openLoginActivity(this, REQUEST_CODE, request);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, final int resultCode, Intent data) {
-
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == REQUEST_CODE) {
-            AuthorizationResponse response = AuthorizationClient.getResponse(resultCode, data);
-            switch (response.getType()) {
-                case TOKEN:
-                    Log.d(TAG, "onActivityResult: " + response.getAccessToken());
-                    token = response.getAccessToken();
-                    getUserProfile();
-                    editor = getSharedPreferences("Spotify",0).edit();
-                    editor.putString("token", response.getAccessToken());
-                    editor.apply();
-                    destroy();
-                    break;
-                case ERROR:
-                    Log.d(TAG, "onActivityResult: " + response.getError());
-                    break;
-                default:
-                    Log.d(TAG, "onActivityResult: " + response.getType());
-            }
-        }
-    }
 
     public void destroy(){
         HomeActivity.this.finish();
@@ -205,7 +165,6 @@ public class HomeActivity extends AppCompatActivity {
                 prefs.edit().remove("Name").apply();
                 prefs.edit().remove("Email").apply();
                 prefs.edit().remove("Country").apply();
-                AuthorizationClient.clearCookies(HomeActivity.this);
                 Intent intent = new Intent(HomeActivity.this, HomeActivity.class);
                 startActivity(intent);
                 return true;
