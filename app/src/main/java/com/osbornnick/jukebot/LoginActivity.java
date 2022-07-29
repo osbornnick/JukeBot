@@ -1,7 +1,8 @@
-package com.osbornnick.jukebot1;
+package com.osbornnick.jukebot;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -67,20 +68,10 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void handleSignup(View v) {
-        if (!validate()) return;
-        progressBar.setVisibility(View.VISIBLE);
-        String email = emailTV.getText().toString();
-        String password = passwordTV.getText().toString();
-        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
-            if (task.isSuccessful()) {
-                this.onBackPressed();
-            } else {
-                uiHandler.post(() -> {
-                    statusTV.setText(task.getException().getLocalizedMessage());
-                    progressBar.setVisibility(View.INVISIBLE);
-                });
-            }
-        });
+        Intent i = new Intent(this, CreateAccountActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(i);
+
     }
 
     private boolean validate() {
