@@ -1,4 +1,4 @@
-package com.osbornnick.jukebot1;
+package com.osbornnick.jukebot;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -12,7 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.osbornnick.jukebot1.placeholder.PlaceholderContent;
+import com.osbornnick.jukebot.placeholder.PlaceholderContent;
 
 /**
  * A fragment representing a list of Items.

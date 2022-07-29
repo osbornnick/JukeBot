@@ -1,4 +1,4 @@
-package com.osbornnick.jukebot1;
+package com.osbornnick.jukebot;
 
 import androidx.appcompat.app.AppCompatActivity;
 

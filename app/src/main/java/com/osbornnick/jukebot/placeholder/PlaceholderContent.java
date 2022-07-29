@@ -1,4 +1,4 @@
-package com.osbornnick.jukebot1.placeholder;
+package com.osbornnick.jukebot.placeholder;
 
 import java.util.ArrayList;
 import java.util.HashMap;

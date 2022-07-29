@@ -1,4 +1,4 @@
-package com.osbornnick.jukebot1;
+package com.osbornnick.jukebot;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -6,8 +6,8 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.osbornnick.jukebot1.placeholder.PlaceholderContent.PlaceholderItem;
-import com.osbornnick.jukebot1.databinding.FragmentActiveSessionsBinding;
+import com.osbornnick.jukebot.placeholder.PlaceholderContent.PlaceholderItem;
+import com.osbornnick.jukebot.databinding.FragmentActiveSessionsBinding;
 
 import java.util.List;
 
