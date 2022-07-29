@@ -3,13 +3,7 @@ package com.osbornnick.jukebot;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.se.omapi.Session;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 
 public class MainActivity extends AppCompatActivity {
@@ -20,6 +14,21 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
     }
 
+    public void SpotifyAuth(View view) {
+        Intent i = new Intent(this, SpotifyTestActivity.class);
+        startActivity(i);
+    }
+
+    public void login(View view) {
+        Intent i = new Intent(this, LoginActivity.class);
+        startActivity(i);
+    }
+
+    public void createAccount(View view) {
+        Intent i = new Intent(this, CreateAccountActivity.class);
+        startActivity(i);
+
+    }
     // temp code
     public void Home(View view){
         Intent intent = new Intent(MainActivity.this, HomeActivity.class);
