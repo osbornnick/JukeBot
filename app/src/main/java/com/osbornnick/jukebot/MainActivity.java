@@ -1,4 +1,4 @@
-package com.osbornnick.jukebot1;
+package com.osbornnick.jukebot;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -12,10 +12,23 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+    }
+
+    public void SpotifyAuth(View view) {
         Intent i = new Intent(this, SpotifyTestActivity.class);
         startActivity(i);
     }
 
+    public void login(View view) {
+        Intent i = new Intent(this, LoginActivity.class);
+        startActivity(i);
+    }
+
+    public void createAccount(View view) {
+        Intent i = new Intent(this, CreateAccountActivity.class);
+        startActivity(i);
+
+    }
     // temp code
     public void Home(View view){
         Intent intent = new Intent(MainActivity.this, HomeActivity.class);
