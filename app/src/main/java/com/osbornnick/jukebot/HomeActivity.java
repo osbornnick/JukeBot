@@ -1,11 +1,9 @@
-package com.osbornnick.jukebot;
+package com.osbornnick.jukebot1;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.media.Image;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,8 +11,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,10 +19,8 @@ import com.spotify.sdk.android.auth.AuthorizationClient;
 import com.spotify.sdk.android.auth.AuthorizationRequest;
 import com.spotify.sdk.android.auth.AuthorizationResponse;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -70,29 +64,20 @@ public class HomeActivity extends AppCompatActivity {
         Log.d(TAG, "onCreate: displayname" + display_name);
         mName.setText(name);
 
-        tv_play.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                authenticate();
-            }
-        });
+        tv_play.setOnClickListener(v -> authenticate());
 
-        img_settings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(HomeActivity.this, PersonalSettingsActivity.class);
-                startActivity(intent);
-            }
+        img_settings.setOnClickListener(v -> {
+            Intent intent = new Intent(HomeActivity.this, PersonalSettingsActivity.class);
+            startActivity(intent);
         });
 
     }
 
     private void authenticate(){
         AuthorizationRequest.Builder builder = new AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.TOKEN, REDIRECT_URI);
-        builder.setScopes(new String[]{"user-read-email","user-read-private"});
+        builder.setScopes(new String[]{"user-read-email","user-read-private", "streaming"});
         AuthorizationRequest request = builder.build();
         AuthorizationClient.openLoginActivity(this, REQUEST_CODE, request);
-        //AuthorizationClient.clearCookies(context);
     }
 
     @Override
@@ -100,9 +85,9 @@ public class HomeActivity extends AppCompatActivity {
 
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == REQUEST_CODE){
+        if (requestCode == REQUEST_CODE) {
             AuthorizationResponse response = AuthorizationClient.getResponse(resultCode, data);
-            switch (response.getType()){
+            switch (response.getType()) {
                 case TOKEN:
                     Log.d(TAG, "onActivityResult: " + response.getAccessToken());
                     token = response.getAccessToken();
@@ -129,18 +114,10 @@ public class HomeActivity extends AppCompatActivity {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Handler handler = new Handler(Looper.getMainLooper());
 
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                //Background work here
-                doInBackground("https://api.spotify.com/v1/me");
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        onPostExecute(result);
-                    }
-                });
-            }
+        executor.execute(() -> {
+            //Background work here
+            doInBackground("https://api.spotify.com/v1/me");
+            handler.post(() -> onPostExecute(result));
         });
     }
 

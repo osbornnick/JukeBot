@@ -1,13 +1,10 @@
-package com.osbornnick.jukebot;
+package com.osbornnick.jukebot1;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
-import android.view.View;
 import android.widget.TextView;
 
 public class ProfileActivity extends AppCompatActivity {
