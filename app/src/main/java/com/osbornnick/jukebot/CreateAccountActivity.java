@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -12,7 +14,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.ServerTimestamp;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +40,8 @@ public class CreateAccountActivity extends AppCompatActivity {
         passwordTV = findViewById(R.id.pw1);
         passwordConfirmTV = findViewById(R.id.pw2);
         statusTV = findViewById(R.id.statusMsg);
+        mAuth = FirebaseAuth.getInstance();
+        uiHandler = new Handler(Looper.getMainLooper());
     }
 
     public void handleSignup(View view) {
@@ -46,6 +49,7 @@ public class CreateAccountActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         String email = emailTV.getText().toString();
         String password = passwordTV.getText().toString();
+        Log.d("handleSignup", email + " " + password);
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
             if (task.isSuccessful()) {
                 FirebaseUser newUser = mAuth.getCurrentUser();
@@ -86,7 +90,9 @@ public class CreateAccountActivity extends AppCompatActivity {
         }
 
         if (passwordConfirmTV.getText() != null && passwordTV.getText() != null) {
-            if (!passwordTV.getText().equals(passwordConfirmTV.getText())) {
+            String pw1 = passwordTV.getText().toString();
+            String pw2 = passwordConfirmTV.getText().toString();
+            if (!pw1.equals(pw2)) {
                 passwordConfirmTV.setError("Passwords must match");
                 valid = false;
             }
