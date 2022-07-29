@@ -31,5 +31,10 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void SessionChat(View view){
+        Intent intent = new Intent(MainActivity.this, SessionChatActivity.class);
+        startActivity(intent);
+    }
+
 
 }

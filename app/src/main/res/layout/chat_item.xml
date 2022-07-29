@@ -10,15 +10,15 @@
         android:id="@+id/userChatLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginStart="12dp">
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/userChat"
@@ -26,8 +26,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:text="Lorem Ipsum"
-            android:textSize="14sp"
             android:textColor="@color/onSurface"
+            android:textSize="14sp"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/user"
             app:layout_constraintTop_toTopOf="@+id/user" />
@@ -42,49 +42,19 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/selfChatLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginStart="12dp"
-        app:layout_constraintHorizontal_bias="1.0">
-
         <TextView
-            android:id="@+id/selfChat"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Lorem Ipsum"
-            android:textColor="@color/onSurface"
-            android:textSize="14sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
-
-        <TextView
-            android:id="@+id/selfUser"
+            android:id="@+id/time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Me"
-            android:textColor="@color/primary"
-            android:textSize="14sp"
-            app:layout_constraintEnd_toStartOf="@+id/selfChat"
-            android:layout_marginEnd="8dp"
-            app:layout_constraintHorizontal_bias="1.0"
+            android:text="TimeStamp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/user"
+            app:layout_constraintVertical_bias="0.0" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
