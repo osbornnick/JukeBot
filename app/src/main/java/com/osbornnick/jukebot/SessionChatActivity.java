@@ -77,12 +77,12 @@ public class SessionChatActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.message_recycler);
+        setContentView(R.layout.activity_session_chat);
         send = findViewById(R.id.fab_send);
         message = findViewById(R.id.message);
 
         //mSessionChatActivity = (ConstraintLayout) findViewById(R.id.activity_session_chat);
-        mButton = (ImageButton) findViewById(R.id.submitButton);
+        //mButton = (ImageButton) findViewById(R.id.submitButton);
         //mMessage = findViewById(R.id.chatInputLayout);
         mRecyclerView = findViewById(R.id.recyclerView);
         mList = new ArrayList<>();
