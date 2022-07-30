@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -74,6 +75,7 @@ public class SessionChatActivity extends AppCompatActivity {
     ImageButton mButton;
     RecyclerView mRecyclerView;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,8 +87,8 @@ public class SessionChatActivity extends AppCompatActivity {
         //mButton = (ImageButton) findViewById(R.id.submitButton);
         //mMessage = findViewById(R.id.chatInputLayout);
         mRecyclerView = findViewById(R.id.recyclerView);
+        scrollToBot();
         mList = new ArrayList<>();
-
         try {
 
             if (FirebaseAuth.getInstance().getCurrentUser() == null) {
@@ -108,18 +110,21 @@ public class SessionChatActivity extends AppCompatActivity {
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                scrollToBot();
                 String msg = message.getEditText().getText().toString();
-                timeStamp = new SimpleDateFormat("MM-dd-yy HH:mm:sa").format(Calendar.getInstance().getTime());
+                timeStamp = new SimpleDateFormat("MM-dd-yy HH:mm:ssa").format(Calendar.getInstance().getTime());
                 db.collection("Messages").add(new Message(msg,uEmail,timeStamp)).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentReference> task) {
                         receiveMessages();
                         hideKeyboard(SessionChatActivity.this);
+                        //scrollToBottom(SessionChatActivity.this);
                         message.getEditText().setText("");
                     }
                 });
             }
         });
+
         update();
     }
 
@@ -129,6 +134,12 @@ public class SessionChatActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(linearLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        receiveMessages();
     }
 
     @Override
@@ -167,6 +178,46 @@ public class SessionChatActivity extends AppCompatActivity {
             view = new View(activity);
         }
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
+
+//        view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+//            @Override
+//            public void onGlobalLayout() {
+//                int heightDiff = finalView.getRootView().getHeight() - finalView.getHeight();
+//                if (heightDiff > 100) {
+//                    if (mAdapter.getItemCount() > 0)
+//                        mRecyclerView.smoothScrollToPosition(mList.size() - 1);
+//                }
+//            }
+//        });
     }
+
+    public void scrollToBottom(Activity activity){
+        View view = activity.getCurrentFocus();
+        if (view == null) {
+            view = new View(activity);
+        }
+        View finalView = view;
+        view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                int heightDiff = finalView.getRootView().getHeight() - finalView.getHeight();
+                if (heightDiff > 100) {
+                    if (mAdapter.getItemCount() > 0)
+                        mRecyclerView.smoothScrollToPosition(mList.size() - 1);
+                }
+            }
+        });
+    }
+
+    public void scrollToBot(){
+        mRecyclerView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.scrollToPosition(mRecyclerView.getAdapter().getItemCount() - 1);
+            }
+        }, 1000);
+    }
+
 
 }
