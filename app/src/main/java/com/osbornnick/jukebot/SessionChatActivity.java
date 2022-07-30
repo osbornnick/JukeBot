@@ -46,14 +46,23 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.osbornnick.jukebot.databinding.ActivitySessionChatBinding;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Locale;
 
 public class SessionChatActivity extends AppCompatActivity {
 
@@ -70,6 +79,7 @@ public class SessionChatActivity extends AppCompatActivity {
     String timeStamp = null;
     TextInputLayout message;
     FloatingActionButton send;
+    private ActivitySessionChatBinding binding;
 
     //ConstraintLayout mSessionChatActivity;
     ImageButton mButton;
@@ -79,16 +89,20 @@ public class SessionChatActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_session_chat);
+        binding = ActivitySessionChatBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
         send = findViewById(R.id.fab_send);
         message = findViewById(R.id.message);
-
+        mList = new ArrayList<>();
+        db = FirebaseFirestore.getInstance();
         //mSessionChatActivity = (ConstraintLayout) findViewById(R.id.activity_session_chat);
         //mButton = (ImageButton) findViewById(R.id.submitButton);
         //mMessage = findViewById(R.id.chatInputLayout);
         mRecyclerView = findViewById(R.id.recyclerView);
         scrollToBot();
-        mList = new ArrayList<>();
+        listenMessages();
+        //receiveMessages();
+
         try {
 
             if (FirebaseAuth.getInstance().getCurrentUser() == null) {
@@ -105,23 +119,22 @@ public class SessionChatActivity extends AppCompatActivity {
             Log.d(TAG, "onCreate: " + e);
         }
 
-        db = FirebaseFirestore.getInstance();
-
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 scrollToBot();
                 String msg = message.getEditText().getText().toString();
-                timeStamp = new SimpleDateFormat("MM-dd-yy HH:mm:ssa").format(Calendar.getInstance().getTime());
+                timeStamp = new SimpleDateFormat("MM-dd-yy HH:mm:ssa", Locale.getDefault()).format(new Date());
                 db.collection("Messages").add(new Message(msg,uEmail,timeStamp)).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentReference> task) {
-                        receiveMessages();
+                        //listenMessages();
                         hideKeyboard(SessionChatActivity.this);
                         //scrollToBottom(SessionChatActivity.this);
                         message.getEditText().setText("");
                     }
                 });
+
             }
         });
 
@@ -136,34 +149,67 @@ public class SessionChatActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        receiveMessages();
+    private void listenMessages(){
+        db.collection("Messages").orderBy("messageTime").addSnapshotListener(eventListener);
     }
 
-    @Override
-    protected void onStart(){
-        super.onStart();
-        receiveMessages();
-    }
+    private final EventListener<QuerySnapshot> eventListener = new EventListener<QuerySnapshot>() {
+        @Override
+        public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+            if (error != null) return;
+            if (value != null){
+                int count = mList.size();
+                for (DocumentChange document : value.getDocumentChanges()) {
+                    if (document.getType() == DocumentChange.Type.ADDED) {
+                        Message msg = new Message();
+                        msg.messageText = document.getDocument().getString("messageText");
+                        msg.messageTime = document.getDocument().getString("messageTime");
+                        msg.messageUser = document.getDocument().getString("messageUser");
+                        mList.add(msg);
+                    }
+                }
+                //Collections.sort(mList, Comparator.comparing(obj -> obj.messageTime));
+
+                if (count == 0){
+                    mAdapter.notifyDataSetChanged();
+                } else {
+                    mAdapter.notifyItemRangeInserted(mList.size(), mList.size());
+                    binding.recyclerView.smoothScrollToPosition(mList.size()-1);
+                }
+                binding.recyclerView.setVisibility(View.VISIBLE);
+            }
+        }
+    };
 
     private void receiveMessages(){
+        int count = mList.size();
         db.collection("Messages").orderBy("messageTime").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     mList.clear();
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        Log.d(TAG, document.getId() + " => " + document.getData());
+                    for (DocumentChange document : task.getResult().getDocumentChanges()) {
+                        if (document.getType() == DocumentChange.Type.ADDED){
+                            Message msg = new Message();
+                            msg.messageText = document.getDocument().getString("messageText");
+                            msg.messageTime = document.getDocument().getString("messageTime");
+                            msg.messageUser = document.getDocument().getString("messageUser");
+                            mList.add(msg);
+                        }
+                        //Log.d(TAG, document.getId() + " => " + document.getData());
 
-                        Message message = document.toObject(Message.class);
-                        mAdapter.addMessage(message);
-//                     mList.add(message);
+                        //Message message = document.toObject(Message.class);
+                        //mAdapter.addMessage(message);
+                //mList.add(message);
 //                     mAdapter.notifyDataSetChanged();
-
-
                     }
+                    if (count == 0){
+                        mAdapter.notifyDataSetChanged();
+                    } else {
+                        mAdapter.notifyItemRangeInserted(mList.size(), mList.size());
+                        binding.recyclerView.smoothScrollToPosition(mList.size()-1);
+                    }
+                    binding.recyclerView.setVisibility(View.VISIBLE);
                 } else {
                     Log.w(TAG, "Error getting documents.", task.getException());
                 }
@@ -218,6 +264,5 @@ public class SessionChatActivity extends AppCompatActivity {
             }
         }, 1000);
     }
-
 
 }

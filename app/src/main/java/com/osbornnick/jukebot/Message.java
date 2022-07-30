@@ -2,9 +2,9 @@ package com.osbornnick.jukebot;
 
 public class Message {
 
-        private String messageText;
-        private String messageUser;
-        private String messageTime;
+        public String messageText;
+        public String messageUser;
+        public String messageTime;
 
         public Message(String messageText, String messageUser, String messageTime) {
             this.messageText = messageText;

@@ -29,7 +29,6 @@ public class MessageRecyclerViewAdapter extends RecyclerView.Adapter<MessageRecy
         notifyDataSetChanged();
 
     }
-
     @NonNull
     @Override
     public MessageRecyclerViewAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
