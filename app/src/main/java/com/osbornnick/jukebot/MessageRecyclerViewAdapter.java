@@ -1,5 +1,6 @@
 package com.osbornnick.jukebot;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,10 +23,17 @@ public class MessageRecyclerViewAdapter extends RecyclerView.Adapter<MessageRecy
         this.list = list;
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    public void addMessage(Message msg){
+        list.add(msg);
+        notifyDataSetChanged();
+
+    }
+
     @NonNull
     @Override
     public MessageRecyclerViewAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.chat_item, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.message_item, parent, false);
         return new ViewHolder(view);
     }
 
@@ -47,9 +55,9 @@ public class MessageRecyclerViewAdapter extends RecyclerView.Adapter<MessageRecy
         TextView username, message, dateTime;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            message = (TextView) itemView.findViewById(R.id.userChat);
-            username = (TextView) itemView.findViewById(R.id.user);
-            dateTime = (TextView) itemView.findViewById(R.id.time);
+            message = itemView.findViewById(R.id.user_message);
+            username = itemView.findViewById(R.id.user_email);
+            dateTime = itemView.findViewById(R.id.user_date_time);
         }
     }
 }
