@@ -5,5 +5,8 @@
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="create_account">Create Account</string>
-    <string name="successful_login">Logged in!</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="username">username</string>
+    <string name="create">Create</string>
+    <string name="continue_anonymously"><u>Continue anonymously</u></string>
 </resources>

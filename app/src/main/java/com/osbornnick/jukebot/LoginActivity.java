@@ -1,5 +1,6 @@
 package com.osbornnick.jukebot;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -11,6 +12,9 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -19,6 +23,7 @@ public class LoginActivity extends AppCompatActivity {
     TextView emailTV;
     TextView passwordTV;
     TextView statusTV;
+    TextView anonymousTV;
     Button loginButton;
     Button createAccountButton;
     ProgressBar progressBar;
@@ -33,11 +38,13 @@ public class LoginActivity extends AppCompatActivity {
         emailTV = findViewById(R.id.emailAddress);
         passwordTV = findViewById(R.id.password);
         statusTV = findViewById(R.id.statusText);
+        anonymousTV = findViewById(R.id.anonymousTV);
         loginButton = findViewById(R.id.loginButton);
         createAccountButton = findViewById(R.id.createAccountButton);
         progressBar = findViewById(R.id.progressBar);
         mAuth = FirebaseAuth.getInstance();
         uiHandler = new Handler(Looper.getMainLooper());
+        anonymousTV.setOnClickListener(view -> handleAnonymousLogin());
     }
 
     @Override
@@ -48,6 +55,18 @@ public class LoginActivity extends AppCompatActivity {
             // show they are logged in
             this.onBackPressed();
         }
+    }
+
+    public void handleAnonymousLogin() {
+        progressBar.setVisibility(View.VISIBLE);
+        mAuth.signInAnonymously().addOnCompleteListener(this, task -> {
+            if (task.isSuccessful()) {
+                this.onBackPressed();
+            } else {
+                uiHandler.post(() -> statusTV.setText(task.getException().getLocalizedMessage()));
+                progressBar.setVisibility(View.INVISIBLE);
+            }
+        });
     }
 
     public void handleLogin(View v) {

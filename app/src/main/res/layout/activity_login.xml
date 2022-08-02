@@ -40,6 +40,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <TextView
+            android:id="@+id/statusText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:textColor="#F44336" />
+
         <EditText
             android:id="@+id/emailAddress"
             android:layout_width="match_parent"
@@ -61,11 +68,12 @@
             android:minHeight="48dp" />
 
         <TextView
-            android:id="@+id/statusText"
+            android:id="@+id/anonymousTV"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="10dp"
-            android:textColor="#F44336" />
+            android:text="@string/continue_anonymously"
+            android:textColor="#3F51B5" />
 
         <Button
             android:id="@+id/loginButton"
