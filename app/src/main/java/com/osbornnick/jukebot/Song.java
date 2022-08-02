@@ -5,14 +5,15 @@ import android.graphics.Bitmap;
 public class Song {
     private String key, name, artist, suggestedBy;
     private Bitmap albumImage;
-    private int duration, score;
+    private long duration;
+    private int score;
     private boolean anonymous;
 
     public Song() {
         this.anonymous = true;
     }
 
-    public Song(String id, String name, String artist, String suggestedBy, Bitmap albumImage, int duration, int score, boolean anonymous) {
+    public Song(String id, String name, String artist, String suggestedBy, Bitmap albumImage, long duration, int score, boolean anonymous) {
         this.key = id;
         this.name = name;
         this.artist = artist;
@@ -43,7 +44,7 @@ public class Song {
         return albumImage;
     }
 
-    public int getDuration() {
+    public long getDuration() {
         return duration;
     }
 
