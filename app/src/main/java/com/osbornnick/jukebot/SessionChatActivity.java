@@ -112,6 +112,8 @@ public class SessionChatActivity extends AppCompatActivity {
                 //Snackbar.make(mSessionChatActivity, FirebaseAuth.getInstance().getCurrentUser().getEmail(), Snackbar.LENGTH_SHORT).show();
                 user = FirebaseAuth.getInstance().getCurrentUser();
                 uEmail = user.getEmail();
+                user.getDisplayName();
+                Log.d(TAG, "onCreate: " + user.getDisplayName());
                 Log.d(TAG, "onCreate: " + user);
                 //showChatMessage();
             }
