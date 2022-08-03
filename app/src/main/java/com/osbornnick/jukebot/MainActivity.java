@@ -47,5 +47,9 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void launchSession(View view) {
+        Intent intent = new Intent(this, SessionAdminActivity.class);
+        startActivity(intent);
+    }
 
 }

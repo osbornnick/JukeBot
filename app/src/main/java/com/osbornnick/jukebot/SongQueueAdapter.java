@@ -14,8 +14,8 @@ import java.util.Objects;
 public class SongQueueAdapter extends RecyclerView.Adapter<SongItemHolder>  {
     private SortedList<Song> songQueue;
 
-    public SongQueueAdapter(List<Song> songQueue) {
-        this.songQueue = new SortedList<Song>(Song.class, new SortedList.Callback<Song>() {
+    public SongQueueAdapter() {
+        this.songQueue = new SortedList<>(Song.class, new SortedList.Callback<Song>() {
 
             @Override
             public void onInserted(int position, int count) {
@@ -34,13 +34,7 @@ public class SongQueueAdapter extends RecyclerView.Adapter<SongItemHolder>  {
 
             @Override
             public int compare(Song o1, Song o2) {
-                if(o1.getScore() > o2.getScore()) {
-                    return 1;
-                } else if(o1.getScore() < o2.getScore()) {
-                    return -1;
-                } else {
-                    return 0;
-                }
+                return Long.compare(o2.getScore(), o1.getScore());
             }
 
             @Override
@@ -50,12 +44,7 @@ public class SongQueueAdapter extends RecyclerView.Adapter<SongItemHolder>  {
 
             @Override
             public boolean areContentsTheSame(Song oldItem, Song newItem) {
-                boolean name = Objects.equals(oldItem.getName(), newItem.getName());
-                boolean artist = Objects.equals(oldItem.getArtist(), newItem.getArtist());
-                boolean suggestedBy = Objects.equals(oldItem.getSuggestedBy(), newItem.getSuggestedBy());
-                boolean albumImage = Objects.equals(oldItem.getAlbumImage(), newItem.getAlbumImage());
-                boolean duration = Objects.equals(oldItem.getDuration(), newItem.getDuration());
-                return name && artist && suggestedBy && albumImage && duration;
+                return Objects.equals(oldItem.getUri(), newItem.getUri()) && oldItem.getScore() == newItem.getScore();
             }
 
             @Override
@@ -63,11 +52,6 @@ public class SongQueueAdapter extends RecyclerView.Adapter<SongItemHolder>  {
                 return Objects.equals(item1.getKey(), item2.getKey());
             }
         });
-
-        //insert into sorted list
-        for(Song s : songQueue) {
-            this.songQueue.add(s);
-        }
     }
 
     @NonNull
@@ -87,5 +71,19 @@ public class SongQueueAdapter extends RecyclerView.Adapter<SongItemHolder>  {
         return songQueue.size();
     }
 
+    public int add(Song s) {
+        return songQueue.add(s);
+    }
 
+    public boolean remove(Song s) {
+        return songQueue.remove(s);
+    }
+
+    public void clear() {
+        songQueue.beginBatchedUpdates();
+        while (songQueue.size() > 0) {
+            songQueue.removeItemAt(songQueue.size() - 1);
+        }
+        songQueue.endBatchedUpdates();
+    }
 }

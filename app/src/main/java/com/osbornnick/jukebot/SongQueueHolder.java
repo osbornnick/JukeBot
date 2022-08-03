@@ -1,15 +1,25 @@
 package com.osbornnick.jukebot;
 
+import android.annotation.SuppressLint;
+import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.annotation.Nullable;
+
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Transaction;
 
 public class SongQueueHolder extends SongItemHolder {
     TextView songTitle, songArtist, suggestedBy, score;
-    Button voteUp, voteDown, delete;
+    ImageButton voteUp, voteDown, delete;
+    DocumentReference songRef;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     public SongQueueHolder(@NonNull View itemView) {
         super(itemView);
@@ -22,9 +32,11 @@ public class SongQueueHolder extends SongItemHolder {
         delete = itemView.findViewById(R.id.delete);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void bindThisData(Song songToBind) {
         this.itemSong = songToBind;
+        songRef = FirebaseFirestore.getInstance().collection("Session").document(songToBind.session_id).collection("queue").document(songToBind.getKey());
         songTitle.setText(itemSong.getName());
         songArtist.setText(itemSong.getArtist());
         if(itemSong.isAnonymous()) {
@@ -32,65 +44,29 @@ public class SongQueueHolder extends SongItemHolder {
         } else {
             suggestedBy.setText("Suggested By: " + itemSong.getSuggestedBy());
         }
-        if(itemSong.getScore() > 0) {
-            score.setText("+ " + itemSong.getScore());
-        } else if(itemSong.getScore() < 0) {
-            score.setText("- " + itemSong.getScore());
-        } else {
-            score.setText("0");
-        }
+        score.setText(String.valueOf(itemSong.getScore()));
 
-        voteUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                itemSong.setScore(itemSong.getScore() + 1);
-                if(itemSong.getScore() > 0) {
-                    score.setText("+ " + itemSong.getScore());
-                } else if(itemSong.getScore() < 0) {
-                    score.setText("- " + itemSong.getScore());
-                } else {
-                    score.setText("0");
-                }
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //update firebase songQueue
-                    }
-                }).start();
-            }
+        voteUp.setOnClickListener(v -> {
+            db.runTransaction((Transaction.Function<Void>) transaction -> {
+                songRef.update("score", FieldValue.increment(1));
+                return null;
+            })
+                    .addOnSuccessListener(Void -> Log.d("SongQueueHolder", "score updated!"))
+                    .addOnFailureListener(e -> Log.e("SongQueueHolder", "Failure", e));
         });
 
-        voteDown.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                itemSong.setScore(itemSong.getScore() - 1);
-                if(itemSong.getScore() > 0) {
-                    score.setText("+ " + itemSong.getScore());
-                } else if(itemSong.getScore() < 0) {
-                    score.setText("- " + itemSong.getScore());
-                } else {
-                    score.setText("0");
-                }
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //update firebase songQueue
-                    }
-                }).start();
-            }
+        voteDown.setOnClickListener(v -> {
+            db.runTransaction((Transaction.Function<Void>) transaction -> {
+                        songRef.update("score", FieldValue.increment(-1));
+                        return null;
+                    })
+                    .addOnSuccessListener(Void -> Log.d("SongQueueHolder", "score updated!"))
+                    .addOnFailureListener(e -> Log.e("SongQueueHolder", "Failure", e));
         });
 
-        delete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //delete this song from Firebase Session Queue
-                        //In turn, the UI should respond to delete this item
-                    }
-                }).start();
-            }
+        delete.setOnClickListener(v -> {
+            songRef.update("deleted", true);
         });
+
     }
 }

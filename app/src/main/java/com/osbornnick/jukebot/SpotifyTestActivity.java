@@ -50,13 +50,12 @@ public class SpotifyTestActivity extends AppCompatActivity {
     }
 
     private void connected() {
-        mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
+        mSpotifyAppRemote.getPlayerApi().play("spotify:track:3VZQshi4COChhXaz7cLP02");
 
         mSpotifyAppRemote.getPlayerApi().subscribeToPlayerState().setEventCallback(playerState -> {
-            final Track track = playerState.track;
-            if (track != null) {
-                Log.d("MainActivity", track.name + " by " + track.artist.name);
-            }
+            Log.d("playerStateSubscription", playerState.toString());
+            Log.d("playerStateSubscription", playerState.isPaused + " " + playerState.playbackPosition);
+            boolean isPaused = playerState.isPaused && (playerState.playbackPosition == 0);
         });
     }
 }
