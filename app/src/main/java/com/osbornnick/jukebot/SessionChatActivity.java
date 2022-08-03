@@ -48,6 +48,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -68,7 +69,7 @@ public class SessionChatActivity extends AppCompatActivity {
 
     private static final String TAG = "SessionChatActivity";
     private static int REQUEST_CODE = 1;
-//    private FirebaseRecyclerAdapter<Message,ChatViewHolder> mAdapter;
+    //    private FirebaseRecyclerAdapter<Message,ChatViewHolder> mAdapter;
     MessageRecyclerViewAdapter mAdapter;
     ArrayList<Message> mList;
     TextInputLayout mMessage;
@@ -77,6 +78,7 @@ public class SessionChatActivity extends AppCompatActivity {
     FirebaseUser user;
     String uEmail = null;
     String timeStamp = null;
+    String username = null;
     TextInputLayout message;
     FloatingActionButton send;
     private ActivitySessionChatBinding binding;
@@ -112,12 +114,24 @@ public class SessionChatActivity extends AppCompatActivity {
                 //Snackbar.make(mSessionChatActivity, FirebaseAuth.getInstance().getCurrentUser().getEmail(), Snackbar.LENGTH_SHORT).show();
                 user = FirebaseAuth.getInstance().getCurrentUser();
                 uEmail = user.getEmail();
-                user.getDisplayName();
-                Log.d(TAG, "onCreate: " + user.getDisplayName());
+                user.getUid();
+                Log.d(TAG, "onCreate: uid" + user.getUid());
                 Log.d(TAG, "onCreate: " + user);
-                //showChatMessage();
+                db.collection("users")
+                        .document(FirebaseAuth.getInstance()
+                                .getCurrentUser()
+                                .getUid()).get()
+                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful() && task.getResult() != null) {
+                                    username = task.getResult().getString("username");
+                                    Log.d(TAG, "onComplete: username " + username);
+                                }
+                            }
+                        });
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             Log.d(TAG, "onCreate: " + e);
         }
 
@@ -126,8 +140,14 @@ public class SessionChatActivity extends AppCompatActivity {
             public void onClick(View v) {
                 scrollToBot();
                 String msg = message.getEditText().getText().toString();
+                String handleName;
+                if (username == null){
+                    handleName = uEmail;
+                } else {
+                    handleName = username;
+                }
                 timeStamp = new SimpleDateFormat("MM-dd-yy HH:mm:ssa", Locale.getDefault()).format(new Date());
-                db.collection("Messages").add(new Message(msg,uEmail,timeStamp)).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                db.collection("Messages").add(new Message(msg, handleName, timeStamp)).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentReference> task) {
                         //listenMessages();
@@ -143,15 +163,15 @@ public class SessionChatActivity extends AppCompatActivity {
         update();
     }
 
-    public void update(){
+    public void update() {
         mAdapter = new MessageRecyclerViewAdapter(SessionChatActivity.this, mList);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(SessionChatActivity.this,RecyclerView.VERTICAL, false);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(SessionChatActivity.this, RecyclerView.VERTICAL, false);
         mRecyclerView.setLayoutManager(linearLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
 
     }
 
-    private void listenMessages(){
+    private void listenMessages() {
         db.collection("Messages").orderBy("messageTime").addSnapshotListener(eventListener);
     }
 
@@ -159,7 +179,7 @@ public class SessionChatActivity extends AppCompatActivity {
         @Override
         public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
             if (error != null) return;
-            if (value != null){
+            if (value != null) {
                 int count = mList.size();
                 for (DocumentChange document : value.getDocumentChanges()) {
                     if (document.getType() == DocumentChange.Type.ADDED) {
@@ -172,18 +192,18 @@ public class SessionChatActivity extends AppCompatActivity {
                 }
                 //Collections.sort(mList, Comparator.comparing(obj -> obj.messageTime));
 
-                if (count == 0){
+                if (count == 0) {
                     mAdapter.notifyDataSetChanged();
                 } else {
                     mAdapter.notifyItemRangeInserted(mList.size(), mList.size());
-                    binding.recyclerView.smoothScrollToPosition(mList.size()-1);
+                    binding.recyclerView.smoothScrollToPosition(mList.size() - 1);
                 }
                 binding.recyclerView.setVisibility(View.VISIBLE);
             }
         }
     };
 
-    private void receiveMessages(){
+    private void receiveMessages() {
         int count = mList.size();
         db.collection("Messages").orderBy("messageTime").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -191,7 +211,7 @@ public class SessionChatActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     mList.clear();
                     for (DocumentChange document : task.getResult().getDocumentChanges()) {
-                        if (document.getType() == DocumentChange.Type.ADDED){
+                        if (document.getType() == DocumentChange.Type.ADDED) {
                             Message msg = new Message();
                             msg.messageText = document.getDocument().getString("messageText");
                             msg.messageTime = document.getDocument().getString("messageTime");
@@ -202,14 +222,14 @@ public class SessionChatActivity extends AppCompatActivity {
 
                         //Message message = document.toObject(Message.class);
                         //mAdapter.addMessage(message);
-                //mList.add(message);
+                        //mList.add(message);
 //                     mAdapter.notifyDataSetChanged();
                     }
-                    if (count == 0){
+                    if (count == 0) {
                         mAdapter.notifyDataSetChanged();
                     } else {
                         mAdapter.notifyItemRangeInserted(mList.size(), mList.size());
-                        binding.recyclerView.smoothScrollToPosition(mList.size()-1);
+                        binding.recyclerView.smoothScrollToPosition(mList.size() - 1);
                     }
                     binding.recyclerView.setVisibility(View.VISIBLE);
                 } else {
@@ -240,7 +260,7 @@ public class SessionChatActivity extends AppCompatActivity {
 //        });
     }
 
-    public void scrollToBottom(Activity activity){
+    public void scrollToBottom(Activity activity) {
         View view = activity.getCurrentFocus();
         if (view == null) {
             view = new View(activity);
@@ -258,7 +278,7 @@ public class SessionChatActivity extends AppCompatActivity {
         });
     }
 
-    public void scrollToBot(){
+    public void scrollToBot() {
         mRecyclerView.postDelayed(new Runnable() {
             @Override
             public void run() {
