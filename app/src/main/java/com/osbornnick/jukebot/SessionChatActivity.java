@@ -9,7 +9,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -81,6 +83,7 @@ public class SessionChatActivity extends AppCompatActivity {
     String username = null;
     TextInputLayout message;
     FloatingActionButton send;
+    String hostUID = null;
     private ActivitySessionChatBinding binding;
 
     //ConstraintLayout mSessionChatActivity;
@@ -101,9 +104,19 @@ public class SessionChatActivity extends AppCompatActivity {
         //mButton = (ImageButton) findViewById(R.id.submitButton);
         //mMessage = findViewById(R.id.chatInputLayout);
         mRecyclerView = findViewById(R.id.recyclerView);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(SessionChatActivity.this);
+        hostUID = preferences.getString("HostUID", "");
+
+        if(hostUID.equalsIgnoreCase(""))
+        {
+            hostUID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            Log.d(TAG, "onCreate: hostUID " + hostUID);
+        }
+
         scrollToBot();
         listenMessages();
         //receiveMessages();
+
 
         try {
 
@@ -115,7 +128,7 @@ public class SessionChatActivity extends AppCompatActivity {
                 user = FirebaseAuth.getInstance().getCurrentUser();
                 uEmail = user.getEmail();
                 user.getUid();
-                Log.d(TAG, "onCreate: uid" + user.getUid());
+                Log.d(TAG, "onCreate: uid " + user.getUid());
                 Log.d(TAG, "onCreate: " + user);
                 db.collection("users")
                         .document(user.getUid()).get()
@@ -147,7 +160,7 @@ public class SessionChatActivity extends AppCompatActivity {
                     handleName = username;
                 }
                 timeStamp = new SimpleDateFormat("MM-dd-yy HH:mm:ssa", Locale.getDefault()).format(new Date());
-                db.collection("Messages").document("pnTWuk2bh9OWmRffUpe4uXFi2gX2").collection("MessageID").add(new Message(msg, handleName, timeStamp)).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                db.collection("Messages").document(hostUID).collection("MessageID").add(new Message(msg, handleName, timeStamp)).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentReference> task) {
                         //listenMessages();
@@ -173,7 +186,7 @@ public class SessionChatActivity extends AppCompatActivity {
 
     // get the host uid via bluetooth data
     private void listenMessages() {
-        db.collection("Messages").document("pnTWuk2bh9OWmRffUpe4uXFi2gX2").collection("MessageID").orderBy("messageTime").addSnapshotListener(eventListener);
+        db.collection("Messages").document(hostUID).collection("MessageID").orderBy("messageTime").addSnapshotListener(eventListener);
     }
 
     private final EventListener<QuerySnapshot> eventListener = new EventListener<QuerySnapshot>() {

@@ -1,56 +1,56 @@
 package com.osbornnick.jukebot;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-
 import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.common.api.Api;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.UUID;
-
-import io.grpc.Server;
 
 public class JoinSessionActivity extends AppCompatActivity {
 
     private static final String TAG = "JoinSessionActivity";
-    private static final int REQUEST_DISCOVER_BT = 1;
-    Button mListDevices;
-    Button mListen;
-    ListView mListView;
-    TextView mStatus;
 
-    BluetoothAdapter mBluetoothAdapter;
-    BluetoothDevice[] mBluetoothArray;
+    Button host, send, listDevices;
+    ListView listView;
+    TextView mHostUID, status;
+    TextView mHostStatus;
 
-    SendReceive mSendReceive;
+    FirebaseUser user;
+    String hostUID = null;
+
+    BluetoothAdapter bluetoothAdapter;
+    BluetoothDevice[] btArray;
+
+    SendReceive sendReceive;
 
     static final int STATE_LISTENING = 1;
     static final int STATE_CONNECTING = 2;
@@ -58,164 +58,205 @@ public class JoinSessionActivity extends AppCompatActivity {
     static final int STATE_CONNECTION_FAILED = 4;
     static final int STATE_MESSAGE_RECEIVED = 5;
 
-    private static final UUID mUUID = UUID.fromString("fb36491d-7c21-40ef-9f67-a63237b5bbea");
-    private static final String APP_NAME = "JukeBot";
-
     int REQUEST_ENABLE_BLUETOOTH = 1;
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
+    private static final String APP_NAME = "BTChat";
+    private static final UUID MY_UUID = UUID.fromString("8ce255c0-223a-11e0-ac64-0803450c9a66");
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join_session);
 
-        mListDevices = findViewById(R.id.btn_listdevices);
-        mListView = findViewById(R.id.devicelistview);
-        mStatus = findViewById(R.id.txt_status);
-        mListen = findViewById(R.id.btn_listen);
+        host = findViewById(R.id.btn_listen);
+        send = findViewById(R.id.send);
+        listView = findViewById(R.id.listviewDevices);
+        mHostUID = findViewById(R.id.msg);
+        status = findViewById(R.id.txt_status);
+        listDevices = findViewById(R.id.listDevices);
+        mHostStatus = findViewById(R.id.txt_host);
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        mBluetoothAdapter=BluetoothAdapter.getDefaultAdapter();
 
-        if(!mBluetoothAdapter.isEnabled())
-        {
-            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableIntent,REQUEST_ENABLE_BLUETOOTH);
-        }
-//        BluetoothManager bluetoothManager = getSystemService(BluetoothManager.class);
-//        mBluetoothAdapter = bluetoothManager.getAdapter();
-//
-//        if (!mBluetoothAdapter.isEnabled()){
+//                if (!bluetoothAdapter.isEnabled()){
 //            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 //            startActivityForResult(intent, REQUEST_ENABLE_BLUETOOTH);
 //        }
-//        try {
-//            if (mBluetoothAdapter == null) {
-//                mStatus.setText("Bluetooth is not available");
-//            } else {
-//                mStatus.setText("Bluetooth is available");
-//                requestBlePermissions(JoinSessionActivity.this, REQUEST_DISCOVER_BT);
-//            }
-//        } catch (Exception e){
-//            Log.d(TAG, "onCreate: " + e);
-//            mStatus.setText("Bluetooth is not available");
-//        }
+        try {
+            if (bluetoothAdapter == null) {
+                status.setText("Bluetooth is not available");
+            } else {
+                status.setText("Bluetooth is available");
+                requestBlePermissions(JoinSessionActivity.this, REQUEST_ENABLE_BLUETOOTH);
+            }
+        } catch (Exception e){
+            status.setText("Bluetooth is not available");
+        }
 
-        listeners();
+        if (!bluetoothAdapter.isEnabled()) {
+            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                requestBlePermissions(JoinSessionActivity.this, REQUEST_ENABLE_BLUETOOTH);
+            }
+            startActivityForResult(enableIntent, REQUEST_ENABLE_BLUETOOTH);
+        }
+
+        implementListeners();
     }
 
-    private void listeners(){
-        mListDevices.setOnClickListener(new View.OnClickListener() {
+    private void implementListeners() {
+
+        listDevices.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Set<BluetoothDevice> bt= mBluetoothAdapter.getBondedDevices();
-                String[] strings =new String[bt.size()];
-                mBluetoothArray =new BluetoothDevice[bt.size()];
-                int index=0;
+                if (ActivityCompat.checkSelfPermission(JoinSessionActivity.this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    requestBlePermissions(JoinSessionActivity.this, REQUEST_ENABLE_BLUETOOTH);
 
-                if( bt.size()>0)
-                {
-                    for(BluetoothDevice device : bt)
-                    {
-                        mBluetoothArray[index]= device;
-                        strings[index]=device.getName();
+                }
+                Set<BluetoothDevice> bt = bluetoothAdapter.getBondedDevices();
+                String[] strings = new String[bt.size()];
+                btArray = new BluetoothDevice[bt.size()];
+                int index = 0;
+
+                if (bt.size() > 0) {
+                    for (BluetoothDevice device : bt) {
+                        btArray[index] = device;
+                        strings[index] = device.getName();
                         index++;
                     }
-                    ArrayAdapter<String> arrayAdapter=new ArrayAdapter<String>(getApplicationContext(),android.R.layout.simple_list_item_1,strings);
-                    mListView.setAdapter(arrayAdapter);
+                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, strings);
+                    listView.setAdapter(arrayAdapter);
                 }
+
             }
         });
 
-        mListen.setOnClickListener(new View.OnClickListener() {
+        host.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                ServerClass serverClass=new ServerClass();
+            public void onClick(View view) {
+                user = FirebaseAuth.getInstance().getCurrentUser();
+                hostUID = user.getUid();
+                Log.d(TAG, "onClick: " + hostUID);
+                mHostStatus.setText("You are the host now");
+                ServerClass serverClass = new ServerClass();
                 serverClass.start();
-
-
             }
         });
 
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ClientClass clientClass = new ClientClass(mBluetoothArray[position]);
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                ClientClass clientClass = new ClientClass(btArray[i]);
                 clientClass.start();
 
-                mStatus.setText("Connecting");
-
+                status.setText("Connecting");
             }
         });
-//
-//        String string = String.valueOf();
-//        mSendReceive.write(string.getBytes());
+
+        send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                String string = String.valueOf(writeMsg.getText());
+//                sendReceive.write(string.getBytes());
+                sendReceive.write(hostUID.getBytes());
+            }
+        });
     }
 
     Handler handler = new Handler(new Handler.Callback() {
         @Override
-        public boolean handleMessage(@NonNull Message msg) {
-            switch (msg.what){
+        public boolean handleMessage(Message msg) {
+
+            switch (msg.what) {
                 case STATE_LISTENING:
-                    mStatus.setText("Listening");
+                    status.setText("Listening");
                     break;
                 case STATE_CONNECTING:
-                    mStatus.setText("Connecting");
+                    status.setText("Connecting");
                     break;
                 case STATE_CONNECTED:
-                    mStatus.setText("Connected");
+                    status.setText("Connected");
                     break;
                 case STATE_CONNECTION_FAILED:
-                    mStatus.setText("Connection Failed");
+                    status.setText("Connection Failed");
                     break;
                 case STATE_MESSAGE_RECEIVED:
                     byte[] readBuff = (byte[]) msg.obj;
-                    String temp = new String(readBuff,0,msg.arg1);
-                    // set text here
+                    String tempMsg = new String(readBuff, 0, msg.arg1);
+                    mHostUID.setText(tempMsg);
+                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(JoinSessionActivity.this);
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putString("HostUID",tempMsg);
+                    editor.apply();
+                    Log.d(TAG, "handleMessage: " + tempMsg);
+
                     break;
             }
             return true;
         }
     });
 
-    private class ServerClass extends Thread
-    {
+    private class ServerClass extends Thread {
         private BluetoothServerSocket serverSocket;
 
-        public ServerClass(){
+        public ServerClass() {
             try {
-                serverSocket= mBluetoothAdapter.listenUsingRfcommWithServiceRecord(APP_NAME,mUUID);
+                if (ActivityCompat.checkSelfPermission(JoinSessionActivity.this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    requestBlePermissions(JoinSessionActivity.this, REQUEST_ENABLE_BLUETOOTH);
+                }
+                serverSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(APP_NAME, MY_UUID);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
-        public void run()
-        {
-            BluetoothSocket socket=null;
+        public void run() {
+            BluetoothSocket socket = null;
 
-            while (socket==null)
-            {
+            while (socket == null) {
                 try {
-                    Message message=Message.obtain();
-                    message.what=STATE_CONNECTING;
+                    Message message = Message.obtain();
+                    message.what = STATE_CONNECTING;
                     handler.sendMessage(message);
 
-                    socket=serverSocket.accept();
+                    socket = serverSocket.accept();
                 } catch (IOException e) {
                     e.printStackTrace();
-                    Message message=Message.obtain();
-                    message.what=STATE_CONNECTION_FAILED;
+                    Message message = Message.obtain();
+                    message.what = STATE_CONNECTION_FAILED;
                     handler.sendMessage(message);
                 }
 
-                if(socket!=null)
-                {
-                    Message message=Message.obtain();
-                    message.what=STATE_CONNECTED;
+                if (socket != null) {
+                    Message message = Message.obtain();
+                    message.what = STATE_CONNECTED;
                     handler.sendMessage(message);
 
-                    mSendReceive=new SendReceive(socket);
-                    mSendReceive.start();
+
+
+                    sendReceive = new SendReceive(socket);
+                    sendReceive.start();
 
                     break;
                 }
@@ -223,32 +264,53 @@ public class JoinSessionActivity extends AppCompatActivity {
         }
     }
 
-    private class ClientClass extends Thread
-    {
+    private class ClientClass extends Thread {
         private BluetoothDevice device;
         private BluetoothSocket socket;
 
-        public ClientClass (BluetoothDevice device1)
-        {
-            device=device1;
+        public ClientClass(BluetoothDevice device1) {
+            device = device1;
 
             try {
-                socket=device.createRfcommSocketToServiceRecord(mUUID);
+                if (ActivityCompat.checkSelfPermission(JoinSessionActivity.this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for
+                    //
+                    requestBlePermissions(JoinSessionActivity.this, REQUEST_ENABLE_BLUETOOTH);
+
+                }
+                socket = device.createRfcommSocketToServiceRecord(MY_UUID);
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
-        public void run()
-        {
+        public void run() {
             try {
+                if (ActivityCompat.checkSelfPermission(JoinSessionActivity.this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    requestBlePermissions(JoinSessionActivity.this, REQUEST_ENABLE_BLUETOOTH);
+                }
                 socket.connect();
                 Message message=Message.obtain();
                 message.what=STATE_CONNECTED;
                 handler.sendMessage(message);
 
-                mSendReceive=new SendReceive(socket);
-                mSendReceive.start();
+                sendReceive=new SendReceive(socket);
+                sendReceive.start();
+
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -307,7 +369,6 @@ public class JoinSessionActivity extends AppCompatActivity {
             }
         }
     }
-
     private static final String[] BLE_PERMISSIONS = new String[]{
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION,
