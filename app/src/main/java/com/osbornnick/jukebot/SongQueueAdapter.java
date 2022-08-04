@@ -76,7 +76,13 @@ public class SongQueueAdapter extends RecyclerView.Adapter<SongItemHolder>  {
     }
 
     public boolean remove(Song s) {
+//        if(songQueue.)
         return songQueue.remove(s);
+    }
+
+    public Song getFirst() {
+        if(songQueue.size() == 0) return null;
+        return songQueue.get(0);
     }
 
     public void clear() {

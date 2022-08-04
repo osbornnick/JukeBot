@@ -2,20 +2,24 @@ package com.osbornnick.jukebot;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Log;
 
 import com.google.firebase.database.Exclude;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.Map;
 
 public class Song {
-    public String key, name, artist, suggestedBy, uri;
+    public String key, name, artist, suggestedBy, uri, albumImageURL;
     public Bitmap albumImage;
     public long duration;
     public long score;
-    public boolean anonymous;
     public String session_id;
     public boolean played = false;
     public boolean deleted = false;
+    public boolean playing = false;
 
     public Song(Map<String, Object> data) {
         if (data.containsKey("key")) {
@@ -45,21 +49,15 @@ public class Song {
         if (data.containsKey("deleted")) {
             this.deleted = (boolean) data.get("deleted");
         }
+        if (data.containsKey("playing")) {
+            this.playing = (boolean) data.get("playing");
+        }
+        if (data.containsKey("albumImageURL")) {
+            this.albumImageURL = (String) data.get("albumImageURL");
+        }
     }
 
     public Song() {
-        this.anonymous = true;
-    }
-
-    public Song(String id, String name, String artist, String suggestedBy, Bitmap albumImage, long duration, int score, boolean anonymous) {
-        this.key = id;
-        this.name = name;
-        this.artist = artist;
-        this.suggestedBy = suggestedBy;
-        this.albumImage = albumImage;
-        this.duration = duration;
-        this.score = score;
-        this.anonymous = anonymous;
     }
 
     @Exclude
@@ -80,9 +78,24 @@ public class Song {
         return suggestedBy;
     }
 
+    public String getAlbumImageURL() {
+        return albumImageURL;
+    }
+
     @Exclude
     public Bitmap getAlbumImage() {
-        return albumImage;
+        try {
+            if(albumImage == null) {
+                URL url = new URL(albumImageURL);
+                Bitmap image = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                albumImage = image;
+            }
+            return albumImage;
+        } catch(IOException e) {
+            Log.d("Song", "getAlbumImage: " + e.toString());
+            System.out.println(e);
+            return null;
+        }
     }
 
     @Exclude
@@ -94,12 +107,7 @@ public class Song {
         return score;
     }
 
-
     public String getUri() {return uri;}
-
-    public boolean isAnonymous() {
-        return anonymous;
-    }
 
     public void setScore(long score) {
         this.score = score;
