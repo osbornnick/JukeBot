@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,6 +47,7 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         TextView tv_play = (TextView) findViewById(R.id.start_session);
+        TextView tv_join = findViewById(R.id.join_group);
         ImageView img_settings = (ImageView) findViewById(R.id.personal_settings);
         mName = (TextView) findViewById(R.id.txt_displayName);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -56,6 +58,23 @@ public class HomeActivity extends AppCompatActivity {
         }
         Log.d(TAG, "onCreate: displayname" + display_name);
         mName.setText(name);
+
+        tv_play.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(HomeActivity.this, StartSessionActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        tv_join.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(HomeActivity.this, JoinSessionActivity.class);
+                startActivity(intent);
+            }
+        });
+
 
 
         img_settings.setOnClickListener(v -> {

@@ -118,9 +118,7 @@ public class SessionChatActivity extends AppCompatActivity {
                 Log.d(TAG, "onCreate: uid" + user.getUid());
                 Log.d(TAG, "onCreate: " + user);
                 db.collection("users")
-                        .document(FirebaseAuth.getInstance()
-                                .getCurrentUser()
-                                .getUid()).get()
+                        .document(user.getUid()).get()
                         .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -135,6 +133,8 @@ public class SessionChatActivity extends AppCompatActivity {
             Log.d(TAG, "onCreate: " + e);
         }
 
+        // session id -> message id -> collection of texts
+        // session id has to be the host
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -147,7 +147,7 @@ public class SessionChatActivity extends AppCompatActivity {
                     handleName = username;
                 }
                 timeStamp = new SimpleDateFormat("MM-dd-yy HH:mm:ssa", Locale.getDefault()).format(new Date());
-                db.collection("Messages").add(new Message(msg, handleName, timeStamp)).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                db.collection("Messages").document("pnTWuk2bh9OWmRffUpe4uXFi2gX2").collection("MessageID").add(new Message(msg, handleName, timeStamp)).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentReference> task) {
                         //listenMessages();
@@ -171,8 +171,9 @@ public class SessionChatActivity extends AppCompatActivity {
 
     }
 
+    // get the host uid via bluetooth data
     private void listenMessages() {
-        db.collection("Messages").orderBy("messageTime").addSnapshotListener(eventListener);
+        db.collection("Messages").document("pnTWuk2bh9OWmRffUpe4uXFi2gX2").collection("MessageID").orderBy("messageTime").addSnapshotListener(eventListener);
     }
 
     private final EventListener<QuerySnapshot> eventListener = new EventListener<QuerySnapshot>() {
