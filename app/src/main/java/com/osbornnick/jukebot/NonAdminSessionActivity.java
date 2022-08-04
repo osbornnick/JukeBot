@@ -77,6 +77,7 @@ public class NonAdminSessionActivity extends AppCompatActivity {
         //initialize the recycle view with empty list
         songQueue.setLayoutManager(new LinearLayoutManager(this));
         sqAdapter = new SongQueueAdapter();
+        sqAdapter.admin = false;
         songQueue.setAdapter(sqAdapter);
 
         listenToSongQueue();
@@ -119,6 +120,7 @@ public class NonAdminSessionActivity extends AppCompatActivity {
                 else if (s.playing) {
                     //update the current song
                     sqAdapter.remove(s);
+                    updateCurrentSong(s);
                 } else {
                     s.session_id = SESSION_ID;
                     sqAdapter.add(s);
@@ -126,27 +128,6 @@ public class NonAdminSessionActivity extends AppCompatActivity {
                 Log.d(TAG, s.toString());
             });
         });
-    }
-
-    public void test(View v) {
-        playNextFromQueue();
-    }
-
-    private void playNextFromQueue() {
-        // update currentSong from playing to played
-        if (currentSong != null) {
-            Map<String, Object> endSong = new HashMap<String, Object>() {{
-                put("playing", false);
-                put("played", true);
-            }};
-            db.collection("Session").document(SESSION_ID).collection("queue").document(currentSong.getKey()).update(endSong);
-        }
-
-        //update nextSong to playing
-        Song nextSong = sqAdapter.getFirst();
-        // update nextSong to be played
-        db.collection("Session").document(SESSION_ID).collection("queue").document(nextSong.getKey()).update("playing", true);
-        updateCurrentSong(nextSong);
     }
 
     private void updateCurrentSong(Song s) {

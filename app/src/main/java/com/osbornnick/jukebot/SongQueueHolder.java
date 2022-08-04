@@ -16,8 +16,8 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Transaction;
 
 public class SongQueueHolder extends SongItemHolder {
-    TextView songTitle, songArtist, suggestedBy, score;
-    ImageButton voteUp, voteDown, delete;
+    public TextView songTitle, songArtist, suggestedBy, score;
+    public ImageButton voteUp, voteDown, delete;
     DocumentReference songRef;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
