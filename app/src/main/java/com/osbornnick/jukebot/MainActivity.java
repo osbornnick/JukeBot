@@ -52,4 +52,8 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void launchNonAdminSession(View view) {
+        Intent intent = new Intent(this, NonAdminSessionActivity.class);
+        startActivity(intent);
+    }
 }

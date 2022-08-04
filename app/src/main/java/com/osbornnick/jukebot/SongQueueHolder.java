@@ -39,11 +39,7 @@ public class SongQueueHolder extends SongItemHolder {
         songRef = FirebaseFirestore.getInstance().collection("Session").document(songToBind.session_id).collection("queue").document(songToBind.getKey());
         songTitle.setText(itemSong.getName());
         songArtist.setText(itemSong.getArtist());
-        if(itemSong.isAnonymous()) {
-            suggestedBy.setText("Suggested By: Anonymous");
-        } else {
-            suggestedBy.setText("Suggested By: " + itemSong.getSuggestedBy());
-        }
+        suggestedBy.setText("Suggested By: " + itemSong.getSuggestedBy());
         score.setText(String.valueOf(itemSong.getScore()));
 
         voteUp.setOnClickListener(v -> {
