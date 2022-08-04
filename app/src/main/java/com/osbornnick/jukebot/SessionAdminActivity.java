@@ -1,19 +1,14 @@
 package com.osbornnick.jukebot;
 
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -23,33 +18,20 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 //Spotify SDK Imports
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firestore.v1.WriteResult;
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 
-import com.spotify.protocol.client.CallResult;
-import com.spotify.protocol.client.Result;
-import com.spotify.protocol.types.Image;
-import com.spotify.protocol.types.ImageUri;
-import com.spotify.protocol.types.PlayerState;
-import com.spotify.protocol.types.Track;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
-public class SessionActivity extends AppCompatActivity {
+public class SessionAdminActivity extends AppCompatActivity {
     private static final String TAG = "SessionActivity";
-    private String SESSION_ID;
+    private String SESSION_ID = "sessionTest1";
 
     RecyclerView songQueue;
     TextView songTitle, songArtist, songLength, songLengthRemaining, queueLabel, disconnectedText;
@@ -59,32 +41,23 @@ public class SessionActivity extends AppCompatActivity {
     FloatingActionButton addSongFAB;
     ProgressBar loader;
 
-    private SharedPreferences.Editor editor;
-    private SharedPreferences preferences;
-    String spotifyAuthToken;
-    String loggedInUser = "dhj36@cornell.edu";
-    String sessionAdminUser = "dhj36@cornell.edu";
-
+    FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+    boolean isConnected = false;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     Handler handler;
     SongQueueAdapter sqAdapter;
-    List<Song> songList;
+    Song currentSong;
 
     private SpotifyAppRemote mSpotifyAppRemote;
-    private static final String CLIENT_ID = "c810b4c8bcb7429db3df246adc2e50c0";
-    private static final String REDIRECT_URI = "com.jukebot://callback";
+    private static final String CLIENT_ID = "fe144966828b41b5ab78f844e0630286";
+    private static final String REDIRECT_URI = "com.osbornnick.jukebot://callback";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        spotifyAuthToken = preferences.getString("token", "");
-//        loggedInUser = preferences.getString("login", "");
-
-        setContentView(R.layout.activity_session);
+        setContentView(R.layout.activity_session_admin);
         Intent i = getIntent();
-//        sessionAdminUser = i.getStringExtra("sessionAdminUser");
         handler = new Handler(Looper.getMainLooper());
 
         songQueue = findViewById(R.id.songQueue);
@@ -108,210 +81,19 @@ public class SessionActivity extends AppCompatActivity {
         addSongFAB = findViewById(R.id.addSongFAB);
         loader = findViewById(R.id.loader);
 
-        if(spotifyAuthToken == "") {
-            songQueue.setVisibility(View.INVISIBLE);
-            songTitle.setVisibility(View.INVISIBLE);
-            songArtist.setVisibility(View.INVISIBLE);
-            songLength.setVisibility(View.INVISIBLE);
-            songLengthRemaining.setVisibility(View.INVISIBLE);
-            queueLabel.setVisibility(View.INVISIBLE);
-            songProgressBar.setVisibility(View.INVISIBLE);
-            skipPrevious.setVisibility(View.INVISIBLE);
-            playButton.setVisibility(View.INVISIBLE);
-            pauseButton.setVisibility(View.INVISIBLE);
-            skipNext.setVisibility(View.INVISIBLE);
-            coverArt.setVisibility(View.INVISIBLE);
-            addSongFAB.setVisibility(View.INVISIBLE);
-            loader.setVisibility(View.INVISIBLE);
-
-            disconnectedText.setVisibility(View.VISIBLE);
-        }
-
         //Set Tool Bar On clicks
-        setToolBarOnClickListeners();
+        initToolbar();
 
         //Set Spotify Controls
-        spotifySongControls();
+        initSongControls();
 
         //initialize the recycle view with empty list
-        songList = new ArrayList<>();
         songQueue.setLayoutManager(new LinearLayoutManager(this));
-        sqAdapter = new SongQueueAdapter(songList);
+        sqAdapter = new SongQueueAdapter();
         songQueue.setAdapter(sqAdapter);
 
-        //update song queue - also updates current song
-        songQueueUpdate();
+        listenToSongQueue();
     }
-
-    private void setToolBarOnClickListeners() {
-        back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
-
-        //TODO: Update leave session functionality
-        leaveSession.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
-
-        sessionChat.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(SessionActivity.this, SessionChatActivity.class);
-                intent.putExtra("session_id", SESSION_ID);
-                startActivity(intent);
-            }
-        });
-
-        //maybe change from Activity to AlertDialog
-        sessionSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(SessionActivity.this, SessionSettingsActivity.class);
-                intent.putExtra("session_id", SESSION_ID);
-                startActivity(intent);
-            }
-        });
-
-        /*
-        dialogBuilder = new AlertDialog.Builder(this);
-        final View urlPopupView = getLayoutInflater().inflate(R.layout.link_popup, null);
-        urlName = (EditText) urlPopupView.findViewById(R.id.urlName);
-        newUrl = (EditText) urlPopupView.findViewById(R.id.newUrl);
-        save = (Button) urlPopupView.findViewById(R.id.urlSubmitButton);
-        cancel = (Button) urlPopupView.findViewById(R.id.urlCancelButton);
-
-        dialogBuilder.setView(urlPopupView);
-        dialog = dialogBuilder.create();
-        dialog.show();
-
-        Context thisContext = this;
-         */
-
-        addFriend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(SessionActivity.this, InviteFriendsActivity.class);
-                intent.putExtra("session_id", SESSION_ID);
-                startActivity(intent);
-            }
-        });
-    }
-
-    private void songTransition() {
-
-    }
-
-    private void songQueueUpdate() {
-        //grab song queue from Firebase
-        final DocumentReference docRef = db.collection("songQueue").document(SESSION_ID);
-        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot snapshot,
-                                @Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e);
-                    return;
-                }
-
-                if (snapshot != null && snapshot.exists()) {
-                    Map<String, Object> document = (Map<String, Object>) snapshot.getData();
-                    Log.d(TAG, "Current data: " + snapshot.getData());
-                    songList.clear();
-                    assert document != null;
-                    for(String songURI : document.keySet()) {
-                        Map<String, Object> songDetails = (Map<String, Object>) document.get(songURI);
-                        String songTitle = (String) songDetails.get("songTitle");
-                        String songArtist = (String) songDetails.get("songArtist");
-                        String suggestedBy = (String) songDetails.get("suggestedBy");
-                        boolean anonymous = (boolean) songDetails.get("anonymous");
-                        long duration = (long) songDetails.get("duration");
-                        int score = (int) songDetails.get("score");
-
-                        //get album cover
-                        ImageUri albumImageURI = new ImageUri((String) songDetails.get("albumCover"));
-                        CallResult<Bitmap> albumImageCall = mSpotifyAppRemote.getImagesApi().getImage(albumImageURI, Image.Dimension.MEDIUM);
-                        Result<Bitmap> albumImageResult = albumImageCall.await(10, TimeUnit.SECONDS);
-                        Bitmap albumImage = null;
-                        if (albumImageResult.isSuccessful()) {
-                            albumImage = albumImageResult.getData();
-                            Log.d(TAG, "onEvent: album image could recovered successfully");
-
-                        } else {
-                            Log.d(TAG, "onEvent: album image could not be recovered");
-                        }
-
-                        Song addSong = new Song(songURI, songTitle, songArtist, suggestedBy, albumImage, duration, score, anonymous);
-                        songList.add(addSong);
-                    }
-                    //all songs added. now sort list
-                    songList.sort((o1, o2) -> Integer.compare(o1.getScore(), o2.getScore()));
-                } else {
-                    Log.d(TAG, "Current data: null");
-                }
-            }
-        });
-
-        //update songQueue Recycler View
-        songQueue.setLayoutManager(new LinearLayoutManager(this));
-        sqAdapter = new SongQueueAdapter(songList);
-        songQueue.setAdapter(sqAdapter);
-
-        //update Current Song player. set to play if not already playing (check the spotify player
-
-    }
-
-    private void spotifySongControls() {
-        //show spotify controls only for admin user
-        if(loggedInUser != sessionAdminUser) {
-            playButton.setVisibility(View.INVISIBLE);
-            pauseButton.setVisibility(View.INVISIBLE);
-            skipPrevious.setVisibility(View.INVISIBLE);
-            skipNext.setVisibility(View.INVISIBLE);
-        } else {
-            //set appropriate onClickListeners utilizing Spotify SDK
-            playButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //resume currently playing song in the Spotify player
-                    mSpotifyAppRemote.getPlayerApi().resume();
-                    playButton.setVisibility(View.INVISIBLE);
-                    pauseButton.setVisibility(View.VISIBLE);
-                }
-            });
-
-            pauseButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //pause currently playing song in the Spotify player
-                    mSpotifyAppRemote.getPlayerApi().pause();
-                    playButton.setVisibility(View.INVISIBLE);
-                    pauseButton.setVisibility(View.VISIBLE);
-                }
-            });
-
-            skipNext.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mSpotifyAppRemote.getPlayerApi().skipNext();
-                }
-            });
-
-            skipPrevious.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mSpotifyAppRemote.getPlayerApi().skipPrevious();
-                }
-            });
-        }
-    }
-
 
     /*
         onStart(), onStop(), connected() code sourced from Spotify's Quick start guide: https://developer.spotify.com/documentation/android/quick-start/
@@ -319,103 +101,148 @@ public class SessionActivity extends AppCompatActivity {
      */
     @Override
     protected void onStart() {
+        // TODO: should probably show a loading screen before this happens
         super.onStart();
-
-        if(loggedInUser == sessionAdminUser) {
-            ConnectionParams connectionParams =
-                    new ConnectionParams.Builder(CLIENT_ID)
-                            .setRedirectUri(REDIRECT_URI)
-                            .showAuthView(true)
-                            .build();
-            SpotifyAppRemote.connect(this, connectionParams,
-                    new Connector.ConnectionListener() {
-
-                        @RequiresApi(api = Build.VERSION_CODES.N)
-                        @Override
-                        public void onConnected(SpotifyAppRemote spotifyAppRemote) {
-                            mSpotifyAppRemote = spotifyAppRemote;
-                            Log.d(TAG, "Connected to Spotify");
-
-                            // Now you can start interacting with App Remote
-                            connected();
-                        }
-
-                        @Override
-                        public void onFailure(Throwable throwable) {
-                            Log.e(TAG, throwable.getMessage(), throwable);
-
-                            // Something went wrong when attempting to connect! Handle errors here
-                        }
-                    });
-        }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    private void connected() {
-//         Play a playlist
-//        mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
-
-        // Subscribe to PlayerState to check for a song ending
-        mSpotifyAppRemote.getPlayerApi()
-                .subscribeToPlayerState()
-                .setEventCallback(playerState -> {
-                    final Track track = playerState.track;
-                    if (track != null) {
-                        Log.d(TAG, track.name + " by " + track.artist.name);
-                    }
-
-                    handleTrackEnded();
-                });
-    }
-
-    private boolean trackWasStarted = false;
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    private void handleTrackEnded() {
-        CallResult<PlayerState> playerStateCall = mSpotifyAppRemote.getPlayerApi().getPlayerState();
-        Result<PlayerState> playerStateResult = playerStateCall.await(10, TimeUnit.SECONDS);
-        PlayerState playerState = null;
-        if (playerStateResult.isSuccessful()) {
-            playerState = playerStateResult.getData();
-            setTrackWasStarted(playerState);
-            boolean isPaused = playerState.isPaused;
-            long position = playerState.playbackPosition;
-            boolean hasEnded = trackWasStarted && isPaused && position == 0;
-
-            if (hasEnded) {
-                trackWasStarted = false;
-                //TODO: remove the ended track, start the next track
-                songList.sort((o1, o2) -> Integer.compare(o1.getScore(), o2.getScore()));
-                songList.remove(0);
-                mSpotifyAppRemote.getPlayerApi().play(songList.get(0).getKey()); //starts the next track in the list with the highest score
-                //set the current song score to "infinity"
-                songList.get(0).setScore(Integer.MAX_VALUE);
-                //TODO: update score in Firestore
-                DocumentReference docRef = db.collection("songQueue").document(SESSION_ID);
-                docRef.update(songList.get(0).getKey(), true);
+        ConnectionParams connectionParams = new ConnectionParams.Builder(CLIENT_ID).setRedirectUri(REDIRECT_URI).showAuthView(true).build();
+        SpotifyAppRemote.connect(this, connectionParams, new Connector.ConnectionListener() {
+            @Override
+            public void onConnected(SpotifyAppRemote spotifyAppRemote) {
+                mSpotifyAppRemote = spotifyAppRemote;
+                Log.d(TAG, "Connected to Spotify");
+                connected();
             }
-        } else {
-            Throwable error = playerStateResult.getError();
-        }
+            @Override
+            public void onFailure(Throwable throwable) {
+                Log.e(TAG, throwable.getMessage(), throwable);
+            }
+        });
     }
 
-    private void setTrackWasStarted(PlayerState playerState) {
-        if(playerState == null) return;
-        CallResult<PlayerState> currState = mSpotifyAppRemote.getPlayerApi().getPlayerState();
-        long position = playerState.playbackPosition;
-        long duration = playerState.track.duration;
-        boolean isPlaying = !playerState.isPaused;
+    private void initToolbar() {
+        back.setOnClickListener(v -> onBackPressed());
 
-        if (!trackWasStarted && position > 0 && duration > 0 && isPlaying) {
-            trackWasStarted = true;
+        //TODO: Update leave session functionality
+        leaveSession.setOnClickListener(v -> onBackPressed());
+
+        sessionChat.setOnClickListener(v -> {
+            Intent intent = new Intent(SessionAdminActivity.this, SessionChatActivity.class);
+            intent.putExtra("session_id", SESSION_ID);
+            startActivity(intent);
+        });
+
+        //maybe change from Activity to AlertDialog
+        sessionSettings.setOnClickListener(v -> {
+            Intent intent = new Intent(SessionAdminActivity.this, SessionSettingsActivity.class);
+            intent.putExtra("session_id", SESSION_ID);
+            startActivity(intent);
+        });
+
+        addFriend.setOnClickListener(v -> {
+            Intent intent = new Intent(SessionAdminActivity.this, InviteFriendsActivity.class);
+            intent.putExtra("session_id", SESSION_ID);
+            startActivity(intent);
+        });
+    }
+
+    @SuppressLint("NewApi")
+    private void listenToSongQueue() {
+        db.collection("Session").document(SESSION_ID).collection("queue").addSnapshotListener((value, error) -> {
+            if (error != null) {
+                Log.w(TAG, "listen:error", error);
+                return;
+            }
+            if (value == null) return;
+            value.getDocumentChanges().forEach(dc -> {
+                Map<String, Object> data = dc.getDocument().getData();
+                Song s = new Song(data);
+                s.key = dc.getDocument().getId();
+                // update song info from spotify?
+                if (s.played) sqAdapter.remove(s);
+                else if (s.deleted) sqAdapter.remove(s);
+                else if (s.playing) sqAdapter.remove(s);
+                else {
+                    s.session_id = SESSION_ID;
+                    sqAdapter.add(s);
+                }
+                Log.d(TAG, s.toString());
+            });
+        });
+    }
+
+    private void initSongControls() {
+        //show spotify controls only for admin user
+            //set appropriate onClickListeners utilizing Spotify SDK
+            playButton.setOnClickListener(v -> {
+                //resume currently playing song in the Spotify player
+                Log.d(TAG, "play button clicked");
+                mSpotifyAppRemote.getPlayerApi().resume();
+                playButton.setVisibility(View.INVISIBLE);
+                pauseButton.setVisibility(View.VISIBLE);
+            });
+
+            pauseButton.setOnClickListener(v -> {
+                //pause currently playing song in the Spotify player
+                Log.d(TAG, "pause button clicked");
+                mSpotifyAppRemote.getPlayerApi().pause();
+                playButton.setVisibility(View.VISIBLE);
+                pauseButton.setVisibility(View.INVISIBLE);
+            });
+    }
+
+
+    private void connected() {
+        // Subscribe to PlayerState to check for a song ending
+        this.isConnected = true;
+        mSpotifyAppRemote.getPlayerApi().subscribeToPlayerState().setEventCallback(playerState -> {
+            boolean trackEnded = playerState.isPaused && playerState.playbackPosition == 0;
+            if (trackEnded) {
+                playNextFromQueue();
+            }
+        });
+    }
+
+    public void test(View v) {
+        playNextFromQueue();
+    }
+
+    private void playNextFromQueue() {
+        // update currentSong from playing to played
+        if (currentSong != null) {
+            Map<String, Object> endSong = new HashMap<String, Object>() {{
+                put("playing", false);
+                put("played", true);
+            }};
+            db.collection("Session").document(SESSION_ID).collection("queue").document(currentSong.getKey()).update(endSong);
         }
+
+        //update nextSong to playing
+        Song nextSong = sqAdapter.getFirst();
+        // update nextSong to be played
+        db.collection("Session").document(SESSION_ID).collection("queue").document(nextSong.getKey()).update("playing", true);
+        updateCurrentSong(nextSong);
+        // play it
+//        mSpotifyAppRemote.getPlayerApi().play(nextSong.getUri());
+    }
+
+    private void updateCurrentSong(Song s) {
+        currentSong = s;
+        songArtist.setText(s.getArtist());
+        songTitle.setText(s.getName());
+        songLength.setText((int) s.getDuration());
+
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        if(loggedInUser == sessionAdminUser) {
-            SpotifyAppRemote.disconnect(mSpotifyAppRemote);
+    protected void onDestroy() {
+        super.onDestroy();
+        SpotifyAppRemote.disconnect(mSpotifyAppRemote);
+    }
+
+    @Override
+    protected void onRestart() {
+        if (isConnected) {
+            // do something
         }
+        super.onRestart();
     }
 }
