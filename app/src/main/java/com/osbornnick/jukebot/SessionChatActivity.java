@@ -112,7 +112,7 @@ public class SessionChatActivity extends AppCompatActivity {
             hostUID = FirebaseAuth.getInstance().getCurrentUser().getUid();
             Log.d(TAG, "onCreate: hostUID " + hostUID);
         }
-
+        Log.d(TAG, "onCreate: hostUID " + hostUID);
         scrollToBot();
         listenMessages();
         //receiveMessages();
@@ -137,6 +137,9 @@ public class SessionChatActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                 if (task.isSuccessful() && task.getResult() != null) {
                                     username = task.getResult().getString("username");
+                                    if (username == null){
+                                        username = "Anonymous";
+                                    }
                                     Log.d(TAG, "onComplete: username " + username);
                                 }
                             }
@@ -154,8 +157,8 @@ public class SessionChatActivity extends AppCompatActivity {
                 scrollToBot();
                 String msg = message.getEditText().getText().toString();
                 String handleName;
-                if (username == null){
-                    handleName = uEmail;
+                if (username.equals("Anonymous")) {
+                    handleName = "Anonymous";
                 } else {
                     handleName = username;
                 }

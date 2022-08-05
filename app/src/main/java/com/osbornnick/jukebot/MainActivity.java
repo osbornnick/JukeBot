@@ -6,9 +6,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
+
+import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +47,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void SessionChat(View view){
+        if (FirebaseAuth.getInstance().getCurrentUser() == null){
+            Toast.makeText(MainActivity.this, "Please login to join the chat", Toast.LENGTH_SHORT).show();
+            return;
+        }
         Intent intent = new Intent(MainActivity.this, SessionChatActivity.class);
         startActivity(intent);
     }

@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -75,6 +76,10 @@ public class HomeActivity extends AppCompatActivity {
         newSession.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (FirebaseAuth.getInstance().getCurrentUser() == null){
+                    Toast.makeText(HomeActivity.this, "Please login to start the session", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 Intent intent = new Intent(HomeActivity.this, StartSessionActivity.class);
                 startActivity(intent);
             }
