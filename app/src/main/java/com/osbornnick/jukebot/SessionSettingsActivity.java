@@ -3,11 +3,13 @@ package com.osbornnick.jukebot;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -18,8 +20,10 @@ import java.util.Map;
 public class SessionSettingsActivity extends AppCompatActivity {
 
     private static final String TAG = "SessionSettingsActivity";
-    private final String SESSION_ID = "sessionTest1";
+    private String SESSION_ID = "sessionTest1";
+    private String SESSION_NAME = "Session 1";
 
+    TextView sessionTitle;
     ImageButton back, leaveSession;
     SwitchCompat joinSessionSwitch, toggleFriendInvite, toggleChat;
     Button cancel, save;
@@ -32,6 +36,11 @@ public class SessionSettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_session_settings);
 
+        Intent i = getIntent();
+        SESSION_ID = i.getStringExtra("session_id");
+        SESSION_NAME = i.getStringExtra("session_name");
+
+        sessionTitle = findViewById(R.id.sessionTitle);
         back = findViewById(R.id.back);
         leaveSession = findViewById(R.id.leaveSession);
         joinSessionSwitch = findViewById(R.id.joinSessionSwitch);
@@ -39,6 +48,7 @@ public class SessionSettingsActivity extends AppCompatActivity {
         toggleChat = findViewById(R.id.toggleChat);
         cancel = findViewById(R.id.cancel);
         save = findViewById(R.id.save);
+
 
         state = new HashMap<String, Object>();
 
@@ -50,6 +60,8 @@ public class SessionSettingsActivity extends AppCompatActivity {
     }
 
     private void initToolbar() {
+        sessionTitle.setText(SESSION_NAME);
+
         back.setOnClickListener(v -> onBackPressed());
 
         //TODO: Update leave session functionality

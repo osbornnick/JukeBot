@@ -54,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void launchNonAdminSession(View view) {
         Intent intent = new Intent(this, NonAdminSessionActivity.class);
+        intent.putExtra("session_id", "sessionTest1");
+        intent.putExtra("session_name", "Session 1");
         startActivity(intent);
     }
 }

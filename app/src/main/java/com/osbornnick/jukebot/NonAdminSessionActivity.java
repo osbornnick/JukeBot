@@ -27,10 +27,11 @@ import java.util.Map;
 
 public class NonAdminSessionActivity extends AppCompatActivity {
     private static final String TAG = "NonAdminSessionActivity";
-    private final String SESSION_ID = "sessionTest1";
+    private String SESSION_ID = "sessionTest1";
+    private String SESSION_NAME = "Session 1";
 
     RecyclerView songQueue;
-    TextView songTitle, songArtist, queueLabel, disconnectedText;
+    TextView songTitle, songArtist, queueLabel, disconnectedText, sessionTitle;
     ImageButton back, leaveSession, sessionChat, addFriend;
     ImageView coverArt;
     FloatingActionButton addSongFAB;
@@ -51,8 +52,10 @@ public class NonAdminSessionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_non_admin_session);
-//        Intent i = getIntent();
-//        SESSION_ID = i.getStringExtra("sessionId");
+        Intent i = getIntent();
+        SESSION_ID = i.getStringExtra("session_id");
+        SESSION_NAME = i.getStringExtra("session_name");
+
         handler = new Handler(Looper.getMainLooper());
 
         songQueue = findViewById(R.id.songQueue);
@@ -70,6 +73,7 @@ public class NonAdminSessionActivity extends AppCompatActivity {
         addSongFAB = findViewById(R.id.addSongFAB);
         loader = findViewById(R.id.loader);
         disconnectedText = findViewById(R.id.disconnectedText);
+        sessionTitle = findViewById(R.id.sessionTitle);
 
         //Set Tool Bar On clicks
         initToolbar();
@@ -84,6 +88,8 @@ public class NonAdminSessionActivity extends AppCompatActivity {
     }
 
     private void initToolbar() {
+        sessionTitle.setText(SESSION_NAME);
+
         back.setOnClickListener(v -> onBackPressed());
 
         //TODO: Update leave session functionality
@@ -92,12 +98,14 @@ public class NonAdminSessionActivity extends AppCompatActivity {
         sessionChat.setOnClickListener(v -> {
             Intent intent = new Intent(NonAdminSessionActivity.this, SessionChatActivity.class);
             intent.putExtra("session_id", SESSION_ID);
+            intent.putExtra("session_name", SESSION_NAME);
             startActivity(intent);
         });
 
         addFriend.setOnClickListener(v -> {
             Intent intent = new Intent(NonAdminSessionActivity.this, InviteFriendsActivity.class);
             intent.putExtra("session_id", SESSION_ID);
+            intent.putExtra("session_name", SESSION_NAME);
             startActivity(intent);
         });
     }
