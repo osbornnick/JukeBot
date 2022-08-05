@@ -112,6 +112,7 @@ public class SessionChatActivity extends AppCompatActivity {
             hostUID = FirebaseAuth.getInstance().getCurrentUser().getUid();
             Log.d(TAG, "onCreate: hostUID " + hostUID);
         }
+        Log.d(TAG, "onCreate: hostUID " + hostUID);
 
         scrollToBot();
         listenMessages();

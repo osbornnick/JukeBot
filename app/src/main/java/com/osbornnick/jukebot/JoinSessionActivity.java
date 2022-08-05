@@ -61,7 +61,7 @@ public class JoinSessionActivity extends AppCompatActivity {
     int REQUEST_ENABLE_BLUETOOTH = 1;
 
     private static final String APP_NAME = "JukeBot";
-    private static final UUID MY_UUID = UUID.fromString("8ce255c0-223a-11e0-ac64-0803450c9a66");
+    private static final UUID MY_UUID = UUID.fromString("38400000-8cf0-11bd-b23e-10b96e4ef00d");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,6 +148,8 @@ public class JoinSessionActivity extends AppCompatActivity {
         host.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                prefs.edit().remove("HostUID").apply();
                 user = FirebaseAuth.getInstance().getCurrentUser();
                 hostUID = user.getUid();
                 Log.d(TAG, "onClick: " + hostUID);
