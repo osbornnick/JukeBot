@@ -12,9 +12,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,17 +44,25 @@ public class HomeActivity extends AppCompatActivity {
     private String error = null;
     private String result = null;
     private String display_name = null;
-    private TextView mName;
+
+    TextView mName;
+    Button joinSessionTest;
+    ExtendedFloatingActionButton newSession;
+    ImageButton img_settings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        TextView tv_play = (TextView) findViewById(R.id.start_session);
-        TextView tv_join = findViewById(R.id.join_group);
-        ImageView img_settings = (ImageView) findViewById(R.id.personal_settings);
-        mName = (TextView) findViewById(R.id.txt_displayName);
+
+        newSession = findViewById(R.id.newSession);
+        joinSessionTest = findViewById(R.id.joinSessionTest);
+        img_settings = findViewById(R.id.personalSettings);
+        mName = findViewById(R.id.greeting);
+
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        //set greeting
         String name = preferences.getString("Name", "");
         if(!name.equalsIgnoreCase(""))
         {
@@ -59,7 +71,8 @@ public class HomeActivity extends AppCompatActivity {
         Log.d(TAG, "onCreate: displayname" + display_name);
         mName.setText(name);
 
-        tv_play.setOnClickListener(new View.OnClickListener() {
+        //set onClickListeners
+        newSession.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(HomeActivity.this, StartSessionActivity.class);
@@ -67,15 +80,13 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-        tv_join.setOnClickListener(new View.OnClickListener() {
+        joinSessionTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(HomeActivity.this, JoinSessionActivity.class);
                 startActivity(intent);
             }
         });
-
-
 
         img_settings.setOnClickListener(v -> {
             Intent intent = new Intent(HomeActivity.this, PersonalSettingsActivity.class);
