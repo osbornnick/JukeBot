@@ -73,12 +73,41 @@
                 android:layout_height="wrap_content"
                 android:background="@color/purple_500"
                 android:minHeight="?attr/actionBarSize"
-                app:titleTextColor="@color/white"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:titleTextColor="@color/white" />
+
+            <TextView
+                android:id="@+id/tv_btstatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="Status"
+                android:textColor="@color/onBackground"
+                android:textColorHint="@color/onBackground"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/personalSettings"
+                app:layout_constraintHorizontal_bias="0.954"
+                app:layout_constraintStart_toEndOf="@+id/greeting"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.219" />
+
+            <TextView
+                android:id="@+id/tv_hostclient"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="Host/Client"
+                android:textColor="@color/onBackground"
+                android:textColorHint="@color/onBackground"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/personalSettings"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toEndOf="@+id/greeting"
+                app:layout_constraintTop_toBottomOf="@+id/tv_btstatus"
+                app:layout_constraintVertical_bias="0.0" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -122,39 +151,77 @@
         android:layout_marginTop="16dp"
         android:layout_marginStart="12dp"/>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/nearbySession_rv"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/newSession"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/nearbySessionTag"
-        app:layout_constraintVertical_bias="0.0"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginBottom="8dp"
-        />
-
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/newSession"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
+        android:layout_marginBottom="16dp"
         android:contentDescription="Create a new Session to host"
         android:text="Start a Session"
         android:textStyle="bold"
         app:icon="@drawable/ic_add"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <Button
-        android:id="@+id/joinSessionTest"
+    <ListView
+        android:id="@+id/lv_deviceslist"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Join session"
+        app:layout_constraintBottom_toTopOf="@+id/newSession"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/nearbySessionTag"
+        app:layout_constraintVertical_bias="0.023" />
+
+    <Button
+        android:id="@+id/btn_listDevices"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="List Devices"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.482"
+        app:layout_constraintStart_toEndOf="@+id/nearbySessionTag"
+        app:layout_constraintTop_toBottomOf="@+id/joinedSession_rv" />
+
+    <Button
+        android:id="@+id/btn_host"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Become a Host"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintEnd_toStartOf="@+id/btn_shareHostUID"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lv_deviceslist"
+        app:layout_constraintVertical_bias="0.715" />
+
+    <Button
+        android:id="@+id/btn_shareHostUID"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Share Host UID"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/btn_host"
+        app:layout_constraintTop_toBottomOf="@+id/lv_deviceslist"
+        app:layout_constraintVertical_bias="0.715" />
+
+    <TextView
+        android:id="@+id/tv_hostUID"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:hint="Host UID"
+        android:textColor="#00BCD4"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_host"
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

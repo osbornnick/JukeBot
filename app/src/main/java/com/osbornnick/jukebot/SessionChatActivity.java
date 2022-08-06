@@ -100,9 +100,6 @@ public class SessionChatActivity extends AppCompatActivity {
         message = findViewById(R.id.message);
         mList = new ArrayList<>();
         db = FirebaseFirestore.getInstance();
-        //mSessionChatActivity = (ConstraintLayout) findViewById(R.id.activity_session_chat);
-        //mButton = (ImageButton) findViewById(R.id.submitButton);
-        //mMessage = findViewById(R.id.chatInputLayout);
         mRecyclerView = findViewById(R.id.recyclerView);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(SessionChatActivity.this);
         hostUID = preferences.getString("HostUID", "");
