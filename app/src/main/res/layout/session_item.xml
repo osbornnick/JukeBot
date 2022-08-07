@@ -13,8 +13,8 @@
         android:layout_marginStart="12dp"
         android:layout_marginTop="12dp"
         android:text="Session Name"
-        android:textColor="@color/onSurface"
-        android:textSize="24sp"
+        android:textColor="@color/teal_200"
+        android:textSize="14sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

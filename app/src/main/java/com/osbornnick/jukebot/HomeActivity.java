@@ -1,8 +1,11 @@
 package com.osbornnick.jukebot;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.app.Activity;
@@ -38,8 +41,16 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
+import com.osbornnick.jukebot.databinding.ActivityHomeBinding;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -51,6 +62,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -69,7 +85,7 @@ public class HomeActivity extends AppCompatActivity {
     private String error = null;
     private String result = null;
     private String display_name = null;
-
+    private List<String> hostUIDList = new ArrayList<>();
     // initialize bluetooth UI elements
     ListView mListView;
     Button mListDevices, mHost, mSendHostUID;
@@ -81,7 +97,6 @@ public class HomeActivity extends AppCompatActivity {
     FirebaseFirestore db;
 
     TextView mName;
-    Button joinSessionTest;
     ExtendedFloatingActionButton newSession;
     ImageButton img_settings;
 
@@ -99,10 +114,17 @@ public class HomeActivity extends AppCompatActivity {
     private static final String APP_NAME = "JukeBot";
     private static final UUID MY_UUID = UUID.fromString("38400000-8cf0-11bd-b23e-10b96e4ef00d");
 
+    // RecyclerView SessionName/Host
+    SessionRecyclerViewAdapter mAdapter;
+    ArrayList<Session> mList;
+    private ActivityHomeBinding binding;
+    RecyclerView mRecyclerView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
+        binding = ActivityHomeBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         newSession = findViewById(R.id.newSession);
         //joinSessionTest = findViewById(R.id.joinSessionTest);
@@ -110,6 +132,7 @@ public class HomeActivity extends AppCompatActivity {
 
         // initialize firestore db
         db = FirebaseFirestore.getInstance();
+        mList = new ArrayList<>();
         mName = findViewById(R.id.greeting);
 
         // bluetooth UI elements
@@ -121,6 +144,9 @@ public class HomeActivity extends AppCompatActivity {
         mHostUID = findViewById(R.id.tv_hostUID);
         mJoinStatus = findViewById(R.id.tv_hostclient);
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        // recyclerview UI elements
+        mRecyclerView = findViewById(R.id.joinedSession_rv);
 
 
 //        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -219,7 +245,15 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         listeners();
+        updateSessionName();
+        updateRecyclerView();
+    }
 
+    public void updateRecyclerView(){
+        mAdapter = new SessionRecyclerViewAdapter(HomeActivity.this,mList);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(HomeActivity.this, RecyclerView.VERTICAL, false);
+        mRecyclerView.setLayoutManager(linearLayoutManager);
+        mRecyclerView.setAdapter(mAdapter);
     }
 
     private void listeners(){
@@ -327,6 +361,7 @@ public class HomeActivity extends AppCompatActivity {
                     SharedPreferences.Editor editor = preferences.edit();
                     editor.putString("HostUID",tempMsg);
                     editor.apply();
+                    storeHostUID(tempMsg);
                     Log.d(TAG, "handleMessage: " + tempMsg);
 
                     break;
@@ -607,4 +642,60 @@ public class HomeActivity extends AppCompatActivity {
         else
             ActivityCompat.requestPermissions(activity, BLE_PERMISSIONS, requestCode);
     }
+
+    // client stores host uid in connectedSessionArray
+    public void storeHostUID(String hostUID){
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        user.getUid();
+        hostUIDList.add(hostUID);
+        Log.d(TAG, "storeHostUID: " + hostUIDList);
+        Map<String, Object> map = new HashMap<>();
+        map.put("connectedSession", FieldValue.arrayUnion(hostUID));
+        db.collection("users")
+                .document(user.getUid()).set(map, SetOptions.merge());
+    }
+
+    // recycler view UI
+//    private final EventListener<QuerySnapshot> eventListener = new EventListener<QuerySnapshot>() {
+//        @Override
+//        public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+//            if (error != null) return;
+//            if (value != null){
+//                int count = mList.size();
+//                for (DocumentChange document : value.getDocumentChanges()){
+//
+//                }
+//            }
+//        }
+//    };
+    private void updateSessionName() {
+        user = FirebaseAuth.getInstance().getCurrentUser();
+
+        db.collection("users").document(user.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                DocumentSnapshot documentSnapshot = task.getResult();
+                Log.d(TAG, documentSnapshot.getId() + " => " + documentSnapshot.getData());
+                Map<String, Object> map;
+                map = documentSnapshot.getData();
+
+//                Log.d(TAG, "onComplete: " + map.get("connectedSession"));
+//                Object array = map.get("connectedSession");
+
+                List<String> group = (List<String>) documentSnapshot.get("connectedSession");
+                Log.d(TAG, "onComplete: String List" + group);
+               // Session session = new Session()
+
+                for (String s : group){
+                 Session session = new Session();
+                 session.mSessionName = s;
+                 session.mSessionHost = "hosted by user x";
+                 mList.add(session);
+                }
+                mAdapter.notifyDataSetChanged();
+
+            }
+        });
+    }
+
 }
