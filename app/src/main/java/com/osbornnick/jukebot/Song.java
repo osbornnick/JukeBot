@@ -99,6 +99,22 @@ public class Song {
     }
 
     @Exclude
+    public Bitmap getAlbumImageIcon() {
+        try {
+            if(albumImage == null) {
+                URL url = new URL(albumImageURL);
+                Bitmap image = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                albumImage = image;
+            }
+            return albumImage;
+        } catch(IOException e) {
+            Log.d("Song", "getAlbumImage: " + e.toString());
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    @Exclude
     public long getDuration() {
         return duration;
     }
