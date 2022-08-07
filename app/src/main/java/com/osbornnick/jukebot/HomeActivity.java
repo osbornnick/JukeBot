@@ -149,16 +149,6 @@ public class HomeActivity extends AppCompatActivity {
         mRecyclerView = findViewById(R.id.joinedSession_rv);
 
 
-//        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        //set greeting
-//        String name = preferences.getString("Name", "");
-//        if(!name.equalsIgnoreCase(""))
-//        {
-//            name = "Hello " + name;
-//        }
-//        Log.d(TAG, "onCreate: displayname" + display_name);
-//        mName.setText(name);
-
         try {
 
             if (FirebaseAuth.getInstance().getCurrentUser() == null) {
@@ -202,14 +192,6 @@ public class HomeActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-//        joinSessionTest.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(HomeActivity.this, HomeActivity.class);
-//                startActivity(intent);
-//            }
-//        });
 
         img_settings.setOnClickListener(v -> {
             Intent intent = new Intent(HomeActivity.this, PersonalSettingsActivity.class);
@@ -655,19 +637,6 @@ public class HomeActivity extends AppCompatActivity {
                 .document(user.getUid()).set(map, SetOptions.merge());
     }
 
-    // recycler view UI
-//    private final EventListener<QuerySnapshot> eventListener = new EventListener<QuerySnapshot>() {
-//        @Override
-//        public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-//            if (error != null) return;
-//            if (value != null){
-//                int count = mList.size();
-//                for (DocumentChange document : value.getDocumentChanges()){
-//
-//                }
-//            }
-//        }
-//    };
     private void updateSessionName() {
         user = FirebaseAuth.getInstance().getCurrentUser();
 
