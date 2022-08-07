@@ -344,6 +344,7 @@ public class HomeActivity extends AppCompatActivity {
                     editor.putString("HostUID",tempMsg);
                     editor.apply();
                     storeHostUID(tempMsg);
+                    getUserNameFromHostUID(tempMsg);
                     Log.d(TAG, "handleMessage: " + tempMsg);
 
                     break;
@@ -637,6 +638,23 @@ public class HomeActivity extends AppCompatActivity {
                 .document(user.getUid()).set(map, SetOptions.merge());
     }
 
+    public void getUserNameFromHostUID(String hostUID){
+        db.collection("users")
+                .document(hostUID).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful() && task.getResult() != null) {
+                            username = task.getResult().getString("username");
+                            if (username == null){
+                                username = "Anonymous";
+                            }
+                            Log.d(TAG, "onComplete: username " + username);
+                        }
+                    }
+                });
+    }
+
     private void updateSessionName() {
         user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -652,16 +670,20 @@ public class HomeActivity extends AppCompatActivity {
 //                Object array = map.get("connectedSession");
 
                 List<String> group = (List<String>) documentSnapshot.get("connectedSession");
-                Log.d(TAG, "onComplete: String List" + group);
+                Log.d(TAG, "onComplete: String Lis　" + group);
                // Session session = new Session()
 
-                for (String s : group){
-                 Session session = new Session();
-                 session.mSessionName = s;
-                 session.mSessionHost = "hosted by user x";
-                 mList.add(session);
+                try {
+                    for (String s : group) {
+                        Session session = new Session();
+                        session.mSessionName = s;
+                        session.mSessionHost = "hosted by user x";
+                        mList.add(session);
+                    }
+                    mAdapter.notifyDataSetChanged();
+                } catch (Exception e){
+                    e.printStackTrace();
                 }
-                mAdapter.notifyDataSetChanged();
 
             }
         });
