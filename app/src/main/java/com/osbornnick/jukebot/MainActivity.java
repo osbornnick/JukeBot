@@ -66,4 +66,9 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("session_name", "Session 1");
         startActivity(intent);
     }
+
+    public void testAuth(View view) {
+        Intent intent = new Intent(this, SpotifyAuthActivity.class);
+        startActivity(intent);
+    }
 }
