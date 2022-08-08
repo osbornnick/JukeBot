@@ -196,6 +196,17 @@ public class SessionChatActivity extends AppCompatActivity {
             if (value != null) {
                 int count = mList.size();
                 for (DocumentChange document : value.getDocumentChanges()) {
+                    switch (document.getType()) {
+                        case ADDED:
+                            Log.d("TAG", "New Msg: " + document.getDocument().toObject(android.os.Message.class));
+                            break;
+                        case MODIFIED:
+                            Log.d("TAG", "Modified Msg: " + document.getDocument().toObject(android.os.Message.class));
+                            break;
+                        case REMOVED:
+                            Log.d("TAG", "Removed Msg: " + document.getDocument().toObject(android.os.Message.class));
+                            break;
+                    }
                     if (document.getType() == DocumentChange.Type.ADDED) {
                         Message msg = new Message();
                         msg.messageText = document.getDocument().getString("messageText");
@@ -208,6 +219,7 @@ public class SessionChatActivity extends AppCompatActivity {
 
                 if (count == 0) {
                     mAdapter.notifyDataSetChanged();
+                    Log.d(TAG, "onEvent: count " + count);
                 } else {
                     mAdapter.notifyItemRangeInserted(mList.size(), mList.size());
                     binding.recyclerView.smoothScrollToPosition(mList.size() - 1);

@@ -85,6 +85,7 @@ public class HomeActivity extends AppCompatActivity {
     private String error = null;
     private String result = null;
     private String display_name = null;
+    private String connectedUserName = null;
     private List<String> hostUIDList = new ArrayList<>();
     // initialize bluetooth UI elements
     ListView mListView;
@@ -148,6 +149,7 @@ public class HomeActivity extends AppCompatActivity {
         // recyclerview UI elements
         mRecyclerView = findViewById(R.id.joinedSession_rv);
 
+        listenForChange();
 
         try {
 
@@ -189,6 +191,7 @@ public class HomeActivity extends AppCompatActivity {
                     return;
                 }
                 Intent intent = new Intent(HomeActivity.this, StartSessionActivity.class);
+
                 startActivity(intent);
             }
         });
@@ -227,7 +230,9 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         listeners();
-        updateSessionName();
+       //listenForChange();
+      //updateSessionName();
+
         updateRecyclerView();
     }
 
@@ -344,7 +349,7 @@ public class HomeActivity extends AppCompatActivity {
                     editor.putString("HostUID",tempMsg);
                     editor.apply();
                     storeHostUID(tempMsg);
-                    getUserNameFromHostUID(tempMsg);
+                    //getUserNameFromHostUID(tempMsg);
                     Log.d(TAG, "handleMessage: " + tempMsg);
 
                     break;
@@ -635,9 +640,13 @@ public class HomeActivity extends AppCompatActivity {
         Map<String, Object> map = new HashMap<>();
         map.put("connectedSession", FieldValue.arrayUnion(hostUID));
         db.collection("users")
-                .document(user.getUid()).set(map, SetOptions.merge());
+                .document(user.getUid()).collection("SessionInfo").document(user.getUid()).set(map, SetOptions.merge());
+
+
+                //set(map, SetOptions.merge());
     }
 
+    // get username from hostuid. associate host uid with the username for recycler view
     public void getUserNameFromHostUID(String hostUID){
         db.collection("users")
                 .document(hostUID).get()
@@ -645,16 +654,21 @@ public class HomeActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful() && task.getResult() != null) {
-                            username = task.getResult().getString("username");
-                            if (username == null){
-                                username = "Anonymous";
+                            connectedUserName = task.getResult().getString("username");
+                            if (connectedUserName == null){
+                                connectedUserName = "Anonymous";
                             }
-                            Log.d(TAG, "onComplete: username " + username);
+                            Log.d(TAG, "onComplete: username " + connectedUserName);
+                            Map<String, Object> map = new HashMap<>();
+                            map.put("connectedUserName", FieldValue.arrayUnion(connectedUserName));
+                            db.collection("users")
+                                    .document(user.getUid()).collection("SessionInfo").document(user.getUid()).set(map, SetOptions.merge());
                         }
                     }
                 });
     }
 
+    // update the recycler view to display both the host uid aka session name and username
     private void updateSessionName() {
         user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -669,18 +683,36 @@ public class HomeActivity extends AppCompatActivity {
 //                Log.d(TAG, "onComplete: " + map.get("connectedSession"));
 //                Object array = map.get("connectedSession");
 
+
                 List<String> group = (List<String>) documentSnapshot.get("connectedSession");
+                List<String> usernameList = (List<String>) documentSnapshot.get("connectedUserName");
+                Log.d(TAG, "onComplete: " + usernameList);
                 Log.d(TAG, "onComplete: String Lis　" + group);
                // Session session = new Session()
 
+                int count = mList.size();
                 try {
-                    for (String s : group) {
+
+                    for (int i = 0 ; i < group.size(); i++){
                         Session session = new Session();
-                        session.mSessionName = s;
-                        session.mSessionHost = "hosted by user x";
+                        String s1 = group.get(i);
+                        String s2 = usernameList.get(i);
+                        session.mSessionName = s1;
+                        session.mSessionHost = s2;
                         mList.add(session);
                     }
-                    mAdapter.notifyDataSetChanged();
+                    if (count == 0){
+                        mAdapter.notifyDataSetChanged();
+                    } else {
+                        mAdapter.notifyItemRangeInserted(mList.size(),mList.size());
+                    }
+                    binding.joinedSessionRv.setVisibility(View.VISIBLE);
+//                    for (String s : group) {
+//
+//                        session.mSessionName = s;
+//                        mList.add(session);
+//                    }
+
                 } catch (Exception e){
                     e.printStackTrace();
                 }
@@ -689,4 +721,102 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-}
+    // get the host uid and host username
+    private void listenForChange(){
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        db.collection("users").document(user.getUid()).collection("SessionInfo").addSnapshotListener(eventListener);
+
+    }
+
+    private String getSessionName(String uid){
+        final String[] SessionName = new String[1];
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        db.collection("Session")
+                .document(uid).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful() && task.getResult() != null) {
+                            SessionName[0] = task.getResult().getString("name");
+                            Log.d(TAG, "onComplete: username " + SessionName[0]);
+
+
+                        }
+                    }
+                });
+
+        return SessionName[0];
+    }
+
+    // event listener for getting host name and username
+    private final EventListener<QuerySnapshot> eventListener = new EventListener<QuerySnapshot>() {
+        @Override
+        public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+            user = FirebaseAuth.getInstance().getCurrentUser();
+            if (error != null) return;
+            if (value != null) {
+                int count = mList.size();
+                List<String> group = new ArrayList<>();
+
+                for (DocumentChange document : value.getDocumentChanges()) {
+                    switch (document.getType()) {
+                        case ADDED:
+                            Log.d("TAG", "New Msg: " + document.getDocument().toObject(Message.class));
+
+                            break;
+                        case MODIFIED:
+                            Log.d("TAG", "Modified Msg: " + document.getDocument().toObject(Message.class));
+                            break;
+                        case REMOVED:
+                            Log.d("TAG", "Removed Msg: " + document.getDocument().toObject(Message.class));
+                            break;
+                    }
+                    if (document.getType() == DocumentChange.Type.ADDED) {
+                        group = (List<String>) document.getDocument().get("connectedSession");
+                        List<String> usernameList = (List<String>) document.getDocument().get("connectedUserName");
+                        Log.d(TAG, "onComplete: event listener " + usernameList);
+                        Log.d(TAG, "onComplete: event listener String Lis　" + group);
+                        for (int i = 0 ; i < group.size(); i++){
+                            Session session = new Session();
+
+                            String s1 = group.get(i);
+                            //String s2 = getSessionName(s1);
+                            //Log.d(TAG, "onEvent: s2 " + s2);
+                            //String s2 = usernameList.get(i);
+                            session.mSessionName = s1;
+                            //session.mSessionHost = s2;
+                            mList.add(session);
+                        }
+                    }
+
+                    if (document.getType() == DocumentChange.Type.MODIFIED){
+                        Log.d(TAG, "onEvent: calling document type modified");
+                        group = (List<String>) document.getDocument().get("connectedSession");
+                        List<String> usernameList = (List<String>) document.getDocument().get("connectedUserName");
+                        Log.d(TAG, "onComplete: event listener " + usernameList);
+                        Log.d(TAG, "onComplete: event listener String Lis　" + group);
+                        Log.d(TAG, "onEvent: last element " + group.get(group.size()-1));
+                        String lastName = group.get(group.size()-1);
+                        String lastHost = usernameList.get(usernameList.size()-1);
+                        Log.d(TAG, "onEvent: lastname " + lastName);
+                        Log.d(TAG, "onEvent: lasthost " + lastHost);
+                        Session session = new Session();
+                        session.mSessionName = lastName;
+                        //session.mSessionHost = lastHost;
+                        mList.add(session);
+                    }
+                }
+                if (count == 0){
+                    Log.d(TAG, "onEvent: count " + count);
+                    mAdapter.notifyDataSetChanged();
+                } else {
+                    mAdapter.notifyItemRangeInserted(mList.size(),mList.size());
+                    Log.d(TAG, "onEvent: calling madpter" + count);
+                    binding.joinedSessionRv.smoothScrollToPosition(mList.size()-1);
+                }
+                binding.joinedSessionRv.setVisibility(View.VISIBLE);
+            }
+        }
+    };
+    }
+
