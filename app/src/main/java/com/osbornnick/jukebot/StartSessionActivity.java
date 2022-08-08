@@ -5,7 +5,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -24,33 +29,62 @@ public class StartSessionActivity extends AppCompatActivity {
     private static final String TAG = "StartSessionActivity";
     FirebaseFirestore db;
     String username = null;
+    EditText mSessionName;
+    Button btn_confirm, btn_cancel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start_session);
+        mSessionName = findViewById(R.id.session_Name);
+        btn_confirm = findViewById(R.id.btn_confirm);
+        btn_cancel = findViewById(R.id.btn_cancel);
 
-        TextView name = findViewById(R.id.txt_loggedInName);
-        TextView email = findViewById(R.id.txt_email);
         db = FirebaseFirestore.getInstance();
 
-        email.setText("You are the host now");
+
         user = FirebaseAuth.getInstance().getCurrentUser();
         String uid = user.getUid();
         Log.d(TAG, "onCreate: " + uid);
 
-        db.collection("users")
-                .document(uid).get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful() && task.getResult() != null) {
-                            username = task.getResult().getString("username");
-                            Log.d(TAG, "onComplete: username " + username);
-                            name.setText("username: " + username);
-                        }
-                    }
-                });
+
+        mSessionName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() == 0){
+                    btn_confirm.setClickable(false);
+                } else {
+                    btn_confirm.setClickable(true);
+                }
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+
+
+        });
+
+        btn_cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+
+        btn_confirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
 
     }
 

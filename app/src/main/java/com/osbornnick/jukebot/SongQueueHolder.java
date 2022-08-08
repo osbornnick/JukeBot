@@ -7,12 +7,10 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Transaction;
 
 public class SongQueueHolder extends SongItemHolder {
@@ -29,7 +27,7 @@ public class SongQueueHolder extends SongItemHolder {
         score = itemView.findViewById(R.id.score);
         voteUp = itemView.findViewById(R.id.voteUp);
         voteDown = itemView.findViewById(R.id.voteDown);
-        delete = itemView.findViewById(R.id.delete);
+        delete = itemView.findViewById(R.id.GoToSession);
     }
 
     @SuppressLint("SetTextI18n")
