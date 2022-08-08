@@ -93,7 +93,7 @@ public class SessionRecyclerViewAdapter extends RecyclerView.Adapter<SessionRecy
                     intent2.putExtra("session_id", session_id);
                     intent2.putExtra("session_name", mSessionName.getText());
 
-                    if (user.getUid() == session_id){
+                    if (user.getUid().equals(session_id)){
                         context.startActivity(intent);
                     } else {
                         context.startActivity(intent2);
