@@ -4,18 +4,12 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -23,7 +17,16 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.StringReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +40,6 @@ public class SpotifyAuthActivity extends AppCompatActivity {
     Button button6, button7;
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-    RequestQueue mRequestQueue;
     String clientID, clientSecret;
     String authURL;
     String authToken;
@@ -49,7 +51,6 @@ public class SpotifyAuthActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test_auth);
 
-        mRequestQueue = Volley.newRequestQueue(this);
         button6 = findViewById(R.id.button6);
         button6.setOnClickListener(v -> {
             setSpotifyAuthToken();
@@ -86,46 +87,40 @@ public class SpotifyAuthActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     try {
-                        //String Request initialized
-                        StringRequest stringRequest = new StringRequest(Request.Method.POST, authURL, new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                try {
-                                    JSONObject json = new JSONObject(response);
-                                    authToken = json.getString("access_token");
-                                    authExpiration = LocalDateTime.now().plusSeconds((long) json.getInt("expires_in"));
-                                    Log.i(TAG, authToken + " ; Expires at " + authExpiration.toString());
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                    Log.i(TAG, e.toString());
-                                }
-                            }
-                        }, new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                Log.e(TAG, error.toString());
-                            }
-                        }) {
-                            @Override
-                            protected Map<String, String> getParams() throws AuthFailureError {
-                                Map<String, String> params = new HashMap<String, String>();
-                                params.put("grant_type", "client_credentials");
-                                params.put("client_id", clientID);
-                                params.put("client_secret", clientSecret);
-                                return params;
+                        Uri.Builder builder = new Uri.Builder()
+                                .appendQueryParameter("grant_type", "client_credentials")
+                                .appendQueryParameter("client_id", clientID)
+                                .appendQueryParameter("client_secret", clientSecret);
+                        String q = builder.build().getQuery();
 
-                            }
+                        URL url = new URL(authURL + "?" + q);
+                        Log.d(TAG, "run: " + url.toString());
+                        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                        conn.setRequestMethod("POST");
+                        conn.setRequestProperty ("Accept", "application/json");
+                        conn.setRequestProperty ("Content-Type", "application/x-www-form-urlencoded");
+                        conn.setDoInput(true);
 
-                            @Override
-                            public Map<String, String> getHeaders() throws AuthFailureError {
-                                Map<String, String> headers = new HashMap<String, String>();
-                                headers.put("Accept", "application/json");
-                                headers.put("Content-Type", "application/x-www-form-urlencoded");
-                                return headers;
+                        // Read response.
+                        int responseCode = conn.getResponseCode();
+                        String resp;
+                        if (responseCode == HttpURLConnection.HTTP_OK) {
+                            InputStream inputStream = conn.getInputStream();
+                            resp = convertStreamToString(inputStream);
+                            try {
+                                JSONObject json = new JSONObject(resp);
+                                authToken = json.getString("access_token");
+                                authExpiration = LocalDateTime.now().plusSeconds((long) json.getInt("expires_in"));
+                                Log.i(TAG, authToken + " ; Expires at " + authExpiration.toString());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                Log.i(TAG, e.toString());
                             }
-                        };
+                        } else {
+                            resp = null;
+                        }
 
-                        mRequestQueue.add(stringRequest);
+                        conn.disconnect();
                     } catch (Exception e) {
                         e.printStackTrace();
                         Log.i(TAG, e.toString());
@@ -143,50 +138,55 @@ public class SpotifyAuthActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    //String Request initialized
-                    StringRequest stringRequest = new StringRequest(Request.Method.GET, searchURL, new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            try {
-                                Log.d(TAG, response);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                Log.i(TAG, e.toString());
-                            }
-                        }
-                    }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Log.e(TAG, error.toString());
-                        }
-                    }) {
-                        @Override
-                        protected Map<String, String> getParams() throws AuthFailureError {
-                            Map<String, String> params = new HashMap<String, String>();
-                            params.put("type", "track,artist,album");
-                            params.put("limit", "15");
-                            params.put("include_external", "audio");
-                            params.put("query", query);
-                            return params;
+                    Uri.Builder builder = new Uri.Builder()
+                            .appendQueryParameter("type", "track")
+                            .appendQueryParameter("limit", "15")
+                            .appendQueryParameter("include_external", "audio")
+                            .appendQueryParameter("query", query);
+                    String q = builder.build().getQuery();
 
-                        }
+                    URL url = new URL(searchURL + "?" + q);
+                    Log.d(TAG, "run: " + url.toString());
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("GET");
+                    conn.setRequestProperty ("Authorization", "Bearer " + authToken);
+                    conn.setDoInput(true);
 
-                        @Override
-                        public Map<String, String> getHeaders() throws AuthFailureError {
-                            Log.d(TAG, "Authenticating with token: " + authToken);
-                            Map<String, String> headers = new HashMap<String, String>();
-                            headers.put("Authorization", "Bearer " + authToken);
-                            return headers;
-                        }
-                    };
+                    // Read response.
+                    int responseCode = conn.getResponseCode();
+                    String resp;
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
+                        InputStream inputStream = conn.getInputStream();
+                        resp = convertStreamToString(inputStream);
+                        Log.d(TAG, resp);
+                    } else {
+                        resp = null;
+                    }
 
-                    mRequestQueue.add(stringRequest);
+                    conn.disconnect();
+
                 } catch (Exception e) {
                     e.printStackTrace();
                     Log.i(TAG, e.toString());
                 }
             }
         }).start();
+    }
+
+    public static String convertStreamToString(InputStream inputStream){
+        StringBuilder stringBuilder=new StringBuilder();
+        try {
+            BufferedReader bufferedReader=new BufferedReader(new InputStreamReader(inputStream));
+            String len;
+            while((len=bufferedReader.readLine())!=null){
+                stringBuilder.append(len);
+            }
+            bufferedReader.close();
+            return stringBuilder.toString().replace(",", ",\n");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 
 }
