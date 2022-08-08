@@ -42,6 +42,7 @@ import com.google.android.material.floatingactionbutton.ExtendedFloatingActionBu
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
@@ -642,6 +643,8 @@ public class HomeActivity extends AppCompatActivity {
         db.collection("users")
                 .document(user.getUid()).collection("SessionInfo").document(user.getUid()).set(map, SetOptions.merge());
 
+//        db.collection("users")
+//                .document(user.getUid()).collection("SessionInfo").document(hostUID).set(map,SetOptions.merge());
 
                 //set(map, SetOptions.merge());
     }
@@ -728,6 +731,7 @@ public class HomeActivity extends AppCompatActivity {
 
     }
 
+    // moved to sessionrecyclerview adapter
     private String getSessionName(String uid){
         final String[] SessionName = new String[1];
         user = FirebaseAuth.getInstance().getCurrentUser();
@@ -773,8 +777,8 @@ public class HomeActivity extends AppCompatActivity {
                     }
                     if (document.getType() == DocumentChange.Type.ADDED) {
                         group = (List<String>) document.getDocument().get("connectedSession");
-                        List<String> usernameList = (List<String>) document.getDocument().get("connectedUserName");
-                        Log.d(TAG, "onComplete: event listener " + usernameList);
+                        //List<String> usernameList = (List<String>) document.getDocument().get("connectedUserName");
+                        //Log.d(TAG, "onComplete: event listener " + usernameList);
                         Log.d(TAG, "onComplete: event listener String Lis　" + group);
                         for (int i = 0 ; i < group.size(); i++){
                             Session session = new Session();
@@ -789,29 +793,31 @@ public class HomeActivity extends AppCompatActivity {
                         }
                     }
 
-                    if (document.getType() == DocumentChange.Type.MODIFIED){
-                        Log.d(TAG, "onEvent: calling document type modified");
-                        group = (List<String>) document.getDocument().get("connectedSession");
-                        List<String> usernameList = (List<String>) document.getDocument().get("connectedUserName");
-                        Log.d(TAG, "onComplete: event listener " + usernameList);
-                        Log.d(TAG, "onComplete: event listener String Lis　" + group);
-                        Log.d(TAG, "onEvent: last element " + group.get(group.size()-1));
-                        String lastName = group.get(group.size()-1);
-                        String lastHost = usernameList.get(usernameList.size()-1);
-                        Log.d(TAG, "onEvent: lastname " + lastName);
-                        Log.d(TAG, "onEvent: lasthost " + lastHost);
-                        Session session = new Session();
-                        session.mSessionName = lastName;
-                        //session.mSessionHost = lastHost;
-                        mList.add(session);
+                    try {
+                        if (document.getType() == DocumentChange.Type.MODIFIED) {
+                                Log.d(TAG, "onEvent: calling document type modified");
+                                group = (List<String>) document.getDocument().get("connectedSession");
+//                                int current = group.size()-1;
+//                                Log.d(TAG, "onComplete: event listener String Lis　" + group);
+                                String lastName = group.get(group.size() - 1);
+//                                Log.d(TAG, "onEvent: lastname " + lastName);
+                                Session session = new Session();
+                                session.mSessionName = lastName;
+                                //session.mSessionHost = lastHost;
+                                mList.add(session);
+                        }
+                    } catch (Exception e){
+                        e.printStackTrace();
                     }
+
                 }
                 if (count == 0){
                     Log.d(TAG, "onEvent: count " + count);
                     mAdapter.notifyDataSetChanged();
                 } else {
-                    mAdapter.notifyItemRangeInserted(mList.size(),mList.size());
-                    Log.d(TAG, "onEvent: calling madpter" + count);
+                    mAdapter.notifyItemChanged(group.size());
+                    //mAdapter.notifyItemRangeInserted(mList.size(),mList.size());
+                    Log.d(TAG, "onEvent: calling madpter " + count);
                     binding.joinedSessionRv.smoothScrollToPosition(mList.size()-1);
                 }
                 binding.joinedSessionRv.setVisibility(View.VISIBLE);
