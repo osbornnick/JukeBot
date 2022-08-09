@@ -1,5 +1,6 @@
 package com.osbornnick.jukebot;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,6 +51,8 @@ public class SongQueueAdapter extends RecyclerView.Adapter<SongItemHolder>  {
 
             @Override
             public boolean areItemsTheSame(Song item1, Song item2) {
+                boolean same = Objects.equals(item1.getKey(), item2.getKey());
+                Log.d("SongQueueAdapter", String.format("%s and %s the same? %s", item1, item2, same));
                 return Objects.equals(item1.getKey(), item2.getKey());
             }
         });
@@ -76,12 +79,19 @@ public class SongQueueAdapter extends RecyclerView.Adapter<SongItemHolder>  {
         return songQueue.size();
     }
 
+    // unfortunately much slower, but the binary search was failing when re-ordering smaller elements
+    // so it goes.
     public int add(Song s) {
+        for (int i = 0; i < songQueue.size(); i++) {
+            if (s.equals(songQueue.get(i))) {
+                songQueue.updateItemAt(i, s);
+                return -1;
+            }
+        }
         return songQueue.add(s);
     }
 
     public boolean remove(Song s) {
-//        if(songQueue.)
         return songQueue.remove(s);
     }
 

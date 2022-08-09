@@ -10,6 +10,7 @@ import com.google.firebase.database.Exclude;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
+import java.util.Objects;
 
 public class Song {
     public String key, name, artist, suggestedBy, uri, albumImageURL, albumIconImageURL;
@@ -132,6 +133,13 @@ public class Song {
     @SuppressLint("DefaultLocale")
     @Override
     public String toString() {
-        return String.format("Song uri:%s, score:%d", this.uri, this.score);
+        return String.format("%s Song uri:%s, score:%d", this.key, this.uri, this.score);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof Song)) return false;
+        return Objects.equals(((Song) o).getKey(), this.getKey());
     }
 }
