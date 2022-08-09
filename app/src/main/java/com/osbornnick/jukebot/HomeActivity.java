@@ -343,6 +343,7 @@ public class HomeActivity extends AppCompatActivity {
 //                String string = String.valueOf(writeMsg.getText());
 //                sendReceive.write(string.getBytes());
                 Log.d(TAG, "onClick: " + hostUID);
+                storeHostUID(hostUID);
                 // if you are not the host, hostuid should return null and prevents you from clicking the button
                 try {
                     if (hostUID == null){
