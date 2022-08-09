@@ -66,7 +66,6 @@ public class AddSongActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_song);
 
-        setContentView(R.layout.activity_session_admin);
         Intent i = getIntent();
         SESSION_ID = i.getStringExtra("session_id");
         SESSION_NAME = i.getStringExtra("session_name");
@@ -97,20 +96,17 @@ public class AddSongActivity extends AppCompatActivity {
                 authURL = (String) data.get("authURL");
 
                 Log.d(TAG, "client params retrieved successfully");
+                Log.d(TAG, "onEvent: " + clientID);
+                setSpotifyAuthToken();
             }
         });
-
-        setSpotifyAuthToken();
 
         //init toolbar
         initToolbar();
 
-        //get songs already in queue
-        songQueueIDs = new HashSet<>();
-        getSongsInQueue();
-
         //initialize the recycle view with empty list
         searchSongList = new ArrayList<>();
+        songQueueIDs = new HashSet<>();
         song_rv.setLayoutManager(new LinearLayoutManager(this));
         asAdapter = new AddSongAdapter(searchSongList);
         asAdapter.admin = this.admin;
@@ -120,6 +116,9 @@ public class AddSongActivity extends AppCompatActivity {
 
         //set cancelSearch onClick
         cancelSearch.setOnClickListener(v -> onBackPressed());
+
+        //get songs already in queue
+        getSongsInQueue();
 
         //update recycler view based on search
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -134,6 +133,12 @@ public class AddSongActivity extends AppCompatActivity {
                 return false;
             }
         });
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @Override
+    protected void onStart() {
+        super.onStart();
     }
 
     private void initToolbar() {
@@ -293,6 +298,7 @@ public class AddSongActivity extends AppCompatActivity {
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
+                                Log.d(TAG, "New Search results: recycler view adapter reset");
                                 asAdapter.resetSearchResults(searchSongList);
                                 asAdapter.notifyDataSetChanged();
                             }

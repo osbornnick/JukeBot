@@ -113,4 +113,13 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, SpotifyAuthActivity.class);
         startActivity(intent);
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void addSong(View view) {
+        Intent intent = new Intent(this, AddSongActivity.class);
+        intent.putExtra("session_id", "8DyHL0nZYAeWFkqcRfVE1wzLSoJ2");
+        intent.putExtra("session_name", "Yuna's Session");
+        intent.putExtra("admin", true);
+        startActivity(intent);
+    }
 }
