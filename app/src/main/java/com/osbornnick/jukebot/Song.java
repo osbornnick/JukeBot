@@ -12,8 +12,8 @@ import java.net.URL;
 import java.util.Map;
 
 public class Song {
-    public String key, name, artist, suggestedBy, uri, albumImageURL;
-    public Bitmap albumImage;
+    public String key, name, artist, suggestedBy, uri, albumImageURL, albumIconImageURL;
+    public Bitmap albumImage, albumIconImage;
     public long duration;
     public long score;
     public String session_id;
@@ -37,9 +37,6 @@ public class Song {
         if (data.containsKey("score")) {
             this.score = (long) data.get("score");
         }
-        if (data.containsKey("name")) {
-            this.name = (String) data.get("name");
-        }
         if (data.containsKey("artist")) {
             this.artist = (String) data.get("artist");
         }
@@ -53,6 +50,9 @@ public class Song {
             this.playing = (boolean) data.get("playing");
         }
         if (data.containsKey("albumImageURL")) {
+            this.albumImageURL = (String) data.get("albumImageURL");
+        }
+        if (data.containsKey("albumIconImageURL")) {
             this.albumImageURL = (String) data.get("albumImageURL");
         }
     }
@@ -101,14 +101,14 @@ public class Song {
     @Exclude
     public Bitmap getAlbumImageIcon() {
         try {
-            if(albumImage == null) {
-                URL url = new URL(albumImageURL);
+            if(albumIconImage == null) {
+                URL url = new URL(albumIconImageURL);
                 Bitmap image = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-                albumImage = image;
+                albumIconImage = image;
             }
-            return albumImage;
+            return albumIconImage;
         } catch(IOException e) {
-            Log.d("Song", "getAlbumImage: " + e.toString());
+            Log.d("Song", "getAlbumImageIcon: " + e.toString());
             System.out.println(e);
             return null;
         }

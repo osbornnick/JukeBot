@@ -146,4 +146,15 @@
         android:background="@color/white"
         />
 
+    <ProgressBar
+        android:id="@+id/recyclerLoad"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/song_rv"
+        app:layout_constraintEnd_toEndOf="@+id/song_rv"
+        app:layout_constraintStart_toStartOf="@+id/song_rv"
+        app:layout_constraintTop_toTopOf="@+id/song_rv" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
