@@ -79,6 +79,10 @@ public class SongQueueAdapter extends RecyclerView.Adapter<SongItemHolder>  {
         return songQueue.remove(s);
     }
 
+    public Song getFirst() {
+        return songQueue.get(0);
+    }
+
     public void clear() {
         songQueue.beginBatchedUpdates();
         while (songQueue.size() > 0) {

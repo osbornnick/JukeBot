@@ -16,6 +16,7 @@ public class Song {
     public String session_id;
     public boolean played = false;
     public boolean deleted = false;
+    public boolean playing = false;
 
     public Song(Map<String, Object> data) {
         if (data.containsKey("key")) {
@@ -44,6 +45,9 @@ public class Song {
         }
         if (data.containsKey("deleted")) {
             this.deleted = (boolean) data.get("deleted");
+        }
+        if (data.containsKey("playing")) {
+            this.playing = (boolean) data.get("playing");
         }
     }
 

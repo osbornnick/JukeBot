@@ -92,29 +92,22 @@ public class WiFiActivity extends AppCompatActivity {
     };
 
     public void listener(){
-        btnWiFi.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
-                startActivityForResult(intent, 1);            }
+        btnWiFi.setOnClickListener(v -> {
+            Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
+            startActivityForResult(intent, 1);
         });
 
-        btnDiscover.setOnClickListener(new View.OnClickListener() {
+        btnDiscover.setOnClickListener(v -> mWifiP2pManager.discoverPeers(mChannel, new WifiP2pManager.ActionListener() {
             @Override
-            public void onClick(View v) {
-                mWifiP2pManager.discoverPeers(mChannel, new WifiP2pManager.ActionListener() {
-                    @Override
-                    public void onSuccess() {
-                        txtStatus.setText("Discovery started");
-                    }
-
-                    @Override
-                    public void onFailure(int i) {
-                        txtStatus.setText("Discovery not started");
-                    }
-                });
+            public void onSuccess() {
+                txtStatus.setText("Discovery started");
             }
-        });
+
+            @Override
+            public void onFailure(int i) {
+                txtStatus.setText("Discovery not started");
+            }
+        }));
 
 
     }
