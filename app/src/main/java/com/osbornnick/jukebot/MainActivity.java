@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
                         String token = task.getResult();
                         sendToFirestoreDB(token);
                         Log.d(TAG, "Token: " + token);
-                        Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
+                       // Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
                     }
                 });
     }

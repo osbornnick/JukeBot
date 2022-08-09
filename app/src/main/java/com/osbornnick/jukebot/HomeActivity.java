@@ -252,7 +252,7 @@ public class HomeActivity extends AppCompatActivity {
                         // Get new FCM registration token
                         String token = task.getResult();
                         Log.d(TAG, "Token: " + token);
-                        Toast.makeText(HomeActivity.this, token, Toast.LENGTH_SHORT).show();
+                       // Toast.makeText(HomeActivity.this, token, Toast.LENGTH_SHORT).show();
                     }
                 });
 

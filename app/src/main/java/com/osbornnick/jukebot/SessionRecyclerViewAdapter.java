@@ -2,6 +2,8 @@ package com.osbornnick.jukebot;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -88,6 +90,10 @@ public class SessionRecyclerViewAdapter extends RecyclerView.Adapter<SessionRecy
                     // if you are the host. need host uid
                     Intent intent = new Intent(context, SessionAdminActivity.class);
                     Intent intent2 = new Intent(context, NonAdminSessionActivity.class);
+                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putString("HostUID",session_id);
+                    editor.apply();
                     intent.putExtra("session_id", session_id);
                     intent.putExtra("session_name", mSessionName.getText());
                     intent2.putExtra("session_id", session_id);
