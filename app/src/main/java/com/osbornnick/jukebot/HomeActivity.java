@@ -51,6 +51,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.osbornnick.jukebot.databinding.ActivityHomeBinding;
 
 import org.json.JSONException;
@@ -105,6 +106,8 @@ public class HomeActivity extends AppCompatActivity {
     BluetoothAdapter bluetoothAdapter;
     BluetoothDevice[] btArray;
 
+    private static String FCMToken = "fVKN20GcScS9IcRiObHJzP:APA91bE8fcP0lEyZbfGBglXg2nnVMn8E67NbYqAB1JSDattM3Z3YbOmJk0DZhLVvP6WSl0d5j856yfZIkvoO4oZ6Wxp1YCzf-6hJcRf5WJjj-avaGhrjBlYQoKK6POzQL882CJzc15le";
+    private static String FCMToken1 = "da9EoBepSjGs7xqJDLkEwc:APA91bGcHb-NAp8aIJpyVueBSXSpKgLNgEKM8zjB9dNTbDVl5WrwW9Nw6wOwAkr3I3x5xTnmJZe72qRiuCbuf1LKn0iBvy5l-wrdqedFlff7NdtbTFLdjPafFAHeRGfkCylJg1k9IW3r";
     static final int STATE_LISTENING = 1;
     static final int STATE_CONNECTING = 2;
     static final int STATE_CONNECTED = 3;
@@ -149,7 +152,7 @@ public class HomeActivity extends AppCompatActivity {
 
         // recyclerview UI elements
         mRecyclerView = findViewById(R.id.joinedSession_rv);
-
+        retrieveToken();
         listenForChange();
 
         try {
@@ -230,6 +233,23 @@ public class HomeActivity extends AppCompatActivity {
             startActivityForResult(enableIntent, REQUEST_ENABLE_BLUETOOTH);
         }
 
+        // fire messaging
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+                            return;
+                        }
+
+                        // Get new FCM registration token
+                        String token = task.getResult();
+                        Log.d(TAG, "Token: " + token);
+                        Toast.makeText(HomeActivity.this, token, Toast.LENGTH_SHORT).show();
+                    }
+                });
+
         listeners();
        //listenForChange();
       //updateSessionName();
@@ -282,6 +302,11 @@ public class HomeActivity extends AppCompatActivity {
         mHost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // itereate through the string array
+                String[] testArray = {FCMToken, FCMToken1};
+                for (int i = 0; i < testArray.length; i++) {
+                    FireBaseCloudMessage.pushNotification(HomeActivity.this, testArray[i], "JukeBot", username + " started the session");
+                }
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                 prefs.edit().remove("HostUID").apply();
                 user = FirebaseAuth.getInstance().getCurrentUser();
@@ -303,6 +328,7 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
+        // host sends the uid to other
         mSendHostUID.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -321,6 +347,25 @@ public class HomeActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void retrieveToken(){
+        db.collection("users")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Log.d(TAG, document.getId() + " => " + document.get("token"));
+
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+
     }
 
     Handler handler = new Handler(new Handler.Callback() {
@@ -811,18 +856,27 @@ public class HomeActivity extends AppCompatActivity {
                     }
 
                 }
-                if (count == 0){
-                    Log.d(TAG, "onEvent: count " + count);
-                    mAdapter.notifyDataSetChanged();
-                } else {
-                    mAdapter.notifyItemChanged(group.size());
-                    //mAdapter.notifyItemRangeInserted(mList.size(),mList.size());
-                    Log.d(TAG, "onEvent: calling madpter " + count);
-                    binding.joinedSessionRv.smoothScrollToPosition(mList.size()-1);
+                try {
+                    if (count == 0) {
+                        Log.d(TAG, "onEvent: count " + count);
+                        mAdapter.notifyDataSetChanged();
+                    } else {
+                        mAdapter.notifyItemChanged(group.size());
+                        //mAdapter.notifyItemRangeInserted(mList.size(),mList.size());
+                        Log.d(TAG, "onEvent: calling madpter " + count);
+                        binding.joinedSessionRv.smoothScrollToPosition(mList.size() - 1);
+                    }
+                    binding.joinedSessionRv.setVisibility(View.VISIBLE);
+                } catch (Exception e){
+                    e.printStackTrace();
                 }
-                binding.joinedSessionRv.setVisibility(View.VISIBLE);
             }
         }
     };
-    }
+
+    // cloud messaging
+
+
+
+}
 
