@@ -13,6 +13,7 @@ import java.util.Objects;
 
 public class SongQueueAdapter extends RecyclerView.Adapter<SongItemHolder>  {
     private SortedList<Song> songQueue;
+    public boolean admin = true;
 
     public SongQueueAdapter() {
         this.songQueue = new SortedList<>(Song.class, new SortedList.Callback<Song>() {
@@ -64,6 +65,10 @@ public class SongQueueAdapter extends RecyclerView.Adapter<SongItemHolder>  {
     @Override
     public void onBindViewHolder(@NonNull SongItemHolder holder, int position) {
         holder.bindThisData(songQueue.get(position));
+        if(!admin) {
+            SongQueueHolder h = (SongQueueHolder) holder;
+            h.delete.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -76,10 +81,12 @@ public class SongQueueAdapter extends RecyclerView.Adapter<SongItemHolder>  {
     }
 
     public boolean remove(Song s) {
+//        if(songQueue.)
         return songQueue.remove(s);
     }
 
     public Song getFirst() {
+        if(songQueue.size() == 0) return null;
         return songQueue.get(0);
     }
 

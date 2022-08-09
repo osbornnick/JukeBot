@@ -65,6 +65,29 @@
             android:layout_height="wrap_content"
             android:onClick="launchSession"
             android:text="Session testing" />
+
+        <Button
+            android:id="@+id/button5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="launchNonAdminSession"
+            android:text="NonAdmin Session" />
+
+        <Button
+            android:id="@+id/authTest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="testAuth"
+            android:text="Test Auth"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/button10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="addSong"
+            android:text="Add song" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

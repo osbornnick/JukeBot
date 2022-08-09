@@ -39,6 +39,7 @@ public class BluetoothActivity extends AppCompatActivity {
 
     BluetoothAdapter mBluetoothAdapter;
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -170,6 +171,7 @@ public class BluetoothActivity extends AppCompatActivity {
                         Set<BluetoothDevice> devices = mBluetoothAdapter.getBondedDevices();
                         for (BluetoothDevice device : devices) {
                             mPairedDevices.append("\nDevice" + device.getName() + "," + device);
+                            Log.d(TAG, "onClick: paireddevices");
                         }
                     } else {
                         Toast.makeText(BluetoothActivity.this, "Please turn on bluetooth to get paired devices", Toast.LENGTH_SHORT).show();

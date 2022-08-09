@@ -9,7 +9,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -81,6 +83,7 @@ public class SessionChatActivity extends AppCompatActivity {
     String username = null;
     TextInputLayout message;
     FloatingActionButton send;
+    String hostUID = null;
     private ActivitySessionChatBinding binding;
 
     //ConstraintLayout mSessionChatActivity;
@@ -97,13 +100,20 @@ public class SessionChatActivity extends AppCompatActivity {
         message = findViewById(R.id.message);
         mList = new ArrayList<>();
         db = FirebaseFirestore.getInstance();
-        //mSessionChatActivity = (ConstraintLayout) findViewById(R.id.activity_session_chat);
-        //mButton = (ImageButton) findViewById(R.id.submitButton);
-        //mMessage = findViewById(R.id.chatInputLayout);
         mRecyclerView = findViewById(R.id.recyclerView);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(SessionChatActivity.this);
+        hostUID = preferences.getString("HostUID", "");
+
+        if(hostUID.equalsIgnoreCase(""))
+        {
+            hostUID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            Log.d(TAG, "onCreate: hostUID " + hostUID);
+        }
+        Log.d(TAG, "onCreate: hostUID " + hostUID);
         scrollToBot();
         listenMessages();
         //receiveMessages();
+
 
         try {
 
@@ -115,17 +125,18 @@ public class SessionChatActivity extends AppCompatActivity {
                 user = FirebaseAuth.getInstance().getCurrentUser();
                 uEmail = user.getEmail();
                 user.getUid();
-                Log.d(TAG, "onCreate: uid" + user.getUid());
+                Log.d(TAG, "onCreate: uid " + user.getUid());
                 Log.d(TAG, "onCreate: " + user);
                 db.collection("users")
-                        .document(FirebaseAuth.getInstance()
-                                .getCurrentUser()
-                                .getUid()).get()
+                        .document(user.getUid()).get()
                         .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                 if (task.isSuccessful() && task.getResult() != null) {
                                     username = task.getResult().getString("username");
+                                    if (username == null){
+                                        username = "Anonymous";
+                                    }
                                     Log.d(TAG, "onComplete: username " + username);
                                 }
                             }
@@ -135,19 +146,21 @@ public class SessionChatActivity extends AppCompatActivity {
             Log.d(TAG, "onCreate: " + e);
         }
 
+        // session id -> message id -> collection of texts
+        // session id has to be the host
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 scrollToBot();
                 String msg = message.getEditText().getText().toString();
                 String handleName;
-                if (username == null){
-                    handleName = uEmail;
+                if (username.equals("Anonymous")) {
+                    handleName = "Anonymous";
                 } else {
                     handleName = username;
                 }
                 timeStamp = new SimpleDateFormat("MM-dd-yy HH:mm:ssa", Locale.getDefault()).format(new Date());
-                db.collection("Messages").add(new Message(msg, handleName, timeStamp)).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                db.collection("Messages").document(hostUID).collection("MessageID").add(new Message(msg, handleName, timeStamp)).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentReference> task) {
                         //listenMessages();
@@ -171,8 +184,9 @@ public class SessionChatActivity extends AppCompatActivity {
 
     }
 
+    // get the host uid via bluetooth data
     private void listenMessages() {
-        db.collection("Messages").orderBy("messageTime").addSnapshotListener(eventListener);
+        db.collection("Messages").document(hostUID).collection("MessageID").orderBy("messageTime").addSnapshotListener(eventListener);
     }
 
     private final EventListener<QuerySnapshot> eventListener = new EventListener<QuerySnapshot>() {
@@ -182,6 +196,17 @@ public class SessionChatActivity extends AppCompatActivity {
             if (value != null) {
                 int count = mList.size();
                 for (DocumentChange document : value.getDocumentChanges()) {
+                    switch (document.getType()) {
+                        case ADDED:
+                            Log.d("TAG", "New Msg: " + document.getDocument().toObject(android.os.Message.class));
+                            break;
+                        case MODIFIED:
+                            Log.d("TAG", "Modified Msg: " + document.getDocument().toObject(android.os.Message.class));
+                            break;
+                        case REMOVED:
+                            Log.d("TAG", "Removed Msg: " + document.getDocument().toObject(android.os.Message.class));
+                            break;
+                    }
                     if (document.getType() == DocumentChange.Type.ADDED) {
                         Message msg = new Message();
                         msg.messageText = document.getDocument().getString("messageText");
@@ -194,6 +219,7 @@ public class SessionChatActivity extends AppCompatActivity {
 
                 if (count == 0) {
                     mAdapter.notifyDataSetChanged();
+                    Log.d(TAG, "onEvent: count " + count);
                 } else {
                     mAdapter.notifyItemRangeInserted(mList.size(), mList.size());
                     binding.recyclerView.smoothScrollToPosition(mList.size() - 1);

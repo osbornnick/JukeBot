@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.osbornnick.jukebot">
 
+    <uses-sdk android:minSdkVersion="14" />
+
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -11,7 +13,6 @@
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-sdk android:minSdkVersion="14" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -29,6 +30,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.JukeBot"
         tools:targetApi="31">
+        <activity
+            android:name=".SpotifyAuthActivity"
+            android:exported="false" />
+        <activity
+            android:name=".JoinSessionActivity"
+            android:exported="false" />
         <activity
             android:name=".WiFiActivity"
             android:exported="false" />
@@ -49,7 +56,8 @@
             android:exported="false" />
         <activity
             android:name=".AddSongActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar" />
         <activity
             android:name=".SessionSettingsActivity"
             android:exported="false"
@@ -67,17 +75,19 @@
             android:exported="false"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
+            android:name=".NonAdminSessionActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
             android:name=".PersonalSettingsActivity"
             android:exported="false" />
         <activity
             android:name=".StartSessionActivity"
             android:exported="false" />
         <activity
-            android:name=".LoginActivity"
-            android:exported="false" />
-        <activity
             android:name=".HomeActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -87,6 +97,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".PushNotificationService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
     </application>
 
 </manifest>

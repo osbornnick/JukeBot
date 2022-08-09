@@ -68,13 +68,13 @@
         android:contentDescription="Decrease Vote by 1"
         android:background="@android:color/transparent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/delete"
+        app:layout_constraintEnd_toStartOf="@+id/GoToSession"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_arrow_down"
         android:layout_marginEnd="6dp" />
 
     <ImageButton
-        android:id="@+id/delete"
+        android:id="@+id/GoToSession"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="Remove Song from Queue"
