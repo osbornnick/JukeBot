@@ -15,7 +15,7 @@ public class AddSongAdapter extends RecyclerView.Adapter<SongItemHolder> {
     private static final String TAG = "AddSongAdapter";
     private static int TYPE_ADD = 1;
     private static int TYPE_QUEUE = 2;
-    private String SESSION_ID;
+    public String SESSION_ID;
     public boolean admin = true;
 
     HashSet<String> songQueue;

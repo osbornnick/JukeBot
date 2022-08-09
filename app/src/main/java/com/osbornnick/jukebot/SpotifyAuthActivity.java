@@ -147,7 +147,6 @@ public class SpotifyAuthActivity extends AppCompatActivity {
 
     public void spotifySearch(String query) {
         String searchURL = "https://api.spotify.com/v1/search";
-//        setSpotifyAuthToken();
 
         new Thread(new Runnable() {
             @Override
