@@ -125,6 +125,9 @@ public class HomeActivity extends AppCompatActivity {
     private ActivityHomeBinding binding;
     RecyclerView mRecyclerView;
 
+    // firebase cloud message
+    ArrayList<String> tokenList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -152,6 +155,9 @@ public class HomeActivity extends AppCompatActivity {
 
         // recyclerview UI elements
         mRecyclerView = findViewById(R.id.joinedSession_rv);
+
+        // retrieve token from Firestore for push notifications
+        tokenList = new ArrayList<>();
         retrieveToken();
         listenForChange();
 
@@ -303,10 +309,12 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // itereate through the string array
-                String[] testArray = {FCMToken, FCMToken1};
-                for (int i = 0; i < testArray.length; i++) {
-                    FireBaseCloudMessage.pushNotification(HomeActivity.this, testArray[i], "JukeBot", username + " started the session");
+                //String[] testArray = {FCMToken, FCMToken1};
+
+                for (int i = 0; i < tokenList.size(); i++) {
+                    FireBaseCloudMessage.pushNotification(HomeActivity.this, tokenList.get(i), "JukeBot", username + " started the session");
                 }
+                Log.d(TAG, "onClick: tokenList " + tokenList);
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                 prefs.edit().remove("HostUID").apply();
                 user = FirebaseAuth.getInstance().getCurrentUser();
@@ -356,8 +364,22 @@ public class HomeActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                Log.d(TAG, document.getId() + " => " + document.get("token"));
+                                //Log.d(TAG, document.getId() + " => " + document.get("token"));
+
+                                if (document.getString("token") == null){
+                                    //Log.d(TAG, "onComplete: token is null");
+                                } else {
+                                    String array = document.getString("token");
+                                    if (array.equals("null")){
+                                        continue;
+                                    }
+                                    //Log.d(TAG, "onComplete: " + array);
+
+                                    tokenList.add(array);
+                                    Log.d(TAG, "onComplete: tokenList " + tokenList);
+                                }
 
                             }
                         } else {
