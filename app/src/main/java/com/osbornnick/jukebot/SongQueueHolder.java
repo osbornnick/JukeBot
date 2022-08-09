@@ -16,6 +16,7 @@ import com.google.firebase.firestore.Transaction;
 public class SongQueueHolder extends SongItemHolder {
     public TextView songTitle, songArtist, suggestedBy, score;
     public ImageButton voteUp, voteDown, delete;
+    public boolean admin = true;
     DocumentReference songRef;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -58,9 +59,12 @@ public class SongQueueHolder extends SongItemHolder {
                     .addOnFailureListener(e -> Log.e("SongQueueHolder", "Failure", e));
         });
 
-        delete.setOnClickListener(v -> {
-            songRef.update("deleted", true);
-        });
-
+        if(!admin) {
+            delete.setVisibility(View.GONE);
+        } else {
+            delete.setOnClickListener(v -> {
+                songRef.update("deleted", true);
+            });
+        }
     }
 }

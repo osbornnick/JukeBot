@@ -12,7 +12,7 @@ import java.net.URL;
 import java.util.Map;
 
 public class Song {
-    public String key, name, artist, suggestedBy, uri, albumImageURL, albumIconImageURL;
+    public String key, name, artist, suggestedBy, uri, albumImageURL, albumIconImageURL, previewURL;
     public Bitmap albumImage, albumIconImage;
     public long duration;
     public long score;
@@ -53,7 +53,10 @@ public class Song {
             this.albumImageURL = (String) data.get("albumImageURL");
         }
         if (data.containsKey("albumIconImageURL")) {
-            this.albumImageURL = (String) data.get("albumImageURL");
+            this.albumIconImageURL = (String) data.get("albumIconImageURL");
+        }
+        if (data.containsKey("preview_url")) {
+            this.previewURL = (String) data.get("preview_url");
         }
     }
 

@@ -1,5 +1,6 @@
 package com.osbornnick.jukebot;
 
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -30,6 +31,7 @@ public class AddSongHolder extends SongItemHolder {
     ImageButton addSong;
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
+    SharedPreferences prefs;
 
 
     public AddSongHolder(@NonNull View itemView) {
@@ -44,41 +46,34 @@ public class AddSongHolder extends SongItemHolder {
     public void bindThisData(Song songToBind) {
         sessionID = songToBind.session_id;
 
-//        songIcon.setImageBitmap("");
+//        songIcon.setImageBitmap(songToBind.getAlbumImageIcon());
         songSearchTitle.setText(songToBind.getName());
         songDescription.setText(songToBind.getArtist());
-
+        CollectionReference songQueueRef = FirebaseFirestore.getInstance().collection("Session").document(songToBind.session_id).collection("queue");
+        String songId = songToBind.getKey();
+        Map<String, Object> songMap = new HashMap<>();
+        songMap.put("albumImageURL", songToBind.albumImageURL);
+        songMap.put("albumIconImageURL", songToBind.albumIconImageURL);
+        songMap.put("artist", songToBind.getArtist());
+        songMap.put("uri", songToBind.getUri());
+        songMap.put("name", songToBind.getName());
+        songMap.put("preview_url", songToBind.previewURL);
+        //TODO: Make sure we get username of active user to put in suggestedBy
+        songMap.put("suggestedBy", "userTest");
+        songMap.put("score", 1);
+        songMap.put("deleted", false);
+        songMap.put("played", false);
+        songMap.put("playing", false);
 
         addSong.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String songId = "song10Id";
-                Map<String, Object> songMap = new HashMap<>();
-                songMap.put("albumImageURL", "https://i.scdn.co/image/ab67616d00001e02ff9ca10b55ce82ae553c8228");
-                songMap.put("artist", "Lumineers");
-                songMap.put("uri", "spotify:track:" + songId);
-                songMap.put("suggestedBy", "userTest");
-                songMap.put("score", 1);
-                songMap.put("deleted", false);
-                songMap.put("played", false);
-                songMap.put("playing", false);
-
-                //add song to FireStore queue
-                db.collection("Session").document(sessionID).collection("queue").document(songId)
-                        .set(songMap)
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.d(TAG, "DocumentSnapshot successfully written!");
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.w(TAG, "Error writing document", e);
-                            }
-                        });
-
+                db.runTransaction((Transaction.Function<Void>) transaction -> {
+                    songQueueRef.document(songId).set(songMap);
+                    return null;
+                })
+                    .addOnSuccessListener(Void -> Log.d(TAG, "song added to queue"))
+                    .addOnFailureListener(e -> Log.e("SongQueueHolder", "Failure", e));
             }
         });
     }
