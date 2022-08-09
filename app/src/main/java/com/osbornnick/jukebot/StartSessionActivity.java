@@ -62,6 +62,27 @@ public class StartSessionActivity extends AppCompatActivity {
             }
         });
 
+        mSessionName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() == 0){
+                    btn_confirm.setClickable(false);
+                } else {
+                    btn_confirm.setClickable(true);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
         // confirm opens new activity
         btn_confirm.setOnClickListener(new View.OnClickListener() {
             @Override

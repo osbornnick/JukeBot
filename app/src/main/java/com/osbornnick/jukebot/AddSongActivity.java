@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -43,7 +44,7 @@ public class AddSongActivity extends AppCompatActivity {
     private static final String TAG = "AddSongActivity";
     private String SESSION_ID = "sessionTest1";
     private String SESSION_NAME = "sessionTest1";
-    private boolean admin = true;
+    private boolean admin = false;
     private String authToken, clientID, clientSecret, authURL;
     LocalDateTime authExpiration;
 
@@ -52,12 +53,13 @@ public class AddSongActivity extends AppCompatActivity {
     Button cancelSearch;
     RecyclerView song_rv;
     SearchView searchView;
+    ProgressBar recyclerLoad;
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     AddSongAdapter asAdapter;
     Handler handler;
 
-    HashSet<String> songQueueIDs;
+    HashMap<String, Song> songQueueIDs;
     ArrayList<Song> searchSongList;
 
     @SuppressLint("NewApi")
@@ -79,6 +81,7 @@ public class AddSongActivity extends AppCompatActivity {
         cancelSearch = findViewById(R.id.cancelSearch);
         song_rv = findViewById(R.id.song_rv);
         searchView = findViewById(R.id.searchView);
+        recyclerLoad = findViewById(R.id.recyclerLoad);
 
         //get clientID and clientSecret
         db.collection("meta").document("adminUser").addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -106,9 +109,9 @@ public class AddSongActivity extends AppCompatActivity {
 
         //initialize the recycle view with empty list
         searchSongList = new ArrayList<>();
-        songQueueIDs = new HashSet<>();
+        songQueueIDs = new HashMap<>();
         song_rv.setLayoutManager(new LinearLayoutManager(this));
-        asAdapter = new AddSongAdapter(searchSongList);
+        asAdapter = new AddSongAdapter(searchSongList, songQueueIDs);
         asAdapter.admin = this.admin;
         asAdapter.SESSION_ID = this.SESSION_ID;
         asAdapter.setSongQueue(songQueueIDs);
@@ -124,6 +127,7 @@ public class AddSongActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                recyclerLoad.setVisibility(View.VISIBLE);
                 spotifySearch(query);
                 return false;
             }
@@ -166,16 +170,17 @@ public class AddSongActivity extends AppCompatActivity {
             }
             if (value == null) return;
             value.getDocumentChanges().forEach(dc -> {
-                songQueueIDs.add(dc.getDocument().getId());
+//                songQueueIDs.add(dc.getDocument().getId());
                 Map<String, Object> data = dc.getDocument().getData();
                 Song s = new Song(data);
+                s.session_id = this.SESSION_ID;
                 s.key = dc.getDocument().getId();
                 // update song info from spotify?
                 if (s.played) songQueueIDs.remove(s.getKey());
                 else if (s.deleted) songQueueIDs.remove(s.getKey());
                 else if (s.playing) songQueueIDs.remove(s.getKey());
                 else {
-                    songQueueIDs.add(s.getKey());
+                    songQueueIDs.put(s.getKey(), s);
                 }
 
                 //update songQueue stored in Adapter
@@ -263,44 +268,45 @@ public class AddSongActivity extends AppCompatActivity {
                     conn.setDoInput(true);
 
                     // Read response.
+                    Log.d(TAG, "running api search request " + query);
                     int responseCode = conn.getResponseCode();
                     String resp;
                     if (responseCode == HttpURLConnection.HTTP_OK) {
                         InputStream inputStream = conn.getInputStream();
                         resp = convertStreamToString(inputStream);
-                        Log.d(TAG, resp);
+//                        Log.d(TAG, resp);
                         JSONArray respJSON = new JSONObject(resp).getJSONObject("tracks").getJSONArray("items");
                         for(int i = 0; i < respJSON.length(); i++) {
                             JSONObject songJSON = respJSON.getJSONObject(i);
-                            /*
-                            String songUri = songJSON.getString("uri");
-                            String songTitle = songJSON.getString("name");
-                            String songArtist = songJSON.getJSONArray("artists").getJSONObject(0).getString("name");
-                            String previewURL = songJSON.getString("preview_url");
-                            String albumImageURL = songJSON.getJSONObject("album").getJSONArray("images").getJSONObject(1).getString("url");
-                            String albumIconImageURL = songJSON.getJSONObject("album").getJSONArray("images").getJSONObject(2).getString("url");
-                             */
 
                             Map<String, Object> map = new HashMap<>();
                             map.put("key", songJSON.getString("id"));
                             map.put("name", songJSON.getString("name"));
                             map.put("uri", songJSON.getString("uri"));
+                            map.put("preview_url", songJSON.getString("preview_url"));
                             map.put("artist", songJSON.getJSONArray("artists").getJSONObject(0).getString("name"));
                             map.put("albumImageURL", songJSON.getJSONObject("album").getJSONArray("images").getJSONObject(1).getString("url"));
                             map.put("albumIconImageURL", songJSON.getJSONObject("album").getJSONArray("images").getJSONObject(2).getString("url"));
                             Song s = new Song(map);
+//                            s.getAlbumImage();
+//                            s.getAlbumImageIcon();
                             s.session_id = SESSION_ID;
 
                             searchSongList.add(s);
                         }
+
+                        for(Song s : searchSongList) {
+                            Log.d(TAG, "resetSearchResults: " + s.toString());
+                        }
+                        asAdapter.resetSearchResults(searchSongList);
 
                         //update the adapter with new search terms
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
                                 Log.d(TAG, "New Search results: recycler view adapter reset");
-                                asAdapter.resetSearchResults(searchSongList);
                                 asAdapter.notifyDataSetChanged();
+                                recyclerLoad.setVisibility(View.INVISIBLE);
                             }
                         });
                     } else {
