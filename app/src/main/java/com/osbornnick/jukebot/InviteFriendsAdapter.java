@@ -1,5 +1,6 @@
 package com.osbornnick.jukebot;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.SortedList;
 import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 import java.util.Locale;
@@ -20,10 +22,12 @@ import java.util.logging.LogRecord;
 public class InviteFriendsAdapter extends RecyclerView.Adapter<InviteFriendsHolder> {
     private SortedList<String> userList;
     private ArrayList<String> userListAll;
+    private HashMap<String, String> userMap;
     public String sessionID;
     Filter filter;
+    Context context;
 
-    public InviteFriendsAdapter(ArrayList<String> users, String sessionID) {
+    public InviteFriendsAdapter(HashMap<String, String> users, String sessionID, Context view) {
         this.userList = new SortedList<>(String.class, new SortedList.Callback<String>() {
 
             @Override
@@ -62,9 +66,13 @@ public class InviteFriendsAdapter extends RecyclerView.Adapter<InviteFriendsHold
             }
         });
 
-        userList.addAll(users);
-        userListAll = users;
+        userMap = users;
+        for(String username : userMap.keySet()) {
+            userList.add(username);
+            userListAll.add(username);
+        }
         this.sessionID = sessionID;
+        context = view;
 
         filter = new Filter() {
             //runs on background thread
@@ -99,12 +107,12 @@ public class InviteFriendsAdapter extends RecyclerView.Adapter<InviteFriendsHold
     @Override
     public InviteFriendsHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.friend_search_item, parent, false);
-        return new InviteFriendsHolder(view);
+        return new InviteFriendsHolder(view, context);
     }
 
     @Override
     public void onBindViewHolder(@NonNull InviteFriendsHolder holder, int position) {
-        holder.bindThisData(userList.get(position), sessionID);
+        holder.bindThisData(userList.get(position), userMap.get(userList.get(position)), sessionID);
     }
 
     @Override

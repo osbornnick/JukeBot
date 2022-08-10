@@ -20,6 +20,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -35,7 +36,7 @@ public class InviteFriendsActivity extends AppCompatActivity {
     RecyclerView user_rv;
     InviteFriendsAdapter adapter;
 
-    ArrayList<String> sessionUserList;
+    HashMap<String, String> sessionUserList;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -59,10 +60,10 @@ public class InviteFriendsActivity extends AppCompatActivity {
         initToolbar();
 
         //init user recycler view
-        sessionUserList = new ArrayList<>();
+        sessionUserList = new HashMap<>();
         getUserList();
         user_rv.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new InviteFriendsAdapter(sessionUserList, SESSION_ID);
+        adapter = new InviteFriendsAdapter(sessionUserList, SESSION_ID, InviteFriendsActivity.this);
         user_rv.setAdapter(adapter);
         user_rv.addItemDecoration(new DividerItemDecoration(user_rv.getContext(), ((LinearLayoutManager)user_rv.getLayoutManager()).getOrientation()));
 
@@ -114,7 +115,7 @@ public class InviteFriendsActivity extends AppCompatActivity {
                     HashSet<String> sessions = new HashSet<>(Arrays.asList(connectedSessions));
                     String userID = dc.getDocument().getId();
                     if(!sessions.contains(this.SESSION_ID)) {
-                        this.sessionUserList.add((String) data.get("username"));
+                        this.sessionUserList.put((String) data.get("username"), userID);
 
                         Log.d(TAG, (String) data.get("username") + " found");
                     }
