@@ -37,22 +37,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         db = FirebaseFirestore.getInstance();
-//        FirebaseMessaging.getInstance().getToken()
-//                .addOnCompleteListener(new OnCompleteListener<String>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<String> task) {
-//                        if (!task.isSuccessful()) {
-//                            Log.w(TAG, "Fetching FCM registration token failed", task.getException());
-//                            return;
-//                        }
-//
-//                        // Get new FCM registration token
-//                        String token = task.getResult();
-//                        sendToFirestoreDB(token);
-//                        Log.d(TAG, "Token: " + token);
-//                       // Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
-//                    }
-//                });
         Toolbar mToolbar = findViewById(R.id.toolbar2);
         setSupportActionBar(mToolbar);
         usernameTV = findViewById(R.id.usernameTV);
@@ -101,6 +85,26 @@ public class MainActivity extends AppCompatActivity {
 
     // temp code
     public void Home(View view) {
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            Toast.makeText(MainActivity.this, "Please login to join the chat", Toast.LENGTH_SHORT).show();
+            return;
+        }
+                FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+                            return;
+                        }
+
+                        // Get new FCM registration token
+                        String token = task.getResult();
+                        sendToFirestoreDB(token);
+                        Log.d(TAG, "Token: " + token);
+                       // Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
+                    }
+                });
         Intent intent = new Intent(MainActivity.this, HomeActivity.class);
         startActivity(intent);
     }

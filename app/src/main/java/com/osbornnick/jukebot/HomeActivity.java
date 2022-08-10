@@ -101,7 +101,7 @@ public class HomeActivity extends AppCompatActivity {
     ExtendedFloatingActionButton newSession;
     ImageButton img_settings;
 
-    BluetoothAdapter mBluetoothAdapter;
+    private BluetoothAdapter mBluetoothAdapter;
     BluetoothDevice[] btArray;
 
     private static String FCMToken = "fVKN20GcScS9IcRiObHJzP:APA91bE8fcP0lEyZbfGBglXg2nnVMn8E67NbYqAB1JSDattM3Z3YbOmJk0DZhLVvP6WSl0d5j856yfZIkvoO4oZ6Wxp1YCzf-6hJcRf5WJjj-avaGhrjBlYQoKK6POzQL882CJzc15le";
@@ -215,6 +215,7 @@ public class HomeActivity extends AppCompatActivity {
                 return;
             } else {
                 //status.setText("Bluetooth is available");
+                Log.d(TAG, "onCreate: calling from try catch ");
                 requestBlePermissions(HomeActivity.this, REQUEST_ENABLE_BLUETOOTH);
             }
         } catch (Exception e){
@@ -224,6 +225,7 @@ public class HomeActivity extends AppCompatActivity {
 
         if (!mBluetoothAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            Log.d(TAG, "onCreate: calling");
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                 // TODO: Consider calling
                 //    ActivityCompat#requestPermissions
@@ -233,6 +235,7 @@ public class HomeActivity extends AppCompatActivity {
                 // to handle the case where the user grants the permission. See the documentation
                 // for ActivityCompat#requestPermissions for more details.
                 requestBlePermissions(HomeActivity.this, REQUEST_ENABLE_BLUETOOTH);
+
             }
             startActivityForResult(enableIntent, REQUEST_ENABLE_BLUETOOTH);
         }
@@ -259,7 +262,7 @@ public class HomeActivity extends AppCompatActivity {
       //updateSessionName();
 
         updateRecyclerView();
-        bluetoothName = getLocalBluetoothName();
+
     }
 
     public void updateRecyclerView(){
@@ -309,6 +312,7 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(View view) {
                 // itereate through the string array
                 //String[] testArray = {FCMToken, FCMToken1};
+                bluetoothName = getLocalBluetoothName();
 
                 for (int i = 0; i < tokenList.size(); i++) {
                     FireBaseCloudMessage.pushNotification(HomeActivity.this, tokenList.get(i), "JukeBot", username + " started the session on " + bluetoothName);
@@ -690,6 +694,7 @@ public class HomeActivity extends AppCompatActivity {
             Manifest.permission.BLUETOOTH_SCAN,
             Manifest.permission.BLUETOOTH_CONNECT,
             Manifest.permission.ACCESS_FINE_LOCATION,
+
     };
 
     public static void requestBlePermissions(Activity activity, int requestCode) {
@@ -697,6 +702,7 @@ public class HomeActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(activity, ANDROID_12_BLE_PERMISSIONS, requestCode);
         else
             ActivityCompat.requestPermissions(activity, BLE_PERMISSIONS, requestCode);
+
     }
 
     // client stores host uid in connectedSessionArray
@@ -897,15 +903,16 @@ public class HomeActivity extends AppCompatActivity {
     };
 
     public String getLocalBluetoothName(){
-        if(mBluetoothAdapter == null){
-            mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        }
-
-        String name = mBluetoothAdapter.getName();
-        Log.d(TAG, "getLocalBluetoothName: " + name);
-        if(name == null){
-            System.out.println("Name is null!");
-            name = mBluetoothAdapter.getAddress();
+        String name = null;
+        try {
+            name = mBluetoothAdapter.getName();
+            Log.d(TAG, "getLocalBluetoothName: " + name);
+            if (name == null) {
+                System.out.println("Name is null!");
+                name = mBluetoothAdapter.getAddress();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return name;
     }
