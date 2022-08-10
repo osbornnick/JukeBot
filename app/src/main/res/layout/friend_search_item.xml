@@ -47,19 +47,4 @@
         app:srcCompat="@drawable/ic_person_add"
         android:background="@android:color/transparent" />
 
-    <TextView
-        android:id="@+id/alreadyAddedText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:text="Member"
-        android:textColor="@color/onSurface"
-        android:textSize="14sp"
-        android:visibility="invisible"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

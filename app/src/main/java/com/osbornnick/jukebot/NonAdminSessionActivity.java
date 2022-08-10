@@ -85,6 +85,18 @@ public class NonAdminSessionActivity extends AppCompatActivity {
         songQueue.setAdapter(sqAdapter);
 
         listenToSongQueue();
+
+        //onClickListener for FAB
+        addSongFAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(NonAdminSessionActivity.this, AddSongActivity.class);
+                intent.putExtra("session_id", SESSION_ID);
+                intent.putExtra("session_name", SESSION_NAME);
+                intent.putExtra("admin", false);
+                startActivity(intent);
+            }
+        });
     }
 
     private void initToolbar() {
@@ -92,8 +104,14 @@ public class NonAdminSessionActivity extends AppCompatActivity {
 
         back.setOnClickListener(v -> onBackPressed());
 
-        //TODO: Update leave session functionality
-        leaveSession.setOnClickListener(v -> onBackPressed());
+        leaveSession.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(NonAdminSessionActivity.this, HomeActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(i);
+            }
+        });
 
         sessionChat.setOnClickListener(v -> {
             Intent intent = new Intent(NonAdminSessionActivity.this, SessionChatActivity.class);

@@ -30,19 +30,16 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
@@ -65,7 +62,6 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,6 +85,8 @@ public class HomeActivity extends AppCompatActivity {
     private String display_name = null;
     private String connectedUserName = null;
     private List<String> hostUIDList = new ArrayList<>();
+    private String bluetoothName = null;
+
     // initialize bluetooth UI elements
     ListView mListView;
     Button mListDevices, mHost, mSendHostUID;
@@ -103,7 +101,7 @@ public class HomeActivity extends AppCompatActivity {
     ExtendedFloatingActionButton newSession;
     ImageButton img_settings;
 
-    BluetoothAdapter bluetoothAdapter;
+    BluetoothAdapter mBluetoothAdapter;
     BluetoothDevice[] btArray;
 
     private static String FCMToken = "fVKN20GcScS9IcRiObHJzP:APA91bE8fcP0lEyZbfGBglXg2nnVMn8E67NbYqAB1JSDattM3Z3YbOmJk0DZhLVvP6WSl0d5j856yfZIkvoO4oZ6Wxp1YCzf-6hJcRf5WJjj-avaGhrjBlYQoKK6POzQL882CJzc15le";
@@ -151,7 +149,7 @@ public class HomeActivity extends AppCompatActivity {
         mBTStatus = findViewById(R.id.tv_btstatus);
         mHostUID = findViewById(R.id.tv_hostUID);
         mJoinStatus = findViewById(R.id.tv_hostclient);
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         // recyclerview UI elements
         mRecyclerView = findViewById(R.id.joinedSession_rv);
@@ -159,6 +157,7 @@ public class HomeActivity extends AppCompatActivity {
         // retrieve token from Firestore for push notifications
         tokenList = new ArrayList<>();
         retrieveToken();
+        bluetoothName = getLocalBluetoothName();
         listenForChange();
 
         try {
@@ -212,7 +211,7 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         try {
-            if (bluetoothAdapter == null) {
+            if (mBluetoothAdapter == null) {
                 //status.setText("Bluetooth is not available");
                 return;
             } else {
@@ -224,7 +223,7 @@ public class HomeActivity extends AppCompatActivity {
             //status.setText("Bluetooth is not available");
         }
 
-        if (!bluetoothAdapter.isEnabled()) {
+        if (!mBluetoothAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                 // TODO: Consider calling
@@ -286,7 +285,7 @@ public class HomeActivity extends AppCompatActivity {
                     requestBlePermissions(HomeActivity.this, REQUEST_ENABLE_BLUETOOTH);
 
                 }
-                Set<BluetoothDevice> bt = bluetoothAdapter.getBondedDevices();
+                Set<BluetoothDevice> bt = mBluetoothAdapter.getBondedDevices();
                 String[] strings = new String[bt.size()];
                 btArray = new BluetoothDevice[bt.size()];
                 int index = 0;
@@ -312,7 +311,7 @@ public class HomeActivity extends AppCompatActivity {
                 //String[] testArray = {FCMToken, FCMToken1};
 
                 for (int i = 0; i < tokenList.size(); i++) {
-                    FireBaseCloudMessage.pushNotification(HomeActivity.this, tokenList.get(i), "JukeBot", username + " started the session");
+                    FireBaseCloudMessage.pushNotification(HomeActivity.this, tokenList.get(i), "JukeBot", username + " started the session on " + bluetoothName);
                 }
                 Log.d(TAG, "onClick: tokenList " + tokenList);
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -442,7 +441,7 @@ public class HomeActivity extends AppCompatActivity {
                     // for ActivityCompat#requestPermissions for more details.
                     requestBlePermissions(HomeActivity.this, REQUEST_ENABLE_BLUETOOTH);
                 }
-                serverSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(APP_NAME, MY_UUID);
+                serverSocket = mBluetoothAdapter.listenUsingRfcommWithServiceRecord(APP_NAME, MY_UUID);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -897,8 +896,18 @@ public class HomeActivity extends AppCompatActivity {
         }
     };
 
-    // cloud messaging
-
+    public String getLocalBluetoothName(){
+        if(mBluetoothAdapter == null){
+            mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        }
+        String name = mBluetoothAdapter.getName();
+        Log.d(TAG, "getLocalBluetoothName: " + name);
+        if(name == null){
+            System.out.println("Name is null!");
+            name = mBluetoothAdapter.getAddress();
+        }
+        return name;
+    }
 
 
 }

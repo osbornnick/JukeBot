@@ -4,6 +4,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -60,7 +61,6 @@ public class AddSongActivity extends AppCompatActivity {
     Handler handler;
 
     HashMap<String, Song> songQueueIDs;
-    ArrayList<Song> searchSongList;
 
     @SuppressLint("NewApi")
     @Override
@@ -108,14 +108,15 @@ public class AddSongActivity extends AppCompatActivity {
         initToolbar();
 
         //initialize the recycle view with empty list
-        searchSongList = new ArrayList<>();
         songQueueIDs = new HashMap<>();
         song_rv.setLayoutManager(new LinearLayoutManager(this));
-        asAdapter = new AddSongAdapter(searchSongList, songQueueIDs);
+        asAdapter = new AddSongAdapter(new ArrayList<>(), songQueueIDs);
         asAdapter.admin = this.admin;
         asAdapter.SESSION_ID = this.SESSION_ID;
         asAdapter.setSongQueue(songQueueIDs);
         song_rv.setAdapter(asAdapter);
+
+        song_rv.addItemDecoration(new DividerItemDecoration(song_rv.getContext(), ((LinearLayoutManager)song_rv.getLayoutManager()).getOrientation()));
 
         //set cancelSearch onClick
         cancelSearch.setOnClickListener(v -> onBackPressed());
@@ -246,7 +247,7 @@ public class AddSongActivity extends AppCompatActivity {
 
     public void spotifySearch(String query) {
         String searchURL = "https://api.spotify.com/v1/search";
-        searchSongList.clear();
+        ArrayList<Song> searchSongListNew = new ArrayList<>();
 
         new Thread(new Runnable() {
             @SuppressLint("NotifyDataSetChanged")
@@ -274,8 +275,9 @@ public class AddSongActivity extends AppCompatActivity {
                     if (responseCode == HttpURLConnection.HTTP_OK) {
                         InputStream inputStream = conn.getInputStream();
                         resp = convertStreamToString(inputStream);
-//                        Log.d(TAG, resp);
                         JSONArray respJSON = new JSONObject(resp).getJSONObject("tracks").getJSONArray("items");
+
+                        //loop through the at most 15 tracks and insert to searchSongListNew
                         for(int i = 0; i < respJSON.length(); i++) {
                             JSONObject songJSON = respJSON.getJSONObject(i);
 
@@ -288,23 +290,19 @@ public class AddSongActivity extends AppCompatActivity {
                             map.put("albumImageURL", songJSON.getJSONObject("album").getJSONArray("images").getJSONObject(1).getString("url"));
                             map.put("albumIconImageURL", songJSON.getJSONObject("album").getJSONArray("images").getJSONObject(2).getString("url"));
                             Song s = new Song(map);
-//                            s.getAlbumImage();
-//                            s.getAlbumImageIcon();
                             s.session_id = SESSION_ID;
 
-                            searchSongList.add(s);
-                        }
-
-                        for(Song s : searchSongList) {
                             Log.d(TAG, "resetSearchResults: " + s.toString());
+
+                            searchSongListNew.add(s);
                         }
-                        asAdapter.resetSearchResults(searchSongList);
 
                         //update the adapter with new search terms
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
                                 Log.d(TAG, "New Search results: recycler view adapter reset");
+                                asAdapter.resetSearchResults(searchSongListNew);
                                 asAdapter.notifyDataSetChanged();
                                 recyclerLoad.setVisibility(View.INVISIBLE);
                             }

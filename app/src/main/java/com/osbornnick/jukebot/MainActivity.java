@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void login(View view) {
         Intent i = new Intent(this, LoginActivity.class);
-        Log.d(TAG, "login: calling" );
+        Log.d(TAG, "login: calling");
         startActivity(i);
     }
 
@@ -79,21 +79,22 @@ public class MainActivity extends AppCompatActivity {
         startActivity(i);
 
     }
+
     // temp code
-    public void Home(View view){
+    public void Home(View view) {
         Intent intent = new Intent(MainActivity.this, HomeActivity.class);
         startActivity(intent);
     }
 
-    public void SessionSettings(View view){
+    public void SessionSettings(View view) {
         Intent intent = new Intent(MainActivity.this, SessionSettingsActivity.class);
         intent.putExtra("session_id", "sessionTest1");
         intent.putExtra("session_name", "Session 1");
         startActivity(intent);
     }
 
-    public void SessionChat(View view){
-        if (FirebaseAuth.getInstance().getCurrentUser() == null){
+    public void SessionChat(View view) {
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
             Toast.makeText(MainActivity.this, "Please login to join the chat", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -143,5 +144,11 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.nav_menu, menu);
         return true;
+    }
+    public void inviteFriend(View view) {
+        Intent intent = new Intent(this, InviteFriendsActivity.class);
+        intent.putExtra("session_id", "8DyHL0nZYAeWFkqcRfVE1wzLSoJ2");
+        intent.putExtra("session_name", "Yuna's Session");
+        startActivity(intent);
     }
 }

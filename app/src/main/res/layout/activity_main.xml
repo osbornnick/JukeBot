@@ -101,6 +101,12 @@
             android:onClick="addSong"
             android:text="Add song" />
 
+        <Button
+            android:id="@+id/inviteFriend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="inviteFriend"
+            android:text="Invite Friend" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

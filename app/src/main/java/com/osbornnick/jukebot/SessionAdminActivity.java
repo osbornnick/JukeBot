@@ -32,9 +32,11 @@ import java.util.Map;
 public class SessionAdminActivity extends AppCompatActivity {
     private static final String TAG = "SessionActivity";
     private String SESSION_ID = "sessionTest1";
+    private String SESSION_NAME = "Session 1";
+    private boolean admin = true;
 
     RecyclerView songQueue;
-    TextView songTitle, songArtist, songLength, songLengthRemaining, queueLabel, disconnectedText;
+    TextView songTitle, songArtist, songLength, songLengthRemaining, queueLabel, disconnectedText, sessionTitle;
     SeekBar songProgressBar;
     ImageButton skipPrevious, playButton, pauseButton, skipNext, back, leaveSession, sessionChat, sessionSettings, addFriend;
     ImageView coverArt;
@@ -80,6 +82,7 @@ public class SessionAdminActivity extends AppCompatActivity {
         coverArt = findViewById(R.id.coverArt);
         addSongFAB = findViewById(R.id.addSongFAB);
         loader = findViewById(R.id.loader);
+        sessionTitle = findViewById(R.id.sessionTitle);
 
         //Set Tool Bar On clicks
         initToolbar();
@@ -93,6 +96,18 @@ public class SessionAdminActivity extends AppCompatActivity {
         songQueue.setAdapter(sqAdapter);
 
         listenToSongQueue();
+
+        //onClickListener for FAB
+        addSongFAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(SessionAdminActivity.this, AddSongActivity.class);
+                intent.putExtra("session_id", SESSION_ID);
+                intent.putExtra("session_name", SESSION_NAME);
+                intent.putExtra("admin", true);
+                startActivity(intent);
+            }
+        });
     }
 
     /*
@@ -120,6 +135,8 @@ public class SessionAdminActivity extends AppCompatActivity {
 
     private void initToolbar() {
         back.setOnClickListener(v -> onBackPressed());
+
+        sessionTitle.setText(SESSION_NAME);
 
         //TODO: Update leave session functionality
         leaveSession.setOnClickListener(v -> onBackPressed());

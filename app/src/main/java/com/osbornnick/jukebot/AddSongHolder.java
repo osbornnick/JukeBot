@@ -26,7 +26,6 @@ public class AddSongHolder extends SongItemHolder {
     private static final String TAG = "AddSongHolder";
     private String sessionID = "sessionTest1";
 
-    ImageView songIcon;
     TextView songSearchTitle, songDescription;
     ImageButton addSong;
 
@@ -36,7 +35,6 @@ public class AddSongHolder extends SongItemHolder {
 
     public AddSongHolder(@NonNull View itemView) {
         super(itemView);
-        songIcon = itemView.findViewById(R.id.songIcon);
         songSearchTitle = itemView.findViewById(R.id.songSearchTitle);
         songDescription = itemView.findViewById(R.id.songDescription);
         addSong = itemView.findViewById(R.id.addSong);
@@ -46,7 +44,6 @@ public class AddSongHolder extends SongItemHolder {
     public void bindThisData(Song songToBind) {
         sessionID = songToBind.session_id;
 
-//        songIcon.setImageBitmap(songToBind.getAlbumImageIcon());
         songSearchTitle.setText(songToBind.getName());
         songDescription.setText(songToBind.getArtist());
         CollectionReference songQueueRef = FirebaseFirestore.getInstance().collection("Session").document(songToBind.session_id).collection("queue");
