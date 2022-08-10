@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -29,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     FirebaseFirestore db;
     FirebaseUser user;
+    TextView usernameTV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +55,23 @@ public class MainActivity extends AppCompatActivity {
 //                });
         Toolbar mToolbar = findViewById(R.id.toolbar2);
         setSupportActionBar(mToolbar);
+        usernameTV = findViewById(R.id.usernameTV);
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            db.collection("users").document(user.getUid()).get().addOnSuccessListener(snap -> {
+                usernameTV.setText(snap.get("username", String.class));
+            });
+        }
+        FirebaseAuth.getInstance().addAuthStateListener(firebaseAuth -> {
+            FirebaseUser u = firebaseAuth.getCurrentUser();
+            if (u != null) {
+                db.collection("users").document(u.getUid()).get().addOnSuccessListener(snap -> {
+                    usernameTV.setText(snap.get("username", String.class));
+                });
+            } else {
+                usernameTV.setText("");
+            }
+        });
     }
 
     private void sendToFirestoreDB(String token) {
