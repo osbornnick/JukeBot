@@ -157,7 +157,6 @@ public class HomeActivity extends AppCompatActivity {
         // retrieve token from Firestore for push notifications
         tokenList = new ArrayList<>();
         retrieveToken();
-        bluetoothName = getLocalBluetoothName();
         listenForChange();
 
         try {
@@ -260,6 +259,7 @@ public class HomeActivity extends AppCompatActivity {
       //updateSessionName();
 
         updateRecyclerView();
+        bluetoothName = getLocalBluetoothName();
     }
 
     public void updateRecyclerView(){
@@ -900,6 +900,7 @@ public class HomeActivity extends AppCompatActivity {
         if(mBluetoothAdapter == null){
             mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         }
+
         String name = mBluetoothAdapter.getName();
         Log.d(TAG, "getLocalBluetoothName: " + name);
         if(name == null){

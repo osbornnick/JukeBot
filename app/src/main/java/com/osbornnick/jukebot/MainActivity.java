@@ -55,7 +55,13 @@ public class MainActivity extends AppCompatActivity {
         Map<String, Object> tokenData = new HashMap<>();
         tokenData.put("token", token);
 
-        db.collection("users").document(user.getUid()).set(tokenData, SetOptions.merge());
+        try {
+            db.collection("users").document(user.getUid()).set(tokenData, SetOptions.merge());
+        } catch (Exception e){
+            Toast.makeText(this, "please log in", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+
     }
 
     public void SpotifyAuth(View view) {
@@ -76,6 +82,10 @@ public class MainActivity extends AppCompatActivity {
     }
     // temp code
     public void Home(View view){
+        if (FirebaseAuth.getInstance().getCurrentUser() == null){
+            Toast.makeText(MainActivity.this, "Please login to join the chat", Toast.LENGTH_SHORT).show();
+            return;
+        }
         Intent intent = new Intent(MainActivity.this, HomeActivity.class);
         startActivity(intent);
     }
