@@ -28,7 +28,7 @@ public class SongQueueHolder extends SongItemHolder {
         score = itemView.findViewById(R.id.score);
         voteUp = itemView.findViewById(R.id.voteUp);
         voteDown = itemView.findViewById(R.id.voteDown);
-        delete = itemView.findViewById(R.id.GoToSession);
+        delete = itemView.findViewById(R.id.delete);
     }
 
     @SuppressLint("SetTextI18n")

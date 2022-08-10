@@ -79,7 +79,7 @@ public class SessionRecyclerViewAdapter extends RecyclerView.Adapter<SessionRecy
             super(itemView);
             mSessionName = itemView.findViewById(R.id.sessionName);
             mSessionHost = itemView.findViewById(R.id.hostedBy);
-            imageButton = itemView.findViewById(R.id.GoToSession);
+            imageButton = itemView.findViewById(R.id.delete);
             itemView.setClickable(true);
 
             imageButton.setOnClickListener(new View.OnClickListener() {

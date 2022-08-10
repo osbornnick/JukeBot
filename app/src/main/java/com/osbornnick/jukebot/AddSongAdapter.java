@@ -45,7 +45,9 @@ public class AddSongAdapter extends RecyclerView.Adapter<SongItemHolder> {
 //        return new AddSongHolder(view);
         if(viewType == TYPE_QUEUE) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.song_queue_item, parent, false);
-            return new SongQueueHolder(view);
+            SongQueueHolder v = new SongQueueHolder(view);
+            v.admin = this.admin;
+            return v;
         } else {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.song_search_item, parent, false);
             return new AddSongHolder(view);
