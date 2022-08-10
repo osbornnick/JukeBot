@@ -122,4 +122,11 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("admin", true);
         startActivity(intent);
     }
+
+    public void inviteFriend(View view) {
+        Intent intent = new Intent(this, InviteFriendsActivity.class);
+        intent.putExtra("session_id", "8DyHL0nZYAeWFkqcRfVE1wzLSoJ2");
+        intent.putExtra("session_name", "Yuna's Session");
+        startActivity(intent);
+    }
 }

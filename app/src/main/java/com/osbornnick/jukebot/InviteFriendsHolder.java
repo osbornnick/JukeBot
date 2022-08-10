@@ -13,7 +13,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Transaction;
 
 public class InviteFriendsHolder extends RecyclerView.ViewHolder{
-    TextView username, alreadyAddedText;
+    TextView username;
     ImageButton addUser;
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -23,28 +23,19 @@ public class InviteFriendsHolder extends RecyclerView.ViewHolder{
         super(itemView);
 
         username = itemView.findViewById(R.id.username);
-        alreadyAddedText = itemView.findViewById(R.id.alreadyAddedText);
         addUser = itemView.findViewById(R.id.addUser);
     }
 
-    public void bindThisData(String user, boolean inSession, String sessionID) {
+    public void bindThisData(String user, String sessionID) {
         this.sessionID = sessionID;
         username.setText(user);
-        if(!inSession) {
-            alreadyAddedText.setVisibility(View.GONE);
-            addUser.setVisibility(View.VISIBLE);
-
-            //addUser onClick Listener
-            addUser.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+        //addUser onClick Listener
+        addUser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 //                    db.collection("Session").document(sessionID).collection("users")
 
-                }
-            });
-        } else {
-            alreadyAddedText.setVisibility(View.VISIBLE);
-            addUser.setVisibility(View.GONE);
-        }
+            }
+        });
     }
 }
