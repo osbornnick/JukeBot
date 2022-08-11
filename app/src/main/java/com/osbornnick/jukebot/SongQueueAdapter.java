@@ -46,7 +46,7 @@ public class SongQueueAdapter extends RecyclerView.Adapter<SongItemHolder>  {
 
             @Override
             public boolean areContentsTheSame(Song oldItem, Song newItem) {
-                return Objects.equals(oldItem.getUri(), newItem.getUri()) && oldItem.getScore() == newItem.getScore();
+                return Objects.equals(oldItem.getUri(), newItem.getUri()) && oldItem.getScore() == newItem.getScore() && Objects.equals(oldItem.voted, newItem.voted);
             }
 
             @Override

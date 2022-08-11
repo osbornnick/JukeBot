@@ -27,6 +27,7 @@ import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SessionAdminActivity extends AppCompatActivity {
@@ -173,7 +174,12 @@ public class SessionAdminActivity extends AppCompatActivity {
                 Map<String, Object> data = dc.getDocument().getData();
                 Song s = new Song(data);
                 s.key = dc.getDocument().getId();
+                List<String> upVotes = (List<String>) data.get("upVotes");
+                List<String> downVotes = (List<String>) data.get("downVotes");
+                if (upVotes != null && upVotes.contains(currentUser.getUid())) s.voted = "UP";
+                if (downVotes != null && downVotes.contains(currentUser.getUid())) s.voted = "DOWN";
                 // update song info from spotify?
+                Log.d("Song update heard", s.toString());
                 if (s.played) sqAdapter.remove(s);
                 else if (s.deleted) sqAdapter.remove(s);
                 else if (s.playing) sqAdapter.remove(s);
@@ -246,7 +252,6 @@ public class SessionAdminActivity extends AppCompatActivity {
         songArtist.setText(s.getArtist());
         songTitle.setText(s.getName());
         songLength.setText((int) s.getDuration());
-
     }
 
     @Override

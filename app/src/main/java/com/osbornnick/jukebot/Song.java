@@ -21,6 +21,7 @@ public class Song {
     public boolean played = false;
     public boolean deleted = false;
     public boolean playing = false;
+    public String voted = null;
 
     public Song(Map<String, Object> data) {
         if (data.containsKey("key")) {
@@ -136,7 +137,8 @@ public class Song {
     @SuppressLint("DefaultLocale")
     @Override
     public String toString() {
-        return String.format("%s Song uri:%s, score:%d", this.key, this.uri, this.score);
+        String votedString = voted == null ? "null" : voted;
+        return String.format("%s Song uri:%s, score:%d, voted:%s", this.key, this.uri, this.score, votedString);
     }
 
     @Override
