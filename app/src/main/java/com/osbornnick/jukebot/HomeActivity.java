@@ -62,6 +62,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +77,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private SharedPreferences.Editor editor;
     private SharedPreferences msharedPreferences;
-    private String token = null;
+    private final String token = null;
     private URL mUrl = null;
     private HttpURLConnection conn = null;
     private InputStream mInputStream = null;
@@ -84,7 +85,7 @@ public class HomeActivity extends AppCompatActivity {
     private String result = null;
     private String display_name = null;
     private String connectedUserName = null;
-    private List<String> hostUIDList = new ArrayList<>();
+    private final List<String> hostUIDList = new ArrayList<>();
     private String bluetoothName = null;
 
     // initialize bluetooth UI elements
@@ -104,8 +105,8 @@ public class HomeActivity extends AppCompatActivity {
     private BluetoothAdapter mBluetoothAdapter;
     BluetoothDevice[] btArray;
 
-    private static String FCMToken = "fVKN20GcScS9IcRiObHJzP:APA91bE8fcP0lEyZbfGBglXg2nnVMn8E67NbYqAB1JSDattM3Z3YbOmJk0DZhLVvP6WSl0d5j856yfZIkvoO4oZ6Wxp1YCzf-6hJcRf5WJjj-avaGhrjBlYQoKK6POzQL882CJzc15le";
-    private static String FCMToken1 = "da9EoBepSjGs7xqJDLkEwc:APA91bGcHb-NAp8aIJpyVueBSXSpKgLNgEKM8zjB9dNTbDVl5WrwW9Nw6wOwAkr3I3x5xTnmJZe72qRiuCbuf1LKn0iBvy5l-wrdqedFlff7NdtbTFLdjPafFAHeRGfkCylJg1k9IW3r";
+    private static final String FCMToken = "fVKN20GcScS9IcRiObHJzP:APA91bE8fcP0lEyZbfGBglXg2nnVMn8E67NbYqAB1JSDattM3Z3YbOmJk0DZhLVvP6WSl0d5j856yfZIkvoO4oZ6Wxp1YCzf-6hJcRf5WJjj-avaGhrjBlYQoKK6POzQL882CJzc15le";
+    private static final String FCMToken1 = "da9EoBepSjGs7xqJDLkEwc:APA91bGcHb-NAp8aIJpyVueBSXSpKgLNgEKM8zjB9dNTbDVl5WrwW9Nw6wOwAkr3I3x5xTnmJZe72qRiuCbuf1LKn0iBvy5l-wrdqedFlff7NdtbTFLdjPafFAHeRGfkCylJg1k9IW3r";
     static final int STATE_LISTENING = 1;
     static final int STATE_CONNECTING = 2;
     static final int STATE_CONNECTED = 3;
@@ -176,7 +177,7 @@ public class HomeActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                 if (task.isSuccessful() && task.getResult() != null) {
                                     username = task.getResult().getString("username");
-                                    if (username == null){
+                                    if (username == null) {
                                         username = "Anonymous";
                                     }
                                     Log.d(TAG, "onComplete: username " + username);
@@ -194,7 +195,7 @@ public class HomeActivity extends AppCompatActivity {
         newSession.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (FirebaseAuth.getInstance().getCurrentUser() == null){
+                if (FirebaseAuth.getInstance().getCurrentUser() == null) {
                     Toast.makeText(HomeActivity.this, "Please login to start the session", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -218,7 +219,7 @@ public class HomeActivity extends AppCompatActivity {
                 Log.d(TAG, "onCreate: calling from try catch ");
                 requestBlePermissions(HomeActivity.this, REQUEST_ENABLE_BLUETOOTH);
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             //status.setText("Bluetooth is not available");
         }
@@ -253,26 +254,26 @@ public class HomeActivity extends AppCompatActivity {
                         // Get new FCM registration token
                         String token = task.getResult();
                         Log.d(TAG, "Token: " + token);
-                       // Toast.makeText(HomeActivity.this, token, Toast.LENGTH_SHORT).show();
+                        // Toast.makeText(HomeActivity.this, token, Toast.LENGTH_SHORT).show();
                     }
                 });
 
         listeners();
-       //listenForChange();
-      //updateSessionName();
+        //listenForChange();
+        //updateSessionName();
 
         updateRecyclerView();
 
     }
 
-    public void updateRecyclerView(){
-        mAdapter = new SessionRecyclerViewAdapter(HomeActivity.this,mList);
+    public void updateRecyclerView() {
+        mAdapter = new SessionRecyclerViewAdapter(HomeActivity.this, mList);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(HomeActivity.this, RecyclerView.VERTICAL, false);
         mRecyclerView.setLayoutManager(linearLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
     }
 
-    private void listeners(){
+    private void listeners() {
 
         mListDevices.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -349,19 +350,19 @@ public class HomeActivity extends AppCompatActivity {
                 storeHostUID(hostUID);
                 // if you are not the host, hostuid should return null and prevents you from clicking the button
                 try {
-                    if (hostUID == null){
-                        Toast.makeText(HomeActivity.this,"You are not the host", Toast.LENGTH_SHORT).show();
+                    if (hostUID == null) {
+                        Toast.makeText(HomeActivity.this, "You are not the host", Toast.LENGTH_SHORT).show();
                         return;
                     }
                     sendReceive.write(hostUID.getBytes());
-                } catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         });
     }
 
-    private void retrieveToken(){
+    private void retrieveToken() {
         db.collection("users")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -372,11 +373,11 @@ public class HomeActivity extends AppCompatActivity {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 //Log.d(TAG, document.getId() + " => " + document.get("token"));
 
-                                if (document.getString("token") == null){
+                                if (document.getString("token") == null) {
                                     //Log.d(TAG, "onComplete: token is null");
                                 } else {
                                     String array = document.getString("token");
-                                    if (array.equals("null")){
+                                    if (array.equals("null")) {
                                         continue;
                                     }
                                     //Log.d(TAG, "onComplete: " + array);
@@ -418,7 +419,7 @@ public class HomeActivity extends AppCompatActivity {
                     mHostUID.setText(tempMsg);
                     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(HomeActivity.this);
                     SharedPreferences.Editor editor = preferences.edit();
-                    editor.putString("HostUID",tempMsg);
+                    editor.putString("HostUID", tempMsg);
                     editor.apply();
                     storeHostUID(tempMsg);
                     //getUserNameFromHostUID(tempMsg);
@@ -453,32 +454,32 @@ public class HomeActivity extends AppCompatActivity {
 
         public void run() {
             BluetoothSocket socket = null;
-                try {
-                    Message message = Message.obtain();
-                    message.what = STATE_CONNECTING;
-                    handler.sendMessage(message);
+            try {
+                Message message = Message.obtain();
+                message.what = STATE_CONNECTING;
+                handler.sendMessage(message);
 
-                    socket = serverSocket.accept();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Message message = Message.obtain();
-                    message.what = STATE_CONNECTION_FAILED;
-                    handler.sendMessage(message);
-                }
+                socket = serverSocket.accept();
+            } catch (IOException e) {
+                e.printStackTrace();
+                Message message = Message.obtain();
+                message.what = STATE_CONNECTION_FAILED;
+                handler.sendMessage(message);
+            }
 
-                if (socket != null) {
-                    Message message = Message.obtain();
-                    message.what = STATE_CONNECTED;
-                    handler.sendMessage(message);
-                    sendReceive = new HomeActivity.SendReceive(socket);
-                    sendReceive.start();
+            if (socket != null) {
+                Message message = Message.obtain();
+                message.what = STATE_CONNECTED;
+                handler.sendMessage(message);
+                sendReceive = new HomeActivity.SendReceive(socket);
+                sendReceive.start();
 
             }
         }
     }
 
     private class ClientClass extends Thread {
-        private BluetoothDevice device;
+        private final BluetoothDevice device;
         private BluetoothSocket socket;
 
         public ClientClass(BluetoothDevice device1) {
@@ -517,62 +518,58 @@ public class HomeActivity extends AppCompatActivity {
                     requestBlePermissions(HomeActivity.this, REQUEST_ENABLE_BLUETOOTH);
                 }
                 socket.connect();
-                Message message=Message.obtain();
-                message.what=STATE_CONNECTED;
+                Message message = Message.obtain();
+                message.what = STATE_CONNECTED;
                 handler.sendMessage(message);
-                sendReceive=new HomeActivity.SendReceive(socket);
+                sendReceive = new HomeActivity.SendReceive(socket);
                 sendReceive.start();
 
 
             } catch (IOException e) {
                 e.printStackTrace();
-                Message message=Message.obtain();
-                message.what=STATE_CONNECTION_FAILED;
+                Message message = Message.obtain();
+                message.what = STATE_CONNECTION_FAILED;
                 handler.sendMessage(message);
             }
         }
     }
 
-    private class SendReceive extends Thread
-    {
+    private class SendReceive extends Thread {
         private final BluetoothSocket bluetoothSocket;
         private final InputStream inputStream;
         private final OutputStream outputStream;
 
-        public SendReceive (BluetoothSocket socket)
-        {
-            bluetoothSocket=socket;
-            InputStream tempIn=null;
-            OutputStream tempOut=null;
+        public SendReceive(BluetoothSocket socket) {
+            bluetoothSocket = socket;
+            InputStream tempIn = null;
+            OutputStream tempOut = null;
 
             try {
-                tempIn=bluetoothSocket.getInputStream();
-                tempOut=bluetoothSocket.getOutputStream();
+                tempIn = bluetoothSocket.getInputStream();
+                tempOut = bluetoothSocket.getOutputStream();
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            inputStream=tempIn;
-            outputStream=tempOut;
+            inputStream = tempIn;
+            outputStream = tempOut;
         }
 
-        public void run()
-        {
-            byte[] buffer=new byte[1024];
+        public void run() {
+            byte[] buffer = new byte[1024];
             int bytes;
 
 
             try {
-                bytes=inputStream.read(buffer);
-                handler.obtainMessage(STATE_MESSAGE_RECEIVED,bytes,-1,buffer).sendToTarget();
+                bytes = inputStream.read(buffer);
+                handler.obtainMessage(STATE_MESSAGE_RECEIVED, bytes, -1, buffer).sendToTarget();
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
         }
 
-        public void write(byte[] bytes)
-        {
+        public void write(byte[] bytes) {
             try {
                 outputStream.write(bytes);
             } catch (IOException e) {
@@ -582,7 +579,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
-    public void getUserProfile(){
+    public void getUserProfile() {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Handler handler = new Handler(Looper.getMainLooper());
 
@@ -593,7 +590,7 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    public String doInBackground(String... strings){
+    public String doInBackground(String... strings) {
         try {
             mUrl = new URL(strings[0]);
             conn = (HttpURLConnection) mUrl.openConnection();
@@ -625,7 +622,7 @@ public class HomeActivity extends AppCompatActivity {
             conn.disconnect();
             return "";
 
-        } catch (Exception e){
+        } catch (Exception e) {
             return e.toString();
         }
     }
@@ -642,16 +639,16 @@ public class HomeActivity extends AppCompatActivity {
             display_name = obj.getString("display_name");
             String email = obj.getString("email");
             String country = obj.getString("country");
-            Log.d(TAG, "onPostExecute: display_name " + display_name );
-            Log.d(TAG, "onPostExecute: email " + email );
+            Log.d(TAG, "onPostExecute: display_name " + display_name);
+            Log.d(TAG, "onPostExecute: email " + email);
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             SharedPreferences.Editor editor = preferences.edit();
-            editor.putString("Name",display_name);
-            editor.putString("Email",email);
-            editor.putString("Country",country);
+            editor.putString("Name", display_name);
+            editor.putString("Email", email);
+            editor.putString("Country", country);
             editor.apply();
             Intent intent = new Intent(HomeActivity.this, StartSessionActivity.class);
-            intent.putExtra("display_name",display_name);
+            intent.putExtra("display_name", display_name);
             intent.putExtra("email", email);
             startActivity(intent);
 
@@ -706,24 +703,25 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     // client stores host uid in connectedSessionArray
-    public void storeHostUID(String hostUID){
+    public void storeHostUID(String hostUID) {
         user = FirebaseAuth.getInstance().getCurrentUser();
         user.getUid();
         hostUIDList.add(hostUID);
         Log.d(TAG, "storeHostUID: " + hostUIDList);
         Map<String, Object> map = new HashMap<>();
         map.put("connectedSession", FieldValue.arrayUnion(hostUID));
-        db.collection("users")
-                .document(user.getUid()).collection("SessionInfo").document(user.getUid()).set(map, SetOptions.merge());
+//        db.collection("users")
+//                .document(user.getUid()).collection("SessionInfo").document(user.getUid()).set(map, SetOptions.merge());
+        db.collection("users").document(user.getUid()).set(map, SetOptions.merge());
 
 //        db.collection("users")
 //                .document(user.getUid()).collection("SessionInfo").document(hostUID).set(map,SetOptions.merge());
 
-                //set(map, SetOptions.merge());
+        //set(map, SetOptions.merge());
     }
 
     // get username from hostuid. associate host uid with the username for recycler view
-    public void getUserNameFromHostUID(String hostUID){
+    public void getUserNameFromHostUID(String hostUID) {
         db.collection("users")
                 .document(hostUID).get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -731,7 +729,7 @@ public class HomeActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful() && task.getResult() != null) {
                             connectedUserName = task.getResult().getString("username");
-                            if (connectedUserName == null){
+                            if (connectedUserName == null) {
                                 connectedUserName = "Anonymous";
                             }
                             Log.d(TAG, "onComplete: username " + connectedUserName);
@@ -764,12 +762,12 @@ public class HomeActivity extends AppCompatActivity {
                 List<String> usernameList = (List<String>) documentSnapshot.get("connectedUserName");
                 Log.d(TAG, "onComplete: " + usernameList);
                 Log.d(TAG, "onComplete: String Lis　" + group);
-               // Session session = new Session()
+                // Session session = new Session()
 
                 int count = mList.size();
                 try {
 
-                    for (int i = 0 ; i < group.size(); i++){
+                    for (int i = 0; i < group.size(); i++) {
                         Session session = new Session();
                         String s1 = group.get(i);
                         String s2 = usernameList.get(i);
@@ -777,10 +775,10 @@ public class HomeActivity extends AppCompatActivity {
                         session.mSessionHost = s2;
                         mList.add(session);
                     }
-                    if (count == 0){
+                    if (count == 0) {
                         mAdapter.notifyDataSetChanged();
                     } else {
-                        mAdapter.notifyItemRangeInserted(mList.size(),mList.size());
+                        mAdapter.notifyItemRangeInserted(mList.size(), mList.size());
                     }
                     binding.joinedSessionRv.setVisibility(View.VISIBLE);
 //                    for (String s : group) {
@@ -789,7 +787,7 @@ public class HomeActivity extends AppCompatActivity {
 //                        mList.add(session);
 //                    }
 
-                } catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 
@@ -798,14 +796,14 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     // get the host uid and host username
-    private void listenForChange(){
+    private void listenForChange() {
         user = FirebaseAuth.getInstance().getCurrentUser();
-        db.collection("users").document(user.getUid()).collection("SessionInfo").addSnapshotListener(eventListener);
-
+        //db.collection("users").document(user.getUid()).collection("SessionInfo").addSnapshotListener(eventListener);
+        db.collection("users").document(user.getUid()).addSnapshotListener(eventListener);
     }
 
     // moved to sessionrecyclerview adapter
-    private String getSessionName(String uid){
+    private String getSessionName(String uid) {
         final String[] SessionName = new String[1];
         user = FirebaseAuth.getInstance().getCurrentUser();
         db.collection("Session")
@@ -826,83 +824,119 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     // event listener for getting host name and username
-    private final EventListener<QuerySnapshot> eventListener = new EventListener<QuerySnapshot>() {
+    private final EventListener<DocumentSnapshot> eventListener = new EventListener<DocumentSnapshot>() {
         @Override
-        public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+        public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
             user = FirebaseAuth.getInstance().getCurrentUser();
             if (error != null) return;
             if (value != null) {
-                int count = mList.size();
-                List<String> group = new ArrayList<>();
+                //Log.d(TAG, "onEvent: " + value.get("connectedSession"));
+                mList.clear();
+                List<String> array = (List<String>) value.get("connectedSession");
+                try {
+                    for (String s : array) {
+                        Log.d(TAG, "onEvent: " + s);
+                        Session session = new Session();
+                        session.mSessionName = s;
+                        mList.add(session);
 
-                for (DocumentChange document : value.getDocumentChanges()) {
-                    switch (document.getType()) {
-                        case ADDED:
-                            Log.d("TAG", "New Msg: " + document.getDocument().toObject(Message.class));
-
-                            break;
-                        case MODIFIED:
-                            Log.d("TAG", "Modified Msg: " + document.getDocument().toObject(Message.class));
-                            break;
-                        case REMOVED:
-                            Log.d("TAG", "Removed Msg: " + document.getDocument().toObject(Message.class));
-                            break;
                     }
-                    if (document.getType() == DocumentChange.Type.ADDED) {
-                        group = (List<String>) document.getDocument().get("connectedSession");
-                        //List<String> usernameList = (List<String>) document.getDocument().get("connectedUserName");
-                        //Log.d(TAG, "onComplete: event listener " + usernameList);
-                        Log.d(TAG, "onComplete: event listener String Lis　" + group);
-                        for (int i = 0 ; i < group.size(); i++){
-                            Session session = new Session();
-
-                            String s1 = group.get(i);
-                            //String s2 = getSessionName(s1);
-                            //Log.d(TAG, "onEvent: s2 " + s2);
-                            //String s2 = usernameList.get(i);
-                            session.mSessionName = s1;
-                            //session.mSessionHost = s2;
-                            mList.add(session);
-                        }
-                    }
-
-                    try {
-                        if (document.getType() == DocumentChange.Type.MODIFIED) {
-                                Log.d(TAG, "onEvent: calling document type modified");
-                                group = (List<String>) document.getDocument().get("connectedSession");
-//                                int current = group.size()-1;
-//                                Log.d(TAG, "onComplete: event listener String Lis　" + group);
-                                String lastName = group.get(group.size() - 1);
-//                                Log.d(TAG, "onEvent: lastname " + lastName);
-                                Session session = new Session();
-                                session.mSessionName = lastName;
-                                //session.mSessionHost = lastHost;
-                                mList.add(session);
-                        }
-                    } catch (Exception e){
-                        e.printStackTrace();
-                    }
-
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
                 try {
-                    if (count == 0) {
-                        Log.d(TAG, "onEvent: count " + count);
-                        mAdapter.notifyDataSetChanged();
-                    } else {
-                        mAdapter.notifyItemChanged(group.size());
-                        //mAdapter.notifyItemRangeInserted(mList.size(),mList.size());
-                        Log.d(TAG, "onEvent: calling madpter " + count);
-                        binding.joinedSessionRv.smoothScrollToPosition(mList.size() - 1);
-                    }
+                    mAdapter.notifyItemChanged(mList.size());
+                    //mAdapter.notifyItemRangeInserted(mList.size(),mList.size());
+                    binding.joinedSessionRv.smoothScrollToPosition(mList.size() - 1);
                     binding.joinedSessionRv.setVisibility(View.VISIBLE);
-                } catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
+
+
+//                 old code for subcollection session info
+//                for (DocumentChange document : value.getDocumentChanges()) {
+//                    switch (document.getType()) {
+//                        case ADDED:
+//                            Log.d("TAG", "New Msg: " + document.getDocument().toObject(Users.class));
+//
+//                            break;
+//                        case MODIFIED:
+//                            Log.d("TAG", "Modified Msg: " + document.getDocument().toObject(Users.class));
+//                            break;
+//                        case REMOVED:
+//                            Log.d("TAG", "Removed Msg: " + document.getDocument().toObject(Users.class));
+//                            break;
+//                    }
+//                    Map<String, Object> map = document.getDocument().getData();
+//                    for (Map.Entry<String, Object> entry : map.entrySet()){
+//                        if(entry.getKey().equals("connectedSession")){
+//                            Log.d(TAG, "onEvent: " + entry.getValue().toString());
+//                            group.add(entry.getValue().toString());
+//                        }
+//                    }
+//                    Log.d(TAG, "onComplete: event listener String Lis　" + group);
+//                    if (document.getType() == DocumentChange.Type.ADDED) {
+            //group = (List<String>) document.getDocument().get("connectedSession");
+            //group = (List<String>) document.getDocument("connectedSession");
+
+
+//                        group = (List<String>) document.getDocument().get("connectedSession");
+//                        Log.d(TAG, "onEvent: " + group);
+            //List<String> usernameList = (List<String>) document.getDocument().get("connectedUserName");
+            //Log.d(TAG, "onComplete: event listener " + usernameList);
+
+//                        for (int i = 0 ; i < group.size(); i++){
+//                            Session session = new Session();
+//
+//                            String s1 = group.get(i);
+//                            //String s2 = getSessionName(s1);
+//                            //Log.d(TAG, "onEvent: s2 " + s2);
+//                            //String s2 = usernameList.get(i);
+//                            session.mSessionName = s1;
+//                            //session.mSessionHost = s2;
+//                            mList.add(session);
+//                        }
         }
+
+//                    try {
+//                        if (document.getType() == DocumentChange.Type.MODIFIED) {
+//                                Log.d(TAG, "onEvent: calling document type modified");
+//                                group = (List<String>) document.getDocument().get("connectedSession");
+////                                int current = group.size()-1;
+////                                Log.d(TAG, "onComplete: event listener String Lis　" + group);
+//                                String lastName = group.get(group.size() - 1);
+////                                Log.d(TAG, "onEvent: lastname " + lastName);
+//                                Session session = new Session();
+//                                session.mSessionName = lastName;
+//                                //session.mSessionHost = lastHost;
+//                                mList.add(session);
+//                        }
+//                    } catch (Exception e){
+//                        e.printStackTrace();
+//                    }
+//
+//                }
+//                try {
+//                    if (count == 0) {
+//                        Log.d(TAG, "onEvent: count " + count);
+//                        mAdapter.notifyDataSetChanged();
+//                    } else {
+//                        mAdapter.notifyItemChanged(group.size());
+//                        //mAdapter.notifyItemRangeInserted(mList.size(),mList.size());
+//                        Log.d(TAG, "onEvent: calling madpter " + count);
+//                        binding.joinedSessionRv.smoothScrollToPosition(mList.size() - 1);
+//                    }
+//                    binding.joinedSessionRv.setVisibility(View.VISIBLE);
+//                } catch (Exception e){
+//                    e.printStackTrace();
+//                }
+//            }
+
     };
 
-    public String getLocalBluetoothName(){
+    public String getLocalBluetoothName() {
         String name = null;
         try {
             name = mBluetoothAdapter.getName();
