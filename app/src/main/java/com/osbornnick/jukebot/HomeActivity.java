@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -37,6 +38,7 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentChange;
@@ -86,6 +88,7 @@ public class HomeActivity extends AppCompatActivity {
     private String display_name = null;
     private String connectedUserName = null;
     private final List<String> hostUIDList = new ArrayList<>();
+    private final List<String> connectedList = new ArrayList<>();
     private String bluetoothName = null;
 
     // initialize bluetooth UI elements
@@ -271,6 +274,7 @@ public class HomeActivity extends AppCompatActivity {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(HomeActivity.this, RecyclerView.VERTICAL, false);
         mRecyclerView.setLayoutManager(linearLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
+        swipeToDelete().attachToRecyclerView(mRecyclerView);
     }
 
     private void listeners() {
@@ -839,7 +843,8 @@ public class HomeActivity extends AppCompatActivity {
                         Session session = new Session();
                         session.mSessionName = s;
                         mList.add(session);
-
+                        connectedList.add(s);
+                        //Log.d(TAG, "onEvent: " + connectedList);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -951,6 +956,34 @@ public class HomeActivity extends AppCompatActivity {
         return name;
     }
 
+    public ItemTouchHelper swipeToDelete() {
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                int position = viewHolder.getLayoutPosition();
+                mList.remove(position);
+                deleteSession(position);
+                mAdapter.notifyItemRemoved(position);
+                Snackbar.make(mRecyclerView, "deleted the session", Snackbar.LENGTH_SHORT).show();
+            }
+        });
+        return itemTouchHelper;
+    }
+
+    private void deleteSession(int position) {
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        //db.collection("users").document(user.getUid()).collection("SessionInfo").addSnapshotListener(eventListener);
+        //db.collection("users").document(user.getUid()).d
+        String toBeDeleted = connectedList.get(position);
+        Map<String, Object> session = new HashMap<>();
+        session.put("connectedSession",FieldValue.delete());
+        db.collection("users").document(user.getUid()).update("connectedSession",FieldValue.arrayRemove(toBeDeleted));
+    }
 
 }
 
