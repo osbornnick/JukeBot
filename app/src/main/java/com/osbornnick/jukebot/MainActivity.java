@@ -56,6 +56,31 @@ public class MainActivity extends AppCompatActivity {
                 usernameTV.setText("");
             }
         });
+
+        //UPDATE: User Either sees login screen or home screen
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            Intent i = new Intent(this, LoginActivity.class);
+            Log.d(TAG, "login: calling");
+            startActivity(i);
+        }
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+                            return;
+                        }
+
+                        // Get new FCM registration token
+                        String token = task.getResult();
+                        sendToFirestoreDB(token);
+                        Log.d(TAG, "Token: " + token);
+                        // Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
+                    }
+                });
+        Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+        startActivity(intent);
     }
 
     private void sendToFirestoreDB(String token) {
