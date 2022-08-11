@@ -1,6 +1,5 @@
 package com.osbornnick.jukebot;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,14 +9,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SortedList;
 
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-
-import java.util.Locale;
-import java.util.logging.LogRecord;
 
 public class InviteFriendsAdapter extends RecyclerView.Adapter<InviteFriendsHolder> {
     private SortedList<String> userList;
@@ -25,9 +20,11 @@ public class InviteFriendsAdapter extends RecyclerView.Adapter<InviteFriendsHold
     private HashMap<String, String> userMap;
     public String sessionID;
     Filter filter;
-    Context context;
 
-    public InviteFriendsAdapter(HashMap<String, String> users, String sessionID, Context view) {
+    public InviteFriendsAdapter(String sessionID) {
+        this.userListAll = new ArrayList<>();
+        this.userMap = new HashMap<>();
+        this.sessionID = sessionID;
         this.userList = new SortedList<>(String.class, new SortedList.Callback<String>() {
 
             @Override
@@ -66,14 +63,6 @@ public class InviteFriendsAdapter extends RecyclerView.Adapter<InviteFriendsHold
             }
         });
 
-        userMap = users;
-        for(String username : userMap.keySet()) {
-            userList.add(username);
-            userListAll.add(username);
-        }
-        this.sessionID = sessionID;
-        context = view;
-
         filter = new Filter() {
             //runs on background thread
             @Override
@@ -107,12 +96,26 @@ public class InviteFriendsAdapter extends RecyclerView.Adapter<InviteFriendsHold
     @Override
     public InviteFriendsHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.friend_search_item, parent, false);
-        return new InviteFriendsHolder(view, context);
+        return new InviteFriendsHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull InviteFriendsHolder holder, int position) {
         holder.bindThisData(userList.get(position), userMap.get(userList.get(position)), sessionID);
+    }
+
+    public void add(String user, String userID) {
+        if(user == null) return;
+        userMap.put(user, userID);
+        userList.add(user);
+        userListAll.add(user);
+    }
+
+    public void remove(String user) {
+        if(user == null) return;
+        userMap.remove(user);
+        userList.remove(user);
+        userListAll.remove(user);
     }
 
     @Override
