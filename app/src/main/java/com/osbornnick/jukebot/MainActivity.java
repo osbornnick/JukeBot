@@ -127,6 +127,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void launchSession(View view) {
         Intent intent = new Intent(this, SessionAdminActivity.class);
+        intent.putExtra("session_id", "sessionTest1");
+        intent.putExtra("session_name", "Session 1");
         startActivity(intent);
     }
 

@@ -32,8 +32,8 @@ import java.util.Map;
 
 public class SessionAdminActivity extends AppCompatActivity {
     private static final String TAG = "SessionActivity";
-    private String SESSION_ID = "sessionTest1";
-    private String SESSION_NAME = "Session 1";
+    private String SESSION_ID;
+    private String SESSION_NAME;
     private boolean admin = true;
 
     RecyclerView songQueue;
@@ -61,6 +61,8 @@ public class SessionAdminActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_session_admin);
         Intent i = getIntent();
+        SESSION_ID = i.getStringExtra("session_id");
+        SESSION_NAME = i.getStringExtra("session_name");
         handler = new Handler(Looper.getMainLooper());
 
         songQueue = findViewById(R.id.songQueue);
@@ -139,8 +141,14 @@ public class SessionAdminActivity extends AppCompatActivity {
 
         sessionTitle.setText(SESSION_NAME);
 
-        //TODO: Update leave session functionality
-        leaveSession.setOnClickListener(v -> onBackPressed());
+        leaveSession.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(SessionAdminActivity.this, HomeActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(i);
+            }
+        });
 
         sessionChat.setOnClickListener(v -> {
             Intent intent = new Intent(SessionAdminActivity.this, SessionChatActivity.class);

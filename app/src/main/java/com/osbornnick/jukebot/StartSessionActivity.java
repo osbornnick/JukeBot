@@ -1,9 +1,7 @@
 package com.osbornnick.jukebot;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -12,19 +10,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,7 +56,7 @@ public class StartSessionActivity extends AppCompatActivity {
         mSessionName.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
+                btn_confirm.setClickable(false);
             }
 
             @Override
@@ -89,15 +80,17 @@ public class StartSessionActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (mSessionName.getText().length() == 0){
                     Toast.makeText(StartSessionActivity.this,"Please enter session name", Toast.LENGTH_SHORT).show();
+                    onBackPressed();
+                } else {
+                    String sessionName = mSessionName.getText().toString();
+                    addSessionName(sessionName);
+                    Log.d(TAG, "onClick: " + sessionName);
+                    //mSessionName.setText("");
+                    Intent intent = new Intent(StartSessionActivity.this, SessionAdminActivity.class);
+                    intent.putExtra("session_id", user.getUid());
+                    intent.putExtra("session_name", mSessionName.getText());
+                    startActivity(intent);
                 }
-                String sessionName = mSessionName.getText().toString();
-                addSessionName(sessionName);
-                Log.d(TAG, "onClick: " + sessionName);
-                //mSessionName.setText("");
-                Intent intent = new Intent(StartSessionActivity.this, SessionAdminActivity.class);
-                intent.putExtra("session_id", user.getUid());
-                intent.putExtra("session_name", mSessionName.getText());
-                startActivity(intent);
             }
         });
 
