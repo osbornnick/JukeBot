@@ -287,8 +287,8 @@ public class AddSongActivity extends AppCompatActivity {
                             map.put("uri", songJSON.getString("uri"));
                             map.put("preview_url", songJSON.getString("preview_url"));
                             map.put("artist", songJSON.getJSONArray("artists").getJSONObject(0).getString("name"));
-                            map.put("albumImageURL", songJSON.getJSONObject("album").getJSONArray("images").getJSONObject(1).getString("url"));
-                            map.put("albumIconImageURL", songJSON.getJSONObject("album").getJSONArray("images").getJSONObject(2).getString("url"));
+                            map.put("albumImageURL", songJSON.getJSONObject("album").getJSONArray("images").getJSONObject(0).getString("url"));
+                            map.put("albumIconImageURL", songJSON.getJSONObject("album").getJSONArray("images").getJSONObject(1).getString("url"));
                             Song s = new Song(map);
                             s.session_id = SESSION_ID;
 

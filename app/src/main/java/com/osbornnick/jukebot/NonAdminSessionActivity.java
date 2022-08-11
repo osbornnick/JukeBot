@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -20,6 +21,7 @@ import android.widget.TextView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -27,8 +29,8 @@ import java.util.Map;
 
 public class NonAdminSessionActivity extends AppCompatActivity {
     private static final String TAG = "NonAdminSessionActivity";
-    private String SESSION_ID = "sessionTest1";
-    private String SESSION_NAME = "Session 1";
+    private String SESSION_ID;
+    private String SESSION_NAME;
 
     RecyclerView songQueue;
     TextView songTitle, songArtist, queueLabel, disconnectedText, sessionTitle;
@@ -78,6 +80,9 @@ public class NonAdminSessionActivity extends AppCompatActivity {
         //Set Tool Bar On clicks
         initToolbar();
 
+        //init settings
+        initSettings();
+
         //initialize the recycle view with empty list
         songQueue.setLayoutManager(new LinearLayoutManager(this));
         sqAdapter = new SongQueueAdapter();
@@ -125,6 +130,30 @@ public class NonAdminSessionActivity extends AppCompatActivity {
             intent.putExtra("session_id", SESSION_ID);
             intent.putExtra("session_name", SESSION_NAME);
             startActivity(intent);
+        });
+    }
+
+    private void initSettings() {
+        //read settings state
+        DocumentReference docRef = db.collection("Session").document(SESSION_ID);
+        docRef.addSnapshotListener((value, error) -> {
+            if (error != null) {
+                Log.w(TAG, "listen:error", error);
+                return;
+            }
+            if (value == null) return;
+            Log.d(TAG, "Session Settings update");
+
+            boolean allowInvite = (boolean) value.get("allowInvite");
+            boolean allowChat = (boolean) value.get("allowChat");
+
+            if(!allowInvite) {
+                addFriend.setVisibility(View.GONE);
+            }
+
+            if(!allowChat) {
+                sessionChat.setVisibility(View.GONE);
+            }
         });
     }
 

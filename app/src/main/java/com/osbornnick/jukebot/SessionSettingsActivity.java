@@ -20,8 +20,8 @@ import java.util.Map;
 public class SessionSettingsActivity extends AppCompatActivity {
 
     private static final String TAG = "SessionSettingsActivity";
-    private String SESSION_ID = "sessionTest1";
-    private String SESSION_NAME = "Session 1";
+    private String SESSION_ID;
+    private String SESSION_NAME;
 
     TextView sessionTitle;
     ImageButton back, leaveSession;
@@ -64,10 +64,10 @@ public class SessionSettingsActivity extends AppCompatActivity {
 
         back.setOnClickListener(v -> onBackPressed());
 
-        //TODO: Update leave session functionality
-//        leaveSession.setOnClickListener(v -> onBackPressed());
         leaveSession.setOnClickListener(v -> {
-            onBackPressed();
+            Intent i = new Intent(SessionSettingsActivity.this, HomeActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
         });
     }
 

@@ -111,8 +111,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void SessionSettings(View view) {
         Intent intent = new Intent(MainActivity.this, SessionSettingsActivity.class);
-        intent.putExtra("session_id", "sessionTest1");
-        intent.putExtra("session_name", "Session 1");
+        intent.putExtra("session_id", "8DyHL0nZYAeWFkqcRfVE1wzLSoJ2");
+        intent.putExtra("session_name", "Yuna's Session");
         startActivity(intent);
     }
 
@@ -132,8 +132,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void launchNonAdminSession(View view) {
         Intent intent = new Intent(this, NonAdminSessionActivity.class);
-        intent.putExtra("session_id", "sessionTest1");
-        intent.putExtra("session_name", "Session 1");
+        intent.putExtra("session_id", "8DyHL0nZYAeWFkqcRfVE1wzLSoJ2");
+        intent.putExtra("session_name", "Yuna's Session");
         startActivity(intent);
     }
 

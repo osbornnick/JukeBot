@@ -71,6 +71,9 @@ public class SessionChatActivity extends AppCompatActivity {
 
     private static final String TAG = "SessionChatActivity";
     private static int REQUEST_CODE = 1;
+    private String SESSION_ID;
+    private String SESSION_NAME;
+
     //    private FirebaseRecyclerAdapter<Message,ChatViewHolder> mAdapter;
     MessageRecyclerViewAdapter mAdapter;
     ArrayList<Message> mList;
@@ -87,7 +90,8 @@ public class SessionChatActivity extends AppCompatActivity {
     private ActivitySessionChatBinding binding;
 
     //ConstraintLayout mSessionChatActivity;
-    ImageButton mButton;
+    TextView sessionTitle;
+    ImageButton mButton, back, leaveSession;
     RecyclerView mRecyclerView;
 
 
@@ -103,6 +107,17 @@ public class SessionChatActivity extends AppCompatActivity {
         mRecyclerView = findViewById(R.id.recyclerView);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(SessionChatActivity.this);
         hostUID = preferences.getString("HostUID", "");
+
+        Intent i = getIntent();
+        SESSION_ID = i.getStringExtra("session_id");
+        SESSION_NAME = i.getStringExtra("session_name");
+
+        //init toolbar
+        sessionTitle = findViewById(R.id.sessionTitle);
+        back = findViewById(R.id.back);
+        leaveSession = findViewById(R.id.leaveSession);
+        initToolbar();
+
 
         if(hostUID.equalsIgnoreCase(""))
         {
@@ -174,6 +189,18 @@ public class SessionChatActivity extends AppCompatActivity {
         });
 
         update();
+    }
+
+    private void initToolbar() {
+        sessionTitle.setText(SESSION_NAME);
+
+        back.setOnClickListener(v -> onBackPressed());
+
+        leaveSession.setOnClickListener(v -> {
+            Intent i = new Intent(SessionChatActivity.this, HomeActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
+        });
     }
 
     public void update() {
