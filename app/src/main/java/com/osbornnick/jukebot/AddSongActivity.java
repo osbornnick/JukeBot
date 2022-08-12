@@ -1,5 +1,6 @@
 package com.osbornnick.jukebot;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,6 +11,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -117,7 +122,7 @@ public class AddSongActivity extends AppCompatActivity {
         song_rv.setAdapter(asAdapter);
 
         song_rv.addItemDecoration(new DividerItemDecoration(song_rv.getContext(), ((LinearLayoutManager)song_rv.getLayoutManager()).getOrientation()));
-
+        song_rv.setVisibility(View.GONE);
         //set cancelSearch onClick
         cancelSearch.setOnClickListener(v -> onBackPressed());
 
@@ -305,6 +310,8 @@ public class AddSongActivity extends AppCompatActivity {
                                 asAdapter.resetSearchResults(searchSongListNew);
                                 asAdapter.notifyDataSetChanged();
                                 recyclerLoad.setVisibility(View.INVISIBLE);
+                                song_rv.setBackgroundColor(Color.WHITE);
+                                song_rv.setVisibility(View.VISIBLE);
                             }
                         });
                     } else {

@@ -184,13 +184,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:contentDescription="Play Song"
         android:background="@color/fui_transparent"
+        android:contentDescription="Play Song"
         android:visibility="visible"
         app:layout_constraintBottom_toTopOf="@+id/queueLabel"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/songArtist"
+        app:layout_constraintVertical_bias="0.0"
         app:srcCompat="@drawable/ic_play_button" />
 
     <ImageButton
@@ -212,7 +213,6 @@
         android:layout_height="0dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
-        android:background="@color/background"
         app:layout_constraintBottom_toTopOf="@+id/addSongFAB"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

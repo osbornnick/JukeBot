@@ -44,6 +44,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
         android:background="@android:color/transparent"
+        android:contentDescription="Add Song to Queue"
         android:minWidth="48dp"
         android:minHeight="48dp"
         app:layout_constraintBottom_toBottomOf="parent"

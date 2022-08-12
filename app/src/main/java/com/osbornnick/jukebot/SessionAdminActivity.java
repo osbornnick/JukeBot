@@ -1,6 +1,7 @@
 package com.osbornnick.jukebot;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -93,6 +94,8 @@ public class SessionAdminActivity extends AppCompatActivity {
         songQueue.setLayoutManager(new LinearLayoutManager(this));
         sqAdapter = new SongQueueAdapter();
         songQueue.setAdapter(sqAdapter);
+
+        songQueue.addItemDecoration(new DividerItemDecoration(songQueue.getContext(), ((LinearLayoutManager)songQueue.getLayoutManager()).getOrientation()));
 
         listenToSongQueue();
 
