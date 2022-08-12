@@ -1024,14 +1024,16 @@ public class HomeActivity extends AppCompatActivity {
                 List<String> array = (List<String>) value.get("connectedSession");
                 Log.d(TAG, "onEvent: checksession name " + array);
 
-                for (String s : array){
-                    try {
-                    if (s.equals(user.getUid())){
-                        Log.d(TAG, "onEvent: found match => " + s);
-                        newSession.setVisibility(View.GONE);
-                    }
-                    } catch (Exception e){
-                        e.printStackTrace();
+                if (array != null) {
+                    for (String s : array) {
+                        try {
+                            if (s.equals(user.getUid())){
+                                Log.d(TAG, "onEvent: found match => " + s);
+                                newSession.setVisibility(View.GONE);
+                            }
+                        } catch (Exception e){
+                                e.printStackTrace();
+                            }
                     }
                 }
             }
