@@ -25,6 +25,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class NonAdminSessionActivity extends AppCompatActivity {
@@ -169,6 +170,10 @@ public class NonAdminSessionActivity extends AppCompatActivity {
                 Map<String, Object> data = dc.getDocument().getData();
                 Song s = new Song(data);
                 s.key = dc.getDocument().getId();
+                List<String> upVotes = (List<String>) data.get("upVotes");
+                List<String> downVotes = (List<String>) data.get("downVotes");
+                if (upVotes != null && upVotes.contains(currentUser.getUid())) s.voted = "UP";
+                if (downVotes != null && downVotes.contains(currentUser.getUid())) s.voted = "DOWN";
                 // update song info from spotify?
                 if (s.played) sqAdapter.remove(s);
                 else if (s.deleted) sqAdapter.remove(s);
