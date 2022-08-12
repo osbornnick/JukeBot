@@ -206,7 +206,9 @@ public class HomeActivity extends AppCompatActivity {
                 Intent intent = new Intent(HomeActivity.this, StartSessionActivity.class);
 
                 startActivity(intent);
-                newSession.setVisibility(View.GONE);
+                user = FirebaseAuth.getInstance().getCurrentUser();
+                hostUID = user.getUid();
+                storeHostUID(hostUID);
             }
         });
 
@@ -268,6 +270,7 @@ public class HomeActivity extends AppCompatActivity {
         //updateSessionName();
 
         updateRecyclerView();
+        checkSessionName();
     }
 
     public void updateRecyclerView() {
@@ -350,9 +353,8 @@ public class HomeActivity extends AppCompatActivity {
         mSendHostUID.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                String string = String.valueOf(writeMsg.getText());
-//                sendReceive.write(string.getBytes());
                 Log.d(TAG, "onClick: " + hostUID);
+                // store the host uid to the FireStore
                 storeHostUID(hostUID);
                 // if you are not the host, hostuid should return null and prevents you from clicking the button
                 try {
@@ -977,16 +979,22 @@ public class HomeActivity extends AppCompatActivity {
         return itemTouchHelper;
     }
 
+    // allow users to delete the session
     private void deleteSession(int position) {
         user = FirebaseAuth.getInstance().getCurrentUser();
         //db.collection("users").document(user.getUid()).collection("SessionInfo").addSnapshotListener(eventListener);
         //db.collection("users").document(user.getUid()).d
         String toBeDeleted = connectedList.get(position);
+        // if the user deletes the host session then host gets to start session again
+        if (toBeDeleted.equals(user.getUid())){
+            newSession.setVisibility(View.VISIBLE);
+        }
         Map<String, Object> session = new HashMap<>();
         session.put("connectedSession", FieldValue.delete());
         db.collection("users").document(user.getUid()).update("connectedSession", FieldValue.arrayRemove(toBeDeleted));
     }
 
+    // disconnect from host if the host has set allowjoins to false
     private void isAllowJoins(String hostUID, int i) {
         db.collection("Session").document(hostUID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -1007,12 +1015,25 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
+    // hide a start session button if logged in user is already hosting a session
     private void checkSessionName(){
         user = FirebaseAuth.getInstance().getCurrentUser();
-        db.collection("users").document(user.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        db.collection("users").document(user.getUid()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                List<String> array = (List<String>) value.get("connectedSession");
+                Log.d(TAG, "onEvent: checksession name " + array);
 
+                for (String s : array){
+                    try {
+                    if (s.equals(user.getUid())){
+                        Log.d(TAG, "onEvent: found match => " + s);
+                        newSession.setVisibility(View.GONE);
+                    }
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
             }
         });
     }
