@@ -2,6 +2,7 @@ package com.osbornnick.jukebot;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -58,7 +59,8 @@ public class CreateAccountActivity extends AppCompatActivity {
                 userData.put("username", usernameTV.getText().toString());
                 userData.put("dateCreated", FieldValue.serverTimestamp());
                 FirebaseFirestore.getInstance().collection("users").document(uid).set(userData);
-                this.onBackPressed();
+                Intent intent = new Intent(this, HomeActivity.class);
+                startActivity(intent);
             } else {
                 uiHandler.post(() -> {
                     statusTV.setText(task.getException().getLocalizedMessage());

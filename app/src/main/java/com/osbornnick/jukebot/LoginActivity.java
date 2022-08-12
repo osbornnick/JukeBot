@@ -88,7 +88,8 @@ public class LoginActivity extends AppCompatActivity {
         String password = passwordTV.getText().toString();
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
            if (task.isSuccessful()) {
-               this.onBackPressed();
+               Intent intent = new Intent(this, HomeActivity.class);
+               startActivity(intent);
            } else {
                uiHandler.post(() -> {
                    statusTV.setText(task.getException().getLocalizedMessage());

@@ -6,14 +6,18 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 public class PersonalSettingsActivity extends AppCompatActivity {
 
     private Switch sw_others;
+    private Button signOut;
     private static final String TAG = "PersonalSettingsActivit";
 
     @Override
@@ -39,6 +43,16 @@ public class PersonalSettingsActivity extends AppCompatActivity {
                 Intent intent = new Intent(PersonalSettingsActivity.this,ProfileActivity.class);
                 startActivity(intent);
             }
+        });
+
+        signOut = findViewById(R.id.signOut);
+        signOut.setOnClickListener(v -> {
+            FirebaseAuth.getInstance().signOut();
+            //send back to login
+            Intent i = new Intent(this, LoginActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            Log.d(TAG, "login: calling");
+            startActivity(i);
         });
     }
 
