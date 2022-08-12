@@ -91,7 +91,6 @@ public class HomeActivity extends AppCompatActivity {
     private final List<String> connectedList = new ArrayList<>();
     private String bluetoothName = null;
     private String notificationUID = null;
-    private boolean flag;
 
     // initialize bluetooth UI elements
     ListView mListView;
@@ -207,6 +206,7 @@ public class HomeActivity extends AppCompatActivity {
                 Intent intent = new Intent(HomeActivity.this, StartSessionActivity.class);
 
                 startActivity(intent);
+                newSession.setVisibility(View.GONE);
             }
         });
 
@@ -341,18 +341,8 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 // if the host uid's session setting allow joins is set to false then session should not be requestable
-                Log.d(TAG, "onItemClick: " + hostUID);
-                isAllowJoins(notificationUID);
-                if (flag) {
-                    HomeActivity.ClientClass clientClass = new HomeActivity.ClientClass(btArray[i]);
-                    clientClass.start();
-                    mBTStatus.setText("Connecting");
-                } else {
-                    Snackbar.make(mListView, "You cannot join the session", Snackbar.LENGTH_SHORT).show();
-                    mBTStatus.setText("Disconnected");
-                }
-
-
+                Log.d(TAG, "onItemClick: " + notificationUID);
+                isAllowJoins(notificationUID, i);
             }
         });
 
@@ -993,11 +983,11 @@ public class HomeActivity extends AppCompatActivity {
         //db.collection("users").document(user.getUid()).d
         String toBeDeleted = connectedList.get(position);
         Map<String, Object> session = new HashMap<>();
-        session.put("connectedSession",FieldValue.delete());
-        db.collection("users").document(user.getUid()).update("connectedSession",FieldValue.arrayRemove(toBeDeleted));
+        session.put("connectedSession", FieldValue.delete());
+        db.collection("users").document(user.getUid()).update("connectedSession", FieldValue.arrayRemove(toBeDeleted));
     }
 
-    private void isAllowJoins(String hostUID){
+    private void isAllowJoins(String hostUID, int i) {
         db.collection("Session").document(hostUID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -1005,13 +995,26 @@ public class HomeActivity extends AppCompatActivity {
                     boolean allowJoins = (boolean) task.getResult().get("allowJoins");
                     Log.d(TAG, "onComplete: " + allowJoins);
                     if (allowJoins) {
-                        flag = true;
+                        HomeActivity.ClientClass clientClass = new HomeActivity.ClientClass(btArray[i]);
+                        clientClass.start();
+                        mBTStatus.setText("Connecting");
                     } else {
-                        flag = false;
+                        Snackbar.make(mListView, "You are not allowed to join the session", Snackbar.LENGTH_SHORT).show();
+                        mBTStatus.setText("Disconnected");
                     }
+                }
             }
-        }
-    });
+        });
+    }
+
+    private void checkSessionName(){
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        db.collection("users").document(user.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+            }
+        });
     }
 
 }
