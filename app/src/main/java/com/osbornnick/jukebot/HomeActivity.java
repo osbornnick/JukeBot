@@ -90,6 +90,8 @@ public class HomeActivity extends AppCompatActivity {
     private final List<String> hostUIDList = new ArrayList<>();
     private final List<String> connectedList = new ArrayList<>();
     private String bluetoothName = null;
+    private String notificationUID = null;
+    private boolean flag;
 
     // initialize bluetooth UI elements
     ListView mListView;
@@ -266,7 +268,6 @@ public class HomeActivity extends AppCompatActivity {
         //updateSessionName();
 
         updateRecyclerView();
-
     }
 
     public void updateRecyclerView() {
@@ -293,6 +294,8 @@ public class HomeActivity extends AppCompatActivity {
                     requestBlePermissions(HomeActivity.this, REQUEST_ENABLE_BLUETOOTH);
 
                 }
+                notificationUID = PushNotificationService.getHostUID();
+                Log.d(TAG, "onClick: " + notificationUID);
                 Set<BluetoothDevice> bt = mBluetoothAdapter.getBondedDevices();
                 String[] strings = new String[bt.size()];
                 btArray = new BluetoothDevice[bt.size()];
@@ -337,10 +340,19 @@ public class HomeActivity extends AppCompatActivity {
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                HomeActivity.ClientClass clientClass = new HomeActivity.ClientClass(btArray[i]);
-                clientClass.start();
+                // if the host uid's session setting allow joins is set to false then session should not be requestable
+                Log.d(TAG, "onItemClick: " + hostUID);
+                isAllowJoins(notificationUID);
+                if (flag) {
+                    HomeActivity.ClientClass clientClass = new HomeActivity.ClientClass(btArray[i]);
+                    clientClass.start();
+                    mBTStatus.setText("Connecting");
+                } else {
+                    Snackbar.make(mListView, "You cannot join the session", Snackbar.LENGTH_SHORT).show();
+                    mBTStatus.setText("Disconnected");
+                }
 
-                mBTStatus.setText("Connecting");
+
             }
         });
 
@@ -983,6 +995,23 @@ public class HomeActivity extends AppCompatActivity {
         Map<String, Object> session = new HashMap<>();
         session.put("connectedSession",FieldValue.delete());
         db.collection("users").document(user.getUid()).update("connectedSession",FieldValue.arrayRemove(toBeDeleted));
+    }
+
+    private void isAllowJoins(String hostUID){
+        db.collection("Session").document(hostUID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    boolean allowJoins = (boolean) task.getResult().get("allowJoins");
+                    Log.d(TAG, "onComplete: " + allowJoins);
+                    if (allowJoins) {
+                        flag = true;
+                    } else {
+                        flag = false;
+                    }
+            }
+        }
+    });
     }
 
 }
