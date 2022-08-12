@@ -25,7 +25,7 @@ public class PersonalSettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_personal_settings);
         TextView txt_userProfile = (TextView) findViewById(R.id.txt_userProfile);
-        sw_others = findViewById(R.id.sw_others);
+        //sw_others = findViewById(R.id.sw_others);
         sw_others.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
