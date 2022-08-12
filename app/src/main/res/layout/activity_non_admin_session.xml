@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".NonAdminSessionActivity"
     android:theme="@style/jukebot"
+    android:background="@color/surface"
     >
 
     <com.google.android.material.appbar.AppBarLayout
@@ -83,11 +84,12 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/sessionChat"
                 app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/sessionTitle"
                 app:srcCompat="@drawable/ic_person_add" />
 
             <TextView
                 android:id="@+id/sessionTitle"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
                 android:layout_marginTop="6dp"
@@ -144,6 +146,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:text="Song Title"
+        android:textColor="@color/onSurface"
         android:textStyle="bold"
         android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/songArtist"
@@ -157,6 +160,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:text="Song Artist"
+        android:textColor="@color/onSurface"
         android:textSize="14sp"
         app:layout_constraintStart_toStartOf="@+id/songTitle"
         app:layout_constraintTop_toBottomOf="@+id/songTitle" />
@@ -167,6 +171,7 @@
         android:layout_height="0dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
+        android:background="@color/background"
         app:layout_constraintBottom_toTopOf="@+id/addSongFAB"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -181,6 +186,7 @@
         android:layout_margin="16dp"
         app:elevation="6dp"
         android:clickable="true"
+        android:focusable="true"
         app:layout_constraintTop_toBottomOf="@+id/songQueue"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -194,6 +200,7 @@
         android:layout_marginBottom="6dp"
         android:textSize="14sp"
         android:text="Next In Queue"
+        android:textColor="@color/onSurface"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/songQueue"
         app:layout_constraintStart_toStartOf="@+id/songQueue"
