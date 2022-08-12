@@ -14,7 +14,6 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -39,9 +38,8 @@ public class SessionAdminActivity extends AppCompatActivity {
     private boolean admin = true;
 
     RecyclerView songQueue;
-    TextView songTitle, songArtist, songLength, songLengthRemaining, queueLabel, disconnectedText, sessionTitle;
-    SeekBar songProgressBar;
-    ImageButton skipPrevious, playButton, pauseButton, skipNext, back, leaveSession, sessionChat, sessionSettings, addFriend;
+    TextView songTitle, songArtist, queueLabel, disconnectedText, sessionTitle;
+    ImageButton playButton, pauseButton, back, leaveSession, sessionChat, sessionSettings, addFriend;
     ImageView coverArt;
     FloatingActionButton addSongFAB;
     ProgressBar loader;
@@ -71,11 +69,8 @@ public class SessionAdminActivity extends AppCompatActivity {
         songQueue = findViewById(R.id.songQueue);
         songTitle = findViewById(R.id.songTitle);
         songArtist = findViewById(R.id.songArtist);
-        songLength = findViewById(R.id.songLength);
-        songLengthRemaining = findViewById(R.id.songLengthRemaining);
         queueLabel = findViewById(R.id.queueLabel);
         disconnectedText = findViewById(R.id.disconnectedText);
-        songProgressBar = findViewById(R.id.songProgressBar);
         playButton = findViewById(R.id.playButton);
         pauseButton = findViewById(R.id.pauseButton);
         back = findViewById(R.id.back);
