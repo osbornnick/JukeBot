@@ -20,35 +20,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.232" />
 
-    <TextView
-        android:id="@+id/txt_notification"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:drawableRight="@drawable/ic_notifications"
-        android:gravity="center_vertical"
-        android:text="Notification"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txt_userProfile"
-        app:layout_constraintVertical_bias="0.069" />
-
-    <Switch
-        android:id="@+id/sw_others"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:minHeight="48dp"
-        android:text="Others joined"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.484" />
-
     <Button
         android:id="@+id/signOut"
         android:layout_width="wrap_content"
@@ -57,6 +28,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sw_others" />
+        app:layout_constraintTop_toBottomOf="@+id/txt_userProfile"
+        app:layout_constraintVertical_bias="0.204" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
