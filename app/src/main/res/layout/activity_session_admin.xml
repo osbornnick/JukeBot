@@ -193,45 +193,24 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:contentDescription="Play Song"
-        android:visibility="invisible"
+        android:visibility="visible"
         app:layout_constraintBottom_toTopOf="@+id/queueLabel"
-        app:layout_constraintEnd_toStartOf="@+id/skipNext"
-        app:layout_constraintStart_toEndOf="@+id/skipPrevious"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/songProgressBar"
         app:srcCompat="@drawable/ic_play_button" />
 
     <ImageButton
         android:id="@+id/pauseButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:contentDescription="Pause Song"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="@+id/playButton"
-        app:layout_constraintStart_toStartOf="@+id/playButton"
-        app:layout_constraintTop_toTopOf="@+id/playButton"
-        app:layout_constraintBottom_toBottomOf="@+id/playButton"
-        app:srcCompat="@drawable/ic_pause_button" />
-
-    <ImageButton
-        android:id="@+id/skipPrevious"
-        android:contentDescription="Return to Previous Song"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@+id/playButton"
-        app:layout_constraintEnd_toStartOf="@+id/playButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/playButton"
-        app:srcCompat="@drawable/ic_skip_previous" />
-
-    <ImageButton
-        android:id="@+id/skipNext"
-        android:contentDescription="Skip to Next Song"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/playButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/playButton"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/playButton"
-        app:srcCompat="@drawable/ic_skip_next" />
+        app:srcCompat="@drawable/ic_pause_button" />
 
     <TextView
         android:id="@+id/songLength"

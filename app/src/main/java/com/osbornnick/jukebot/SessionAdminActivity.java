@@ -25,10 +25,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
+import com.spotify.protocol.types.Track;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class SessionAdminActivity extends AppCompatActivity {
     private static final String TAG = "SessionActivity";
@@ -50,6 +52,7 @@ public class SessionAdminActivity extends AppCompatActivity {
     Handler handler;
     SongQueueAdapter sqAdapter;
     Song currentSong;
+    private boolean trackWasStarted = false;
 
     private SpotifyAppRemote mSpotifyAppRemote;
     private static final String CLIENT_ID = "fe144966828b41b5ab78f844e0630286";
@@ -73,10 +76,8 @@ public class SessionAdminActivity extends AppCompatActivity {
         queueLabel = findViewById(R.id.queueLabel);
         disconnectedText = findViewById(R.id.disconnectedText);
         songProgressBar = findViewById(R.id.songProgressBar);
-        skipPrevious = findViewById(R.id.skipPrevious);
         playButton = findViewById(R.id.playButton);
         pauseButton = findViewById(R.id.pauseButton);
-        skipNext = findViewById(R.id.skipNext);
         back = findViewById(R.id.back);
         leaveSession = findViewById(R.id.leaveSession);
         sessionChat = findViewById(R.id.sessionChat);
@@ -206,7 +207,8 @@ public class SessionAdminActivity extends AppCompatActivity {
             playButton.setOnClickListener(v -> {
                 //resume currently playing song in the Spotify player
                 Log.d(TAG, "play button clicked");
-                mSpotifyAppRemote.getPlayerApi().resume();
+                if (currentSong == null) playNextFromQueue();
+                else mSpotifyAppRemote.getPlayerApi().resume();
                 playButton.setVisibility(View.INVISIBLE);
                 pauseButton.setVisibility(View.VISIBLE);
             });
@@ -225,8 +227,9 @@ public class SessionAdminActivity extends AppCompatActivity {
         // Subscribe to PlayerState to check for a song ending
         this.isConnected = true;
         mSpotifyAppRemote.getPlayerApi().subscribeToPlayerState().setEventCallback(playerState -> {
-            boolean trackEnded = playerState.isPaused && playerState.playbackPosition == 0;
-            if (trackEnded) {
+            Track currentlyPlaying = playerState.track;
+            if (!Objects.equals(currentlyPlaying.uri, currentSong.getUri())) {
+                mSpotifyAppRemote.getPlayerApi().pause();
                 playNextFromQueue();
             }
         });
@@ -249,17 +252,21 @@ public class SessionAdminActivity extends AppCompatActivity {
         //update nextSong to playing
         Song nextSong = sqAdapter.getFirst();
         // update nextSong to be played
+        if (nextSong == null) {
+            mSpotifyAppRemote.getPlayerApi().pause();
+            currentSong = null;
+            return;
+        }
         db.collection("Session").document(SESSION_ID).collection("queue").document(nextSong.getKey()).update("playing", true);
         updateCurrentSong(nextSong);
         // play it
-//        mSpotifyAppRemote.getPlayerApi().play(nextSong.getUri());
+        mSpotifyAppRemote.getPlayerApi().play(nextSong.getUri());
     }
 
     private void updateCurrentSong(Song s) {
         currentSong = s;
         songArtist.setText(s.getArtist());
         songTitle.setText(s.getName());
-        songLength.setText((int) s.getDuration());
     }
 
     @Override
