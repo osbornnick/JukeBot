@@ -164,6 +164,13 @@ public class HomeActivity extends AppCompatActivity {
         retrieveToken();
         listenForChange();
 
+        user = FirebaseAuth.getInstance().getCurrentUser();
+//        if (user == null){
+//            Intent i = new Intent(this, LoginActivity.class);
+//            Log.d(TAG, "login: calling");
+//            startActivity(i);
+//        }
+
         try {
 
             if (FirebaseAuth.getInstance().getCurrentUser() == null) {
@@ -807,7 +814,9 @@ public class HomeActivity extends AppCompatActivity {
     private void listenForChange() {
         user = FirebaseAuth.getInstance().getCurrentUser();
         //db.collection("users").document(user.getUid()).collection("SessionInfo").addSnapshotListener(eventListener);
-        db.collection("users").document(user.getUid()).addSnapshotListener(eventListener);
+        if (user != null) {
+            db.collection("users").document(user.getUid()).addSnapshotListener(eventListener);
+        }
     }
 
     // moved to sessionrecyclerview adapter

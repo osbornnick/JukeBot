@@ -84,11 +84,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendToFirestoreDB(String token) {
-        user = FirebaseAuth.getInstance().getCurrentUser();
-        Map<String, Object> tokenData = new HashMap<>();
-        tokenData.put("token", token);
 
-        db.collection("users").document(user.getUid()).set(tokenData, SetOptions.merge());
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            Map<String, Object> tokenData = new HashMap<>();
+            tokenData.put("token", token);
+            db.collection("users").document(user.getUid()).set(tokenData, SetOptions.merge());
+        }
     }
 
     public void SpotifyAuth(View view) {

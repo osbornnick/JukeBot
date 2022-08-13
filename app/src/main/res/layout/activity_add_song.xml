@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".AddSongActivity"
     android:theme="@style/jukebot"
-    android:background="@color/background"
+    android:background="@color/surface"
     >
 
     <com.google.android.material.appbar.AppBarLayout
@@ -143,7 +143,6 @@
         android:layout_marginStart="12dp"
         android:layout_marginEnd="12dp"
         android:layout_marginBottom="12dp"
-        android:background="@color/white"
         />
 
     <ProgressBar
