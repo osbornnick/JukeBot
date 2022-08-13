@@ -13,7 +13,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -107,7 +106,7 @@ public class InviteFriendsActivity extends AppCompatActivity {
         back.setOnClickListener(v -> onBackPressed());
 
         leaveSession.setOnClickListener(v -> {
-            Intent i = new Intent(InviteFriendsActivity.this, HomeActivity.class);
+            Intent i = new Intent(InviteFriendsActivity.this, MainActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(i);
         });

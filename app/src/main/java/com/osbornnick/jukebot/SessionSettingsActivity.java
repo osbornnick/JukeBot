@@ -65,7 +65,7 @@ public class SessionSettingsActivity extends AppCompatActivity {
         back.setOnClickListener(v -> onBackPressed());
 
         leaveSession.setOnClickListener(v -> {
-            Intent i = new Intent(SessionSettingsActivity.this, HomeActivity.class);
+            Intent i = new Intent(SessionSettingsActivity.this, MainActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(i);
         });
