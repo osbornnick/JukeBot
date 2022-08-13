@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class SessionAdminActivity extends AppCompatActivity {
-    private static final String TAG = "SessionActivity";
+    private static final String TAG = "SessionAdminActivity";
     private String SESSION_ID;
     private String SESSION_NAME;
     private boolean admin = true;
@@ -52,7 +52,6 @@ public class SessionAdminActivity extends AppCompatActivity {
     Handler handler;
     SongQueueAdapter sqAdapter;
     Song currentSong;
-    private boolean trackWasStarted = false;
 
     private SpotifyAppRemote mSpotifyAppRemote;
     private static final String CLIENT_ID = "fe144966828b41b5ab78f844e0630286";
