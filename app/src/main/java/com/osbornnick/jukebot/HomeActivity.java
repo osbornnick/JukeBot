@@ -97,7 +97,7 @@ public class HomeActivity extends AppCompatActivity {
     FirebaseUser user;
     String hostUID = null;
     SendReceive sendReceive;
-    String username = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+    String username = null;
     FirebaseFirestore db;
 
     TextView mName;
@@ -159,8 +159,8 @@ public class HomeActivity extends AppCompatActivity {
 
         // retrieve token from Firestore for push notifications
         tokenList = new ArrayList<>();
-        retrieveToken();
-        listenForAuthChanges();
+//        retrieveToken();
+//        listenForAuthChanges();
 
         user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
@@ -248,12 +248,18 @@ public class HomeActivity extends AppCompatActivity {
                     }
                 });
 
-        listeners();
+
         //listenForChange();
         //updateSessionName();
 
-        updateRecyclerView();
-        checkSessionName();
+
+        if (user != null) {
+            retrieveToken();
+            listenForAuthChanges();
+            listeners();
+            checkSessionName();
+            updateRecyclerView();
+        }
     }
 
     public void updateRecyclerView() {
@@ -307,7 +313,11 @@ public class HomeActivity extends AppCompatActivity {
                 // itereate through the string array
                 //String[] testArray = {FCMToken, FCMToken1};
                 bluetoothName = getLocalBluetoothName();
-
+                try {
+                    username = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
                 for (int i = 0; i < tokenList.size(); i++) {
                     FireBaseCloudMessage.pushNotification(HomeActivity.this, tokenList.get(i), "JukeBot", username + " started the session on " + bluetoothName);
                 }

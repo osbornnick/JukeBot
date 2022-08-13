@@ -79,8 +79,10 @@ public class MainActivity extends AppCompatActivity {
                         // Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
                     }
                 });
-        Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-        startActivity(intent);
+        if (user != null) {
+            Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+            startActivity(intent);
+        }
     }
 
     private void sendToFirestoreDB(String token) {
