@@ -62,7 +62,7 @@ public class CreateAccountActivity extends AppCompatActivity {
                 userData.put("username", usernameTV.getText().toString());
                 userData.put("dateCreated", FieldValue.serverTimestamp());
                 FirebaseFirestore.getInstance().collection("users").document(uid).set(userData);
-                Intent intent = new Intent(this, HomeActivity.class);
+                Intent intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
             } else {
                 uiHandler.post(() -> {

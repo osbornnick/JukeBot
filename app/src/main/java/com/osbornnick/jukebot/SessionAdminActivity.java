@@ -142,7 +142,7 @@ public class SessionAdminActivity extends AppCompatActivity {
         leaveSession.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(SessionAdminActivity.this, HomeActivity.class);
+                Intent i = new Intent(SessionAdminActivity.this, MainActivity.class);
                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(i);
             }

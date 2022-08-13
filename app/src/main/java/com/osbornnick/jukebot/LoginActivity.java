@@ -1,6 +1,5 @@
 package com.osbornnick.jukebot;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -12,9 +11,6 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
@@ -100,7 +96,7 @@ public class LoginActivity extends AppCompatActivity {
                       loggedInUser.updateProfile(profileUpdate);
                    });
                }
-               Intent intent = new Intent(this, HomeActivity.class);
+               Intent intent = new Intent(this, MainActivity.class);
                startActivity(intent);
            } else {
                uiHandler.post(() -> {
