@@ -88,7 +88,7 @@ public class StartSessionActivity extends AppCompatActivity {
                     //mSessionName.setText("");
                     Intent intent = new Intent(StartSessionActivity.this, SessionAdminActivity.class);
                     intent.putExtra("session_id", user.getUid());
-                    intent.putExtra("session_name", mSessionName.getText());
+                    intent.putExtra("session_name", sessionName);
                     startActivity(intent);
                 }
             }
