@@ -1,12 +1,14 @@
 package com.osbornnick.jukebot;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -36,7 +38,6 @@ public class SessionAdminActivity extends AppCompatActivity {
     private static final String TAG = "SessionAdminActivity";
     private String SESSION_ID;
     private String SESSION_NAME;
-    private boolean admin = true;
 
     RecyclerView songQueue;
     TextView songTitle, songArtist, queueLabel, disconnectedText, sessionTitle;
@@ -44,11 +45,11 @@ public class SessionAdminActivity extends AppCompatActivity {
     ImageView coverArt;
     FloatingActionButton addSongFAB;
     ProgressBar loader;
+    Handler uiHandler = new Handler(Looper.getMainLooper());
 
     FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
     boolean isConnected = false;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-    Handler handler;
     SongQueueAdapter sqAdapter;
     Song currentSong;
 
@@ -64,7 +65,6 @@ public class SessionAdminActivity extends AppCompatActivity {
         Intent i = getIntent();
         SESSION_ID = i.getStringExtra("session_id");
         SESSION_NAME = i.getStringExtra("session_name");
-        handler = new Handler(Looper.getMainLooper());
 
         songQueue = findViewById(R.id.songQueue);
         songTitle = findViewById(R.id.songTitle);
@@ -232,10 +232,6 @@ public class SessionAdminActivity extends AppCompatActivity {
         });
     }
 
-    public void test(View v) {
-        playNextFromQueue();
-    }
-
     private void playNextFromQueue() {
         // update currentSong from playing to played
         if (currentSong != null) {
@@ -264,6 +260,13 @@ public class SessionAdminActivity extends AppCompatActivity {
         currentSong = s;
         songArtist.setText(s.getArtist());
         songTitle.setText(s.getName());
+        new Thread(() -> {
+            Bitmap albumImage = s.getAlbumImage();
+            uiHandler.post(() -> {
+                if (albumImage != null) coverArt.setImageBitmap(albumImage);
+                else coverArt.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_baseline_cancel_24, null));
+            });
+        }).start();
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.osbornnick.jukebot;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -194,21 +195,12 @@ public class NonAdminSessionActivity extends AppCompatActivity {
         currentSong = s;
         songArtist.setText(s.getArtist());
         songTitle.setText(s.getName());
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Bitmap albumImage = s.getAlbumImage();
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(albumImage != null) {
-                            coverArt.setImageBitmap(albumImage);
-                        } else {
-                            coverArt.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_cancel_24));
-                        }
-                    }
-                });
-            }
+        new Thread(() -> {
+            Bitmap albumImage = s.getAlbumImage();
+            handler.post(() -> {
+                if (albumImage != null) coverArt.setImageBitmap(albumImage);
+                else coverArt.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_baseline_cancel_24, null));
+            });
         }).start();
     }
 }
