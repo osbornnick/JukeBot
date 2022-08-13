@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -54,6 +55,8 @@ public class CreateAccountActivity extends AppCompatActivity {
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
             if (task.isSuccessful()) {
                 FirebaseUser newUser = mAuth.getCurrentUser();
+                UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder().setDisplayName(usernameTV.getText().toString()).build();
+                newUser.updateProfile(profileUpdate);
                 String uid = newUser.getUid();
                 Map<String, Object> userData = new HashMap<>();
                 userData.put("username", usernameTV.getText().toString());

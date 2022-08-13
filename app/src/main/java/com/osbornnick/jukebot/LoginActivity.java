@@ -17,6 +17,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -68,8 +69,11 @@ public class LoginActivity extends AppCompatActivity {
             if (task.isSuccessful()) {
                 FirebaseUser newUser = mAuth.getCurrentUser();
                 String uid = newUser.getUid();
+                String username = "anonymous" + uid.substring(uid.length() - 3);
+                UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder().setDisplayName(username).build();
+                newUser.updateProfile(profileUpdate);
                 Map<String, Object> userData = new HashMap<String, Object>() {{
-                    put("username", "anonymous" + uid.substring(uid.length() - 3));
+                    put("username", username);
                     put("dateCreated", FieldValue.serverTimestamp());
                 }};
                 FirebaseFirestore.getInstance().collection("users").document(uid).set(userData);
@@ -88,6 +92,14 @@ public class LoginActivity extends AppCompatActivity {
         String password = passwordTV.getText().toString();
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
            if (task.isSuccessful()) {
+               FirebaseUser loggedInUser = mAuth.getCurrentUser();
+               if (loggedInUser.getDisplayName() == null) {
+                   FirebaseFirestore.getInstance().collection("users").document(loggedInUser.getUid()).get().addOnSuccessListener(snap -> {
+                      String username = snap.get("username", String.class);
+                      UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder().setDisplayName(username).build();
+                      loggedInUser.updateProfile(profileUpdate);
+                   });
+               }
                Intent intent = new Intent(this, HomeActivity.class);
                startActivity(intent);
            } else {
