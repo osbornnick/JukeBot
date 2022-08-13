@@ -43,6 +43,7 @@ public class StartSessionActivity extends AppCompatActivity {
         user = FirebaseAuth.getInstance().getCurrentUser();
         String uid = user.getUid();
         Log.d(TAG, "onCreate: " + uid);
+        btn_confirm.setEnabled(false);
 
 
         // cancel btn brings up to previous activity
@@ -56,15 +57,15 @@ public class StartSessionActivity extends AppCompatActivity {
         mSessionName.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                btn_confirm.setClickable(false);
+
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.length() == 0){
-                    btn_confirm.setClickable(false);
+                if(s.toString().trim().length()==0){
+                    btn_confirm.setEnabled(false);
                 } else {
-                    btn_confirm.setClickable(true);
+                    btn_confirm.setEnabled(true);
                 }
             }
 
