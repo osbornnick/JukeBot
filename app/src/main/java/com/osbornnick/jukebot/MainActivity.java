@@ -160,6 +160,10 @@ public class MainActivity extends AppCompatActivity {
 //        listenForAuthChanges();
 
         user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+        }
         if (user != null) {
             db.collection("users").document(user.getUid()).get().addOnSuccessListener(snap -> {
                 mName.setText(snap.get("username", String.class));
