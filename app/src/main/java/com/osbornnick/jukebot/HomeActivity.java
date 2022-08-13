@@ -41,7 +41,6 @@ import com.google.android.material.floatingactionbutton.ExtendedFloatingActionBu
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
@@ -64,7 +63,6 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,7 +97,7 @@ public class HomeActivity extends AppCompatActivity {
     FirebaseUser user;
     String hostUID = null;
     SendReceive sendReceive;
-    String username = null;
+    String username = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
     FirebaseFirestore db;
 
     TextView mName;
@@ -162,45 +160,23 @@ public class HomeActivity extends AppCompatActivity {
         // retrieve token from Firestore for push notifications
         tokenList = new ArrayList<>();
         retrieveToken();
-        listenForChange();
+        listenForAuthChanges();
 
         user = FirebaseAuth.getInstance().getCurrentUser();
-//        if (user == null){
-//            Intent i = new Intent(this, LoginActivity.class);
-//            Log.d(TAG, "login: calling");
-//            startActivity(i);
-//        }
-
-        try {
-
-            if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-                return;
-            } else {
-                //Snackbar.make(mSessionChatActivity, FirebaseAuth.getInstance().getCurrentUser().getEmail(), Snackbar.LENGTH_SHORT).show();
-                user = FirebaseAuth.getInstance().getCurrentUser();
-                user.getUid();
-                Log.d(TAG, "onCreate: uid " + user.getUid());
-                Log.d(TAG, "onCreate: " + user);
-                db.collection("users")
-                        .document(user.getUid()).get()
-                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if (task.isSuccessful() && task.getResult() != null) {
-                                    username = task.getResult().getString("username");
-                                    if (username == null) {
-                                        username = "Anonymous";
-                                    }
-                                    Log.d(TAG, "onComplete: username " + username);
-                                    mName.setText("Hi " + username);
-                                }
-                            }
-                        });
-            }
-        } catch (Exception e) {
-            mName.setText("Hi Anon");
-            Log.d(TAG, "onCreate: error" + e);
+        if (user == null) {
+            Intent i = new Intent(this, LoginActivity.class);
+            Log.d(TAG, "login: calling");
+            startActivity(i);
+        } else {
+            mName.setText(user.getDisplayName());
         }
+
+        FirebaseAuth.getInstance().addAuthStateListener(auth -> {
+            FirebaseUser loggedIn = auth.getCurrentUser();
+            if (loggedIn != null) {
+                mName.setText(loggedIn.getDisplayName());
+            }
+        });
 
         //set onClickListeners
         newSession.setOnClickListener(new View.OnClickListener() {
@@ -593,18 +569,6 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-
-    public void getUserProfile() {
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        Handler handler = new Handler(Looper.getMainLooper());
-
-        executor.execute(() -> {
-            //Background work here
-            doInBackground("https://api.spotify.com/v1/me");
-            handler.post(() -> onPostExecute(result));
-        });
-    }
-
     public String doInBackground(String... strings) {
         try {
             mUrl = new URL(strings[0]);
@@ -719,20 +683,9 @@ public class HomeActivity extends AppCompatActivity {
 
     // client stores host uid in connectedSessionArray
     public void storeHostUID(String hostUID) {
-        user = FirebaseAuth.getInstance().getCurrentUser();
-        user.getUid();
         hostUIDList.add(hostUID);
         Log.d(TAG, "storeHostUID: " + hostUIDList);
-        Map<String, Object> map = new HashMap<>();
-        map.put("connectedSession", FieldValue.arrayUnion(hostUID));
-//        db.collection("users")
-//                .document(user.getUid()).collection("SessionInfo").document(user.getUid()).set(map, SetOptions.merge());
-        db.collection("users").document(user.getUid()).set(map, SetOptions.merge());
-
-//        db.collection("users")
-//                .document(user.getUid()).collection("SessionInfo").document(hostUID).set(map,SetOptions.merge());
-
-        //set(map, SetOptions.merge());
+        db.collection("users").document(hostUID).update("connectedSession", FieldValue.arrayUnion(hostUID));
     }
 
     // get username from hostuid. associate host uid with the username for recycler view
@@ -811,33 +764,15 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     // get the host uid and host username
-    private void listenForChange() {
+    private void listenForAuthChanges() {
+        FirebaseAuth.getInstance().addAuthStateListener(auth -> {
+
+        });
         user = FirebaseAuth.getInstance().getCurrentUser();
         //db.collection("users").document(user.getUid()).collection("SessionInfo").addSnapshotListener(eventListener);
         if (user != null) {
             db.collection("users").document(user.getUid()).addSnapshotListener(eventListener);
         }
-    }
-
-    // moved to sessionrecyclerview adapter
-    private String getSessionName(String uid) {
-        final String[] SessionName = new String[1];
-        user = FirebaseAuth.getInstance().getCurrentUser();
-        db.collection("Session")
-                .document(uid).get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful() && task.getResult() != null) {
-                            SessionName[0] = task.getResult().getString("name");
-                            Log.d(TAG, "onComplete: username " + SessionName[0]);
-
-
-                        }
-                    }
-                });
-
-        return SessionName[0];
     }
 
     // event listener for getting host name and username
@@ -871,87 +806,7 @@ public class HomeActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-
-
-//                 old code for subcollection session info
-//                for (DocumentChange document : value.getDocumentChanges()) {
-//                    switch (document.getType()) {
-//                        case ADDED:
-//                            Log.d("TAG", "New Msg: " + document.getDocument().toObject(Users.class));
-//
-//                            break;
-//                        case MODIFIED:
-//                            Log.d("TAG", "Modified Msg: " + document.getDocument().toObject(Users.class));
-//                            break;
-//                        case REMOVED:
-//                            Log.d("TAG", "Removed Msg: " + document.getDocument().toObject(Users.class));
-//                            break;
-//                    }
-//                    Map<String, Object> map = document.getDocument().getData();
-//                    for (Map.Entry<String, Object> entry : map.entrySet()){
-//                        if(entry.getKey().equals("connectedSession")){
-//                            Log.d(TAG, "onEvent: " + entry.getValue().toString());
-//                            group.add(entry.getValue().toString());
-//                        }
-//                    }
-//                    Log.d(TAG, "onComplete: event listener String Lis　" + group);
-//                    if (document.getType() == DocumentChange.Type.ADDED) {
-            //group = (List<String>) document.getDocument().get("connectedSession");
-            //group = (List<String>) document.getDocument("connectedSession");
-
-
-//                        group = (List<String>) document.getDocument().get("connectedSession");
-//                        Log.d(TAG, "onEvent: " + group);
-            //List<String> usernameList = (List<String>) document.getDocument().get("connectedUserName");
-            //Log.d(TAG, "onComplete: event listener " + usernameList);
-
-//                        for (int i = 0 ; i < group.size(); i++){
-//                            Session session = new Session();
-//
-//                            String s1 = group.get(i);
-//                            //String s2 = getSessionName(s1);
-//                            //Log.d(TAG, "onEvent: s2 " + s2);
-//                            //String s2 = usernameList.get(i);
-//                            session.mSessionName = s1;
-//                            //session.mSessionHost = s2;
-//                            mList.add(session);
-//                        }
         }
-
-//                    try {
-//                        if (document.getType() == DocumentChange.Type.MODIFIED) {
-//                                Log.d(TAG, "onEvent: calling document type modified");
-//                                group = (List<String>) document.getDocument().get("connectedSession");
-////                                int current = group.size()-1;
-////                                Log.d(TAG, "onComplete: event listener String Lis　" + group);
-//                                String lastName = group.get(group.size() - 1);
-////                                Log.d(TAG, "onEvent: lastname " + lastName);
-//                                Session session = new Session();
-//                                session.mSessionName = lastName;
-//                                //session.mSessionHost = lastHost;
-//                                mList.add(session);
-//                        }
-//                    } catch (Exception e){
-//                        e.printStackTrace();
-//                    }
-//
-//                }
-//                try {
-//                    if (count == 0) {
-//                        Log.d(TAG, "onEvent: count " + count);
-//                        mAdapter.notifyDataSetChanged();
-//                    } else {
-//                        mAdapter.notifyItemChanged(group.size());
-//                        //mAdapter.notifyItemRangeInserted(mList.size(),mList.size());
-//                        Log.d(TAG, "onEvent: calling madpter " + count);
-//                        binding.joinedSessionRv.smoothScrollToPosition(mList.size() - 1);
-//                    }
-//                    binding.joinedSessionRv.setVisibility(View.VISIBLE);
-//                } catch (Exception e){
-//                    e.printStackTrace();
-//                }
-//            }
-
     };
 
     public String getLocalBluetoothName() {
