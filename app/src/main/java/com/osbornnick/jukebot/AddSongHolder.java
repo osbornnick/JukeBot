@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -56,7 +58,8 @@ public class AddSongHolder extends SongItemHolder {
         songMap.put("name", songToBind.getName());
         songMap.put("preview_url", songToBind.previewURL);
         //TODO: Make sure we get username of active user to put in suggestedBy
-        songMap.put("suggestedBy", "userTest");
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) songMap.put("suggestedBy", currentUser.getDisplayName());
         songMap.put("score", 1);
         songMap.put("deleted", false);
         songMap.put("played", false);
