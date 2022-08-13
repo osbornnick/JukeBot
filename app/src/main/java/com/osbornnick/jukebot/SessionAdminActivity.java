@@ -227,13 +227,14 @@ public class SessionAdminActivity extends AppCompatActivity {
                             playerService.setSession(SESSION_ID);
                             playerService.setDataSource(nextSong);
                             songLoaded = true;
+
+                            playButton.setVisibility(View.INVISIBLE);
+                            pauseButton.setVisibility(View.VISIBLE);
                         } else {
                             Log.d(TAG, "Queue is empty");
                             Toast.makeText(this, "Add more songs to the queue to continue your session!", Toast.LENGTH_SHORT).show();
                         }
                     }
-                    playButton.setVisibility(View.INVISIBLE);
-                    pauseButton.setVisibility(View.VISIBLE);
                     musicPlaying = true;
                 }
             });
@@ -332,6 +333,8 @@ public class SessionAdminActivity extends AppCompatActivity {
         songTitle.setVisibility(View.GONE);
         coverArt.setVisibility(View.GONE);
         noSongText.setVisibility(View.VISIBLE);
+        playButton.setVisibility(View.VISIBLE);
+        pauseButton.setVisibility(View.INVISIBLE);
         Log.d(TAG, "clearCurrentSong: current song is cleared out");
     }
 
