@@ -130,6 +130,10 @@ public class Song {
 
     public String getUri() {return uri;}
 
+    public String getPreviewURL() {
+        return previewURL;
+    }
+
     public void setScore(long score) {
         this.score = score;
     }

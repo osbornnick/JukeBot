@@ -293,8 +293,10 @@ public class AddSongActivity extends AppCompatActivity {
                             s.session_id = SESSION_ID;
 
                             Log.d(TAG, "resetSearchResults: " + s.toString());
+                            if(s.getPreviewURL() != "null" && s.getPreviewURL() != null) {
+                                searchSongListNew.add(s);
+                            }
 
-                            searchSongListNew.add(s);
                         }
 
                         //update the adapter with new search terms
