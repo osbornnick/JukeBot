@@ -50,7 +50,7 @@ public class SessionAdminActivity extends AppCompatActivity {
 
     RecyclerView songQueue;
     TextView songTitle, songArtist, queueLabel, disconnectedText, sessionTitle, noSongText;
-    ImageButton playButton, pauseButton, back, leaveSession, sessionChat, sessionSettings, addFriend;
+    ImageButton playButton, pauseButton, back, leaveSession, sessionChat, sessionSettings, addFriend, skipNext, replay;
     ImageView coverArt;
     FloatingActionButton addSongFAB;
     ProgressBar loader;
@@ -121,6 +121,8 @@ public class SessionAdminActivity extends AppCompatActivity {
         loader = findViewById(R.id.loader);
         sessionTitle = findViewById(R.id.sessionTitle);
         noSongText = findViewById(R.id.noSongText);
+        replay = findViewById(R.id.replay);
+        skipNext = findViewById(R.id.skipNext);
 
         //Set Tool Bar On clicks
         initToolbar();
@@ -151,13 +153,17 @@ public class SessionAdminActivity extends AppCompatActivity {
     }
 
     private void initToolbar() {
-        back.setOnClickListener(v -> onBackPressed());
+        back.setOnClickListener(v -> {
+            updateEndSongDB();
+            onBackPressed();
+        });
 
         sessionTitle.setText(SESSION_NAME);
 
         leaveSession.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                updateEndSongDB();
                 Intent i = new Intent(SessionAdminActivity.this, MainActivity.class);
                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(i);
@@ -244,6 +250,44 @@ public class SessionAdminActivity extends AppCompatActivity {
                     playerService.pause();
                     playButton.setVisibility(View.VISIBLE);
                     pauseButton.setVisibility(View.INVISIBLE);
+                    musicPlaying = false;
+                }
+            });
+
+            replay.setOnClickListener(v -> {
+                if(songLoaded) {    //replay song
+                    playerService.setSession(SESSION_ID);
+                    playerService.setDataSource(currentSong.getPreviewURL());
+                } else { //play next song
+                    String nextSong = getNextFromQueue();
+                    if(nextSong != null) {
+                        playerService.setSession(SESSION_ID);
+                        playerService.setDataSource(nextSong);
+                        songLoaded = true;
+
+                        playButton.setVisibility(View.INVISIBLE);
+                        pauseButton.setVisibility(View.VISIBLE);
+                    } else {
+                        Log.d(TAG, "Queue is empty");
+                        Toast.makeText(this, "Add more songs to the queue to continue your session!", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                musicPlaying = true;
+            });
+
+            skipNext.setOnClickListener(v -> {
+                String nextSong = getNextFromQueue();
+                if(nextSong != null) {
+                    playerService.setSession(SESSION_ID);
+                    playerService.setDataSource(nextSong);
+                    songLoaded = true;
+
+                    playButton.setVisibility(View.INVISIBLE);
+                    pauseButton.setVisibility(View.VISIBLE);
+                    musicPlaying = true;
+                } else {
+                    Log.d(TAG, "Queue is empty");
+                    Toast.makeText(this, "Add more songs to the queue to continue your session!", Toast.LENGTH_SHORT).show();
                     musicPlaying = false;
                 }
             });
@@ -338,6 +382,15 @@ public class SessionAdminActivity extends AppCompatActivity {
         Log.d(TAG, "clearCurrentSong: current song is cleared out");
     }
 
+    private void updateEndSongDB() {
+        if(currentSong != null) {
+            db.collection("Session").document(SESSION_ID).collection("queue").document(currentSong.getKey()).update("playing", false);
+            Log.d(TAG, "updateEndSongDB: playing set to false");
+            db.collection("Session").document(SESSION_ID).collection("queue").document(currentSong.getKey()).update("played", true);
+            Log.d(TAG, "updateEndSongDB: played set to true");
+        }
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -371,6 +424,12 @@ public class SessionAdminActivity extends AppCompatActivity {
             registerReceiver(serviceUpdateReceiver, intentFilter);
             Log.d(TAG, "onResume: broadcast receiver registered");
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        updateEndSongDB();
+        super.onBackPressed();
     }
 
     private class ServiceUpdateReceiver extends BroadcastReceiver {

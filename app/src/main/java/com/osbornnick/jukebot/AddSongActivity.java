@@ -293,7 +293,7 @@ public class AddSongActivity extends AppCompatActivity {
                             s.session_id = SESSION_ID;
 
                             Log.d(TAG, "resetSearchResults: " + s.toString());
-                            if(map.get("preview_url") != null) {
+                            if(s.getPreviewURL() != "null" && s.getPreviewURL() != null) {
                                 searchSongListNew.add(s);
                             }
 

@@ -279,5 +279,29 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appBar" />
 
+    <ImageButton
+        android:id="@+id/skipNext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/fui_transparent"
+        android:contentDescription="Skip Next Song"
+        app:layout_constraintBottom_toBottomOf="@+id/playButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/playButton"
+        app:layout_constraintTop_toTopOf="@+id/playButton"
+        app:srcCompat="@drawable/ic_skip_next" />
+
+    <ImageButton
+        android:id="@+id/replay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/fui_transparent"
+        android:contentDescription="Replay Song"
+        app:layout_constraintBottom_toBottomOf="@+id/playButton"
+        app:layout_constraintEnd_toStartOf="@+id/playButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/playButton"
+        app:srcCompat="@drawable/ic_baseline_replay_24" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
