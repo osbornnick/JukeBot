@@ -2,6 +2,7 @@ package com.osbornnick.jukebot;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,7 +34,7 @@ public class NonAdminSessionActivity extends AppCompatActivity {
     private String SESSION_NAME;
 
     RecyclerView songQueue;
-    TextView songTitle, songArtist, queueLabel, disconnectedText, sessionTitle;
+    TextView songTitle, songArtist, queueLabel, disconnectedText, sessionTitle, notPlaying;
     ImageButton back, leaveSession, sessionChat, addFriend;
     ImageView coverArt;
     FloatingActionButton addSongFAB;
@@ -63,6 +64,7 @@ public class NonAdminSessionActivity extends AppCompatActivity {
         songQueue = findViewById(R.id.songQueue);
         songTitle = findViewById(R.id.songTitle);
         songArtist = findViewById(R.id.songArtist);
+        notPlaying = findViewById(R.id.notPlaying);
 //        songLength = findViewById(R.id.songLength);
 //        songLengthRemaining = findViewById(R.id.songLengthRemaining);
 //        songProgressBar = findViewById(R.id.songProgressBar);
@@ -88,6 +90,8 @@ public class NonAdminSessionActivity extends AppCompatActivity {
         sqAdapter = new SongQueueAdapter();
         sqAdapter.admin = false;
         songQueue.setAdapter(sqAdapter);
+
+        songQueue.addItemDecoration(new DividerItemDecoration(songQueue.getContext(), ((LinearLayoutManager)songQueue.getLayoutManager()).getOrientation()));
 
         listenToSongQueue();
 
@@ -174,7 +178,13 @@ public class NonAdminSessionActivity extends AppCompatActivity {
                 if (upVotes != null && upVotes.contains(currentUser.getUid())) s.voted = "UP";
                 if (downVotes != null && downVotes.contains(currentUser.getUid())) s.voted = "DOWN";
                 // update song info from spotify?
-                if (s.played) sqAdapter.remove(s);
+                if (s.played) {
+                    sqAdapter.remove(s);
+                    coverArt.setVisibility(View.GONE);
+                    songTitle.setVisibility(View.GONE);
+                    songArtist.setVisibility(View.GONE);
+                    notPlaying.setVisibility(View.VISIBLE);
+                }
                 else if (s.deleted) sqAdapter.remove(s);
                 else if (s.playing) {
                     //update the current song
@@ -193,6 +203,12 @@ public class NonAdminSessionActivity extends AppCompatActivity {
         currentSong = s;
         songArtist.setText(s.getArtist());
         songTitle.setText(s.getName());
+
+        coverArt.setVisibility(View.VISIBLE);
+        songTitle.setVisibility(View.VISIBLE);
+        songArtist.setVisibility(View.VISIBLE);
+        notPlaying.setVisibility(View.GONE);
+
         new Thread(() -> {
             Bitmap albumImage = s.getAlbumImage();
             handler.post(() -> {
