@@ -152,11 +152,11 @@ public class NonAdminSessionActivity extends AppCompatActivity {
             boolean allowChat = (boolean) value.get("allowChat");
 
             if(!allowInvite) {
-                addFriend.setVisibility(View.GONE);
+                addFriend.setVisibility(View.INVISIBLE);
             }
 
             if(!allowChat) {
-                sessionChat.setVisibility(View.GONE);
+                sessionChat.setVisibility(View.INVISIBLE);
             }
         });
     }
