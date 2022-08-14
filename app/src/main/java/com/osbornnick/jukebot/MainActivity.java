@@ -422,6 +422,7 @@ public class MainActivity extends AppCompatActivity {
                     SharedPreferences.Editor editor = preferences.edit();
                     editor.putString("HostUID", tempMsg);
                     editor.apply();
+
                     storeHostUID(tempMsg);
                     //getUserNameFromHostUID(tempMsg);
                     Log.d(TAG, "handleMessage: " + tempMsg);
@@ -693,11 +694,11 @@ public class MainActivity extends AppCompatActivity {
 
     // client stores host uid in connectedSessionArray
     public void storeHostUID(String hostUID) {
-        hostUIDList.add(hostUID);
-        Log.d(TAG, "storeHostUID: " + hostUIDList);
+//        hostUIDList.add(hostUID);
+        Log.d(TAG, "storeHostUID: " + hostUID);
         // added host UID null check
         if (hostUID  != null) {
-            db.collection("users").document(hostUID).update("connectedSession", FieldValue.arrayUnion(hostUID));
+            db.collection("users").document(user.getUid()).update("connectedSession", FieldValue.arrayUnion(hostUID));
         }
     }
 
