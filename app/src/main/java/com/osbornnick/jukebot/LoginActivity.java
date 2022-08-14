@@ -65,7 +65,7 @@ public class LoginActivity extends AppCompatActivity {
             if (task.isSuccessful()) {
                 FirebaseUser newUser = mAuth.getCurrentUser();
                 String uid = newUser.getUid();
-                String username = "anonymous" + uid.substring(uid.length() - 3);
+                String username = "anon" + uid.substring(uid.length() - 3);
                 UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest.Builder().setDisplayName(username).build();
                 newUser.updateProfile(profileUpdate);
                 Map<String, Object> userData = new HashMap<String, Object>() {{
