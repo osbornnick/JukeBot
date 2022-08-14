@@ -68,8 +68,9 @@ public class SongQueueAdapter extends RecyclerView.Adapter<SongItemHolder>  {
     @Override
     public void onBindViewHolder(@NonNull SongItemHolder holder, int position) {
         holder.bindThisData(songQueue.get(position));
+        SongQueueHolder h = (SongQueueHolder) holder;
+        h.updateButtons();
         if(!admin) {
-            SongQueueHolder h = (SongQueueHolder) holder;
             h.delete.setVisibility(View.GONE);
         }
     }

@@ -29,19 +29,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-//Spotify SDK Imports
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.spotify.android.appremote.api.ConnectionParams;
-import com.spotify.android.appremote.api.Connector;
-import com.spotify.android.appremote.api.SpotifyAppRemote;
-import com.spotify.protocol.types.Track;
+
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+
 
 public class SessionAdminActivity extends AppCompatActivity {
     private static final String TAG = "SessionAdminActivity";
@@ -163,7 +160,7 @@ public class SessionAdminActivity extends AppCompatActivity {
         leaveSession.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateEndSongDB();
+                updateEndSongDB(); // probably should go to Main?
                 Intent i = new Intent(SessionAdminActivity.this, MainActivity.class);
                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(i);
@@ -227,6 +224,8 @@ public class SessionAdminActivity extends AppCompatActivity {
                 if(!musicPlaying) {
                     if(songLoaded) {    //resume song if one isn't set
                         playerService.resume();
+                        playButton.setVisibility(View.INVISIBLE);
+                        pauseButton.setVisibility(View.VISIBLE);
                     } else {
                         String nextSong = getNextFromQueue();
                         if(nextSong != null) {

@@ -52,7 +52,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="10dp"
             android:ems="10"
-            android:hint="confirm_password"
+            android:hint="@string/confirm_password"
             android:inputType="textPassword"
             android:minHeight="48dp"
             android:textColorHint="#757575" />

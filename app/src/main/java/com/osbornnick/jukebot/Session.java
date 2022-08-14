@@ -1,5 +1,7 @@
 package com.osbornnick.jukebot;
 
+import java.util.Objects;
+
 public class Session {
 
     // session name = uid
@@ -29,5 +31,11 @@ public class Session {
 
     public void setmSessionHost(String mSessionHost) {
         this.mSessionHost = mSessionHost;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Session)) return false;
+        return Objects.equals(((Session) o).getmSessionName(), this.getmSessionName());
     }
 }

@@ -42,6 +42,7 @@ public class PersonalSettingsActivity extends AppCompatActivity {
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             Log.d(TAG, "login: calling");
             startActivity(i);
+            this.finish();
         });
     }
 

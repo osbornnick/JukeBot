@@ -2,6 +2,7 @@ package com.osbornnick.jukebot;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -91,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
     ListView mListView;
     Button mListDevices, mHost, mSendHostUID;
     TextView mBTStatus, mHostUID, mJoinStatus;
-    FirebaseUser user;
+    FirebaseUser loggedInUser;
     String hostUID = null;
     SendReceive sendReceive;
     String username = null;
@@ -159,13 +160,13 @@ public class MainActivity extends AppCompatActivity {
 //        retrieveToken();
 //        listenForAuthChanges();
 
-        user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null) {
+        loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (loggedInUser == null) {
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
         }
-        if (user != null) {
-            db.collection("users").document(user.getUid()).get().addOnSuccessListener(snap -> {
+        if (loggedInUser != null) {
+            db.collection("users").document(loggedInUser.getUid()).get().addOnSuccessListener(snap -> {
                 mName.setText(snap.get("username", String.class));
                 username = snap.get("username", String.class);
             });
@@ -174,12 +175,14 @@ public class MainActivity extends AppCompatActivity {
             FirebaseUser u = firebaseAuth.getCurrentUser();
             if (u != null) {
                 db.collection("users").document(u.getUid()).get().addOnSuccessListener(snap -> {
-                    mName.setText(snap.get("username", String.class));
-                    username = snap.get("username", String.class);
+                   String username = snap.get("username", String.class);
+                   mName.setText(username);
                 });
             } else {
                 mName.setText("");
             }
+            mList.clear();
+            mAdapter.notifyDataSetChanged();
         });
 
         //set onClickListeners
@@ -193,8 +196,8 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, StartSessionActivity.class);
 
                 startActivity(intent);
-                user = FirebaseAuth.getInstance().getCurrentUser();
-                hostUID = user.getUid();
+                loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
+                hostUID = loggedInUser.getUid();
                 storeHostUID(hostUID);
             }
         });
@@ -258,12 +261,13 @@ public class MainActivity extends AppCompatActivity {
         //updateSessionName();
 
 
-        if (user != null) {
+        if (loggedInUser != null) {
             retrieveToken();
-            listenForAuthChanges();
+//            listenForAuthChanges();
             listeners();
             checkSessionName();
             updateRecyclerView();
+            listenForAddedSessions();
         }
     }
 
@@ -324,8 +328,8 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "onClick: tokenList " + tokenList);
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                 prefs.edit().remove("HostUID").apply();
-                user = FirebaseAuth.getInstance().getCurrentUser();
-                hostUID = user.getUid();
+                loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
+                hostUID = loggedInUser.getUid();
                 Log.d(TAG, "onClick: " + hostUID);
                 mJoinStatus.setText("Host");
                 MainActivity.ServerClass serverClass = new MainActivity.ServerClass();
@@ -698,7 +702,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "storeHostUID: " + hostUID);
         // added host UID null check
         if (hostUID  != null) {
-            db.collection("users").document(user.getUid()).update("connectedSession", FieldValue.arrayUnion(hostUID));
+            db.collection("users").document(loggedInUser.getUid()).update("connectedSession", FieldValue.arrayUnion(hostUID));
         }
     }
 
@@ -718,7 +722,7 @@ public class MainActivity extends AppCompatActivity {
                             Map<String, Object> map = new HashMap<>();
                             map.put("connectedUserName", FieldValue.arrayUnion(connectedUserName));
                             db.collection("users")
-                                    .document(user.getUid()).collection("SessionInfo").document(user.getUid()).set(map, SetOptions.merge());
+                                    .document(loggedInUser.getUid()).collection("SessionInfo").document(loggedInUser.getUid()).set(map, SetOptions.merge());
                         }
                     }
                 });
@@ -726,9 +730,9 @@ public class MainActivity extends AppCompatActivity {
 
     // update the recycler view to display both the host uid aka session name and username
     private void updateSessionName() {
-        user = FirebaseAuth.getInstance().getCurrentUser();
+        loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
 
-        db.collection("users").document(user.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        db.collection("users").document(loggedInUser.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 DocumentSnapshot documentSnapshot = task.getResult();
@@ -782,10 +786,10 @@ public class MainActivity extends AppCompatActivity {
         FirebaseAuth.getInstance().addAuthStateListener(auth -> {
 
         });
-        user = FirebaseAuth.getInstance().getCurrentUser();
+        loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
         //db.collection("users").document(user.getUid()).collection("SessionInfo").addSnapshotListener(eventListener);
-        if (user != null) {
-            db.collection("users").document(user.getUid()).addSnapshotListener(eventListener);
+        if (loggedInUser != null) {
+            db.collection("users").document(loggedInUser.getUid()).addSnapshotListener(eventListener);
         }
     }
 
@@ -793,10 +797,9 @@ public class MainActivity extends AppCompatActivity {
     private final EventListener<DocumentSnapshot> eventListener = new EventListener<DocumentSnapshot>() {
         @Override
         public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-            user = FirebaseAuth.getInstance().getCurrentUser();
+            loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
             if (error != null) return;
             if (value != null) {
-                //Log.d(TAG, "onEvent: " + value.get("connectedSession"));
                 mList.clear();
                 List<String> array = (List<String>) value.get("connectedSession");
                 try {
@@ -859,17 +862,39 @@ public class MainActivity extends AppCompatActivity {
 
     // allow users to delete the session
     private void deleteSession(int position) {
-        user = FirebaseAuth.getInstance().getCurrentUser();
+        loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
         //db.collection("users").document(user.getUid()).collection("SessionInfo").addSnapshotListener(eventListener);
         //db.collection("users").document(user.getUid()).d
         String toBeDeleted = connectedList.get(position);
         // if the user deletes the host session then host gets to start session again
-        if (toBeDeleted.equals(user.getUid())){
+        if (toBeDeleted.equals(loggedInUser.getUid())){
             newSession.setVisibility(View.VISIBLE);
         }
         Map<String, Object> session = new HashMap<>();
         session.put("connectedSession", FieldValue.delete());
-        db.collection("users").document(user.getUid()).update("connectedSession", FieldValue.arrayRemove(toBeDeleted));
+        db.collection("users").document(loggedInUser.getUid()).update("connectedSession", FieldValue.arrayRemove(toBeDeleted));
+    }
+
+    private void listenForAddedSessions() {
+            db.collection("users").document(loggedInUser.getUid()).addSnapshotListener((value, error) -> {
+                if (value != null) {
+                    List<String> data = (List<String>) value.get("connectedSession");
+                    if (data != null) {
+                        for (String s : data) {
+                            Session session = new Session();
+                            session.mSessionName = s;
+                            if (!mList.contains(session)) {
+                                mList.add(session);
+                                connectedList.add(s);
+                                mAdapter.notifyItemChanged(mList.size());
+                                binding.joinedSessionRv.smoothScrollToPosition(mList.size() - 1);
+                                binding.joinedSessionRv.setVisibility(View.VISIBLE);
+                            }
+
+                        }
+                    }
+                }
+            });
     }
 
     // disconnect from host if the host has set allowjoins to false
@@ -895,8 +920,8 @@ public class MainActivity extends AppCompatActivity {
 
     // hide a start session button if logged in user is already hosting a session
     private void checkSessionName(){
-        user = FirebaseAuth.getInstance().getCurrentUser();
-        db.collection("users").document(user.getUid()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
+        db.collection("users").document(loggedInUser.getUid()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
                 List<String> array = (List<String>) value.get("connectedSession");
@@ -905,7 +930,7 @@ public class MainActivity extends AppCompatActivity {
                 if (array != null) {
                     for (String s : array) {
                         try {
-                            if (s.equals(user.getUid())){
+                            if (s.equals(loggedInUser.getUid())){
                                 Log.d(TAG, "onEvent: found match => " + s);
                                 newSession.setVisibility(View.GONE);
                             }
@@ -920,11 +945,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void sendToFirestoreDB(String token) {
 
-        user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user != null) {
+        loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (loggedInUser != null) {
             Map<String, Object> tokenData = new HashMap<>();
             tokenData.put("token", token);
-            db.collection("users").document(user.getUid()).set(tokenData, SetOptions.merge());
+            db.collection("users").document(loggedInUser.getUid()).set(tokenData, SetOptions.merge());
         }
     }
 

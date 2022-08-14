@@ -76,22 +76,21 @@ public class StartSessionActivity extends AppCompatActivity {
         });
 
         // confirm opens new activity
-        btn_confirm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mSessionName.getText().length() == 0){
-                    Toast.makeText(StartSessionActivity.this,"Please enter session name", Toast.LENGTH_SHORT).show();
-                    onBackPressed();
-                } else {
-                    String sessionName = mSessionName.getText().toString();
-                    addSessionName(sessionName);
-                    Log.d(TAG, "onClick: " + sessionName);
-                    //mSessionName.setText("");
-                    Intent intent = new Intent(StartSessionActivity.this, SessionAdminActivity.class);
-                    intent.putExtra("session_id", user.getUid());
-                    intent.putExtra("session_name", sessionName);
-                    startActivity(intent);
-                }
+        btn_confirm.setOnClickListener(v -> {
+            if (mSessionName.getText().length() == 0){
+                Toast.makeText(StartSessionActivity.this,"Please enter session name", Toast.LENGTH_SHORT).show();
+                onBackPressed();
+            } else {
+                String sessionName = mSessionName.getText().toString();
+                addSessionName(sessionName);
+                Log.d(TAG, "onClick: " + sessionName);
+                //mSessionName.setText("");
+                Intent intent = new Intent(StartSessionActivity.this, SessionAdminActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtra("session_id", user.getUid());
+                intent.putExtra("session_name", sessionName);
+                startActivity(intent);
+                this.finish();
             }
         });
 

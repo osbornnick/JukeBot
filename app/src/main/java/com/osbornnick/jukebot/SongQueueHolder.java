@@ -19,6 +19,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Transaction;
 
 public class SongQueueHolder extends SongItemHolder {
+    Song itemSong;
     public TextView songTitle, songArtist, suggestedBy, score;
     public ImageButton voteUp, voteDown, delete;
     public boolean admin = true;
@@ -69,7 +70,6 @@ public class SongQueueHolder extends SongItemHolder {
                 songRef.update("deleted", true);
             });
         }
-        Log.e("onCreate Queue Holder", songToBind.toString());
     }
 
     public void upVoteHandler(View view) {
@@ -92,5 +92,18 @@ public class SongQueueHolder extends SongItemHolder {
                 })
                 .addOnSuccessListener(Void -> Log.d("SongQueueHolder", "score updated!"))
                 .addOnFailureListener(e -> Log.e("SongQueueHolder", "Failure", e));
+    }
+
+    public void updateButtons() {
+        if (itemSong.voted == null) {
+            voteUp.getDrawable().setColorFilter(null);
+            voteDown.getDrawable().setColorFilter(null);
+        } else if (itemSong.voted.equals("UP")) {
+            voteUp.getDrawable().setColorFilter(Color.parseColor("green"), PorterDuff.Mode.MULTIPLY);
+            voteDown.getDrawable().setColorFilter(null);
+        } else if (itemSong.voted.equals("DOWN")) {
+            voteDown.getDrawable().setColorFilter(Color.parseColor("red"), PorterDuff.Mode.MULTIPLY);
+            voteUp.getDrawable().setColorFilter(null);
+        }
     }
 }
